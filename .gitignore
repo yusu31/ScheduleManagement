@@ -1,0 +1,43 @@
+# ==========================================
+# Ruby / Rails
+# ==========================================
+backend/.bundle/
+backend/log/
+backend/tmp/
+backend/storage/
+backend/public/assets
+backend/*.log
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/config/master.key
+backend/config/credentials/*.key
+
+# ==========================================
+# Node.js / Next.js
+# ==========================================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# ==========================================
+# Docker
+# ==========================================
+mysql-data/
+
+# ==========================================
+# OS
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# エディタ
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
