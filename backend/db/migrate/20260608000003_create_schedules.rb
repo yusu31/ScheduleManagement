@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+class CreateSchedules < ActiveRecord::Migration[7.2]
+  def change
+    create_table :schedules do |t|
+      t.references :user,  null: false, foreign_key: true
+      t.references :event, null: false, foreign_key: true
+
+      t.timestamps
+    end
+
+    add_index :schedules, %i[user_id event_id], unique: true
+  end
+end
