@@ -3,6 +3,13 @@
 module Api
   module V1
     class SchedulesController < BaseController
+      def index
+        schedules = current_user.schedules.includes(:event)
+        render json: schedules.map { |s|
+          s.event.as_json.merge(schedule_id: s.id)
+        }
+      end
+
       def create
         schedule = current_user.schedules.build(event_id: params[:event_id])
         schedule.save!

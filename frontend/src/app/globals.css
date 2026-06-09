@@ -126,6 +126,35 @@ body {
   padding: 0 6px !important;
 }
 
+/* ─── スクロールバー（△矢印ボタンを非表示） ─────────────── */
+.fc-custom .fc-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(95,139,139,0.35) transparent;
+}
+.fc-custom .fc-scroller::-webkit-scrollbar {
+  width: 5px;
+}
+.fc-custom .fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fc-custom .fc-scroller::-webkit-scrollbar-thumb {
+  background: rgba(95,139,139,0.35);
+  border-radius: 4px;
+}
+/* Windowsの△▼スクロールバーボタンを完全非表示 */
+.fc-custom .fc-scroller::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+/* 参加予定済みイベントのスタイル */
+.fc-custom .fc-event-scheduled {
+  opacity: 0.85;
+  outline: 2px solid rgba(255,255,255,0.5);
+  outline-offset: -1px;
+}
+
 /* ─── 週・日ビュー（timeGrid）のスタイル ────────────────── */
 
 /* 時刻ラベル */
