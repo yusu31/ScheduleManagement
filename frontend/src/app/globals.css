@@ -24,4 +24,12 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  /* ピル型フィルターの横スクロールでスクロールバーを非表示 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
