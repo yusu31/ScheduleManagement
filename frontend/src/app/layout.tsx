@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -37,6 +38,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
         </AuthProvider>
       </body>
     </html>
