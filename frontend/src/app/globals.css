@@ -20,6 +20,99 @@ body {
   min-height: 100vh;
 }
 
+/* ─── FullCalendar カスタムスタイル ─────────────────────────── */
+.fc-custom .fc-toolbar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c3333;
+}
+
+.fc-custom .fc-button {
+  background: #5f8b8b !important;
+  border-color: #5f8b8b !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  padding: 4px 12px !important;
+  box-shadow: none !important;
+}
+
+.fc-custom .fc-button:hover {
+  background: #4a7070 !important;
+  border-color: #4a7070 !important;
+}
+
+.fc-custom .fc-button-active,
+.fc-custom .fc-button:focus {
+  background: #4a7070 !important;
+  border-color: #4a7070 !important;
+  box-shadow: none !important;
+}
+
+.fc-custom .fc-col-header-cell-cushion {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7a8a8a;
+  text-decoration: none;
+}
+
+.fc-custom .fc-daygrid-day-number {
+  font-size: 13px;
+  color: #2c3333;
+  text-decoration: none;
+}
+
+.fc-custom .fc-day-today {
+  background: rgba(95, 139, 139, 0.08) !important;
+}
+
+.fc-custom .fc-day-today .fc-daygrid-day-number {
+  background: #5f8b8b;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fc-custom .fc-daygrid-event {
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 1px 5px !important;
+  cursor: pointer;
+}
+
+.fc-custom .fc-event-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc-custom .fc-more-link {
+  font-size: 11px;
+  color: #5f8b8b;
+  font-weight: 600;
+}
+
+.fc-custom table {
+  border-color: #dde6e4 !important;
+}
+
+.fc-custom .fc-scrollgrid {
+  border-radius: 12px;
+  overflow: hidden;
+  border-color: #dde6e4 !important;
+}
+
+.fc-custom td, .fc-custom th {
+  border-color: #dde6e4 !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
