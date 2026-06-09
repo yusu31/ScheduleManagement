@@ -144,6 +144,43 @@ export default function CalendarPage() {
   const { isLoggedIn } = useAuth()
   const calendarRef = useRef<FullCalendar>(null)
   const popupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const chipsScrollRef = useRef<HTMLDivElement>(null)
+  const chipsAnimRef = useRef<number | null>(null)
+  const [chipsFading, setChipsFading] = useState(true)
+
+  const handleChipsScroll = () => {
+    const el = chipsScrollRef.current
+    if (!el) return
+    setChipsFading(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  }
+
+  const handleChipsMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = chipsScrollRef.current
+    if (!el) return
+    const { left, width } = el.getBoundingClientRect()
+    const x = e.clientX - left
+    const EDGE = 64
+    const MAX = 5
+
+    if (chipsAnimRef.current) { cancelAnimationFrame(chipsAnimRef.current); chipsAnimRef.current = null }
+
+    const speed =
+      x > width - EDGE ? ((x - (width - EDGE)) / EDGE) * MAX :
+      x < EDGE          ? -((EDGE - x) / EDGE) * MAX :
+      0
+
+    if (speed !== 0) {
+      const tick = () => {
+        el.scrollLeft += speed
+        chipsAnimRef.current = requestAnimationFrame(tick)
+      }
+      chipsAnimRef.current = requestAnimationFrame(tick)
+    }
+  }
+
+  const handleChipsMouseLeave = () => {
+    if (chipsAnimRef.current) { cancelAnimationFrame(chipsAnimRef.current); chipsAnimRef.current = null }
+  }
 
   const [allEvents, setAllEvents] = useState<Event[]>([])
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
@@ -159,8 +196,14 @@ export default function CalendarPage() {
   const [popup, setPopup] = useState<PopupState | null>(null)
   const [addingId, setAddingId] = useState<string | null>(null)
   const [weekSuggest, setWeekSuggest] = useState<Event | null>(null)
-  const [emptyMsg] = useState(() => randomFrom(EMPTY_MESSAGES))
-  const [loadingMsg] = useState(() => randomFrom(LOADING_MESSAGES))
+  const [emptyMsg, setEmptyMsg] = useState(EMPTY_MESSAGES[0])
+  const [loadingMsg, setLoadingMsg] = useState(LOADING_MESSAGES[0])
+
+  // SSR後にランダム選択（サーバーとクライアントで値が一致しないとHydrationエラーになるため）
+  useEffect(() => {
+    setEmptyMsg(randomFrom(EMPTY_MESSAGES))
+    setLoadingMsg(randomFrom(LOADING_MESSAGES))
+  }, [])
 
   // ─── データ取得 ──────────────────────────────────────────────────
   useEffect(() => {
@@ -264,9 +307,24 @@ export default function CalendarPage() {
   const openPopup = (el: Element, event: { id: string; title: string; extendedProps: CalendarEvent['extendedProps'] }) => {
     if (popupTimerRef.current) clearTimeout(popupTimerRef.current)
     const rect = el.getBoundingClientRect()
-    const w = 300
-    const x = rect.right + 8 + w > window.innerWidth ? rect.left - w - 8 : rect.right + 8
-    const y = Math.min(rect.top, window.innerHeight - 400)
+    const POPUP_W = 300
+    const POPUP_H = 420
+    const SIDEBAR_W = 288
+
+    // 右に出せるか → 右、左に出せるか → 左、どちらも無理 → コンテンツ中央
+    let x: number
+    if (rect.right + 8 + POPUP_W <= window.innerWidth) {
+      x = rect.right + 8
+    } else if (rect.left - 8 - POPUP_W >= SIDEBAR_W) {
+      x = rect.left - 8 - POPUP_W
+    } else {
+      x = SIDEBAR_W + (window.innerWidth - SIDEBAR_W - POPUP_W) / 2
+    }
+    // サイドバーに被らないようクランプ
+    x = Math.max(SIDEBAR_W + 8, Math.min(window.innerWidth - POPUP_W - 8, x))
+
+    // y: クリックした行の近く、画面外に出ないようクランプ
+    const y = Math.max(80, Math.min(rect.top, window.innerHeight - POPUP_H))
     setPopup({
       id: event.id,
       title: event.title,
@@ -354,27 +412,30 @@ export default function CalendarPage() {
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-app-text">カレンダー</h1>
-          <p className="text-[13px] text-app-sub mt-0.5">
-            イベントをカレンダーで確認・予定に追加できます
-          </p>
         </div>
 
         {/* ビュー切替タブ */}
         <div className="flex items-center bg-white/60 backdrop-blur-sm border border-white/60 rounded-xl p-1 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           {VIEW_OPTIONS.map(({ key, label }) => (
-            <button
+            <motion.button
               key={key}
               onClick={() => changeView(key)}
               className={`
-                px-3.5 py-1.5 rounded-lg text-[13px] font-semibold transition-all duration-150
-                ${currentView === key
-                  ? 'bg-primary text-white shadow-[0_2px_6px_rgba(95,139,139,0.35)]'
-                  : 'text-app-sub hover:text-app-text'
-                }
+                relative px-3.5 py-1.5 rounded-lg text-[13px] font-semibold
+                transition-colors duration-150 outline-none
+                ${currentView === key ? 'text-white' : 'text-app-sub hover:text-app-text'}
               `}
+              whileTap={{ scale: 0.94 }}
             >
               {label}
-            </button>
+              {currentView === key && (
+                <motion.span
+                  layoutId="cal-view-active"
+                  className="absolute inset-0 rounded-lg bg-primary -z-10"
+                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                />
+              )}
+            </motion.button>
           ))}
         </div>
       </div>
@@ -383,7 +444,6 @@ export default function CalendarPage() {
       <div className="mb-4 flex flex-col gap-2">
         {/* エリアフィルター（ドロップダウン）+ カテゴリラベル */}
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-app-sub font-medium shrink-0">エリア</span>
           <div className="relative">
             <select
               value={selectedArea}
@@ -401,34 +461,47 @@ export default function CalendarPage() {
             </select>
             <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-app-sub pointer-events-none" />
           </div>
-          <span className="text-[11px] text-app-sub font-medium shrink-0 ml-1">カテゴリ</span>
         </div>
 
         {/* カテゴリチップ */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {ALL_CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`
-                shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold
-                border transition-all duration-150 whitespace-nowrap
-                ${selectedCategory === cat && cat === 'すべて'
-                  ? 'bg-primary text-white border-primary shadow-[0_2px_6px_rgba(95,139,139,0.3)]'
-                  : selectedCategory === cat
-                  ? 'text-white border-transparent shadow-[0_2px_6px_rgba(0,0,0,0.15)]'
-                  : 'bg-white/60 text-app-sub border-white/60 hover:text-app-text hover:bg-white/80'
-                }
-              `}
-              style={
-                selectedCategory === cat && cat !== 'すべて'
-                  ? { backgroundColor: CATEGORY_COLORS[cat] ?? DEFAULT_COLOR, borderColor: 'transparent' }
-                  : undefined
-              }
-            >
-              {cat}
-            </button>
-          ))}
+        {/* スクロールコンテナ: 右端グラデーションフェード（Linear/Vercel式） */}
+        <div
+          ref={chipsScrollRef}
+          onScroll={handleChipsScroll}
+          onMouseMove={handleChipsMouseMove}
+          onMouseLeave={handleChipsMouseLeave}
+          className="overflow-x-auto scrollbar-hide pb-1"
+          style={chipsFading ? {
+            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+          } : undefined}
+        >
+          <div className="flex gap-2 w-max pr-8">
+            {ALL_CATEGORIES.map(cat => (
+              <motion.button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`
+                  relative shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-semibold
+                  transition-colors duration-150 outline-none whitespace-nowrap
+                  ${selectedCategory === cat
+                    ? 'text-white'
+                    : 'bg-white/60 border border-white/60 text-app-sub hover:text-app-text hover:bg-white/80'
+                  }
+                `}
+                whileTap={{ scale: 0.94 }}
+              >
+                {cat}
+                {selectedCategory === cat && (
+                  <motion.span
+                    layoutId="cal-cat-active"
+                    className="absolute inset-0 rounded-full bg-primary -z-10"
+                    transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
         </div>
       </div>
 
