@@ -1,0 +1,44 @@
+import type { Metadata } from 'next'
+import localFont from 'next/font/local'
+import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
+
+const geistSans = localFont({
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
+})
+const geistMono = localFont({
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
+})
+
+export const metadata: Metadata = {
+  title: '福島イベントナビ',
+  description: '福島県内のイベント情報をひと目で。郡山・いわき・福島市など地域のイベントを検索・カレンダーで管理できます。',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="ja">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+      >
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
+      </body>
+    </html>
+  )
+}
