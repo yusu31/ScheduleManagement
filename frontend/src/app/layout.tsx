@@ -4,9 +4,7 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
-import dynamic from 'next/dynamic'
-
-const Sidebar = dynamic(() => import('@/components/layout/Sidebar'), { ssr: false })
+import Sidebar from '@/components/layout/Sidebar'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',

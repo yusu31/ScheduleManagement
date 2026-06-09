@@ -339,8 +339,8 @@ export default function CalendarPage() {
     })
   }
 
-  const handleEventClick = (arg: EventClickArg) => openPopup(arg.el, arg.event)
-  const handleMouseEnter = (arg: EventHoveringArg) => openPopup(arg.el, arg.event)
+  const handleEventClick = (arg: EventClickArg) => openPopup(arg.el, arg.event as unknown as Parameters<typeof openPopup>[1])
+  const handleMouseEnter = (arg: EventHoveringArg) => openPopup(arg.el, arg.event as unknown as Parameters<typeof openPopup>[1])
   const handleMouseLeave = () => {
     popupTimerRef.current = setTimeout(() => setPopup(null), 150)
   }
