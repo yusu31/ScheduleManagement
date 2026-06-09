@@ -36,6 +36,12 @@ gem "devise_token_auth"
 # Load environment variables from .env
 gem "dotenv-rails"
 
+# HTTP client for external API requests
+gem "faraday"
+
+# Cron job scheduling (for production)
+gem "whenever", require: false
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
