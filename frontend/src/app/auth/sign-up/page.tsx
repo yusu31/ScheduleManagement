@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Eye, EyeOff, Sprout } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function SignUpPage() {
@@ -55,8 +56,8 @@ export default function SignUpPage() {
       <div className="w-full max-w-[400px]">
         {/* ロゴ */}
         <div className="text-center mb-8">
-          <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/15 text-2xl mb-3">
-            🌿
+          <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/15 mb-3">
+            <Sprout size={24} className="text-primary" />
           </span>
           <h1 className="text-[22px] font-bold text-app-text">新規登録</h1>
           <p className="text-[13px] text-app-sub mt-1">Fukushima Event Finder に参加しよう</p>
@@ -142,9 +143,9 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-app-sub hover:text-app-text text-[15px]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-app-sub hover:text-app-text"
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
