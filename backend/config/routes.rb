@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :events, only: %i[index show]
       resources :favorites, only: %i[create destroy]
-      resources :schedules, only: %i[create destroy]
+      resources :schedules, only: %i[index create destroy]
     end
   end
 

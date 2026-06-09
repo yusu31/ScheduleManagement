@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import apiClient from '@/lib/axios'
 import EventCard from '@/components/events/EventCard'
@@ -37,32 +37,68 @@ type PillProps = {
   label: string
   active: boolean
   onClick: () => void
+  layoutIdPrefix: string
 }
-function Pill({ label, active, onClick }: PillProps) {
+function Pill({ label, active, onClick, layoutIdPrefix }: PillProps) {
   return (
     <motion.button
       onClick={onClick}
       className={`
-        relative flex-shrink-0 px-4 py-1.5 rounded-full text-[13px] font-medium
-        transition-colors duration-150 outline-none
+        relative flex-shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-semibold
+        transition-colors duration-150 outline-none whitespace-nowrap
         ${active
-          ? 'bg-app-text text-white'
-          : 'bg-white border border-app-border text-app-sub hover:border-primary hover:text-primary'
+          ? 'text-white'
+          : 'bg-white/60 border border-white/60 text-app-sub hover:text-app-text hover:bg-white/80'
         }
       `}
       whileTap={{ scale: 0.94 }}
     >
       {label}
-      {/* アクティブ時の下線アニメーション */}
       {active && (
         <motion.span
-          layoutId="pill-active"
-          className="absolute inset-0 rounded-full bg-app-text -z-10"
+          layoutId={`${layoutIdPrefix}-active`}
+          className="absolute inset-0 rounded-full bg-primary -z-10"
           transition={{ type: 'spring', stiffness: 500, damping: 38 }}
         />
       )}
     </motion.button>
   )
+}
+
+// ─── エッジスクロールフック ─────────────────────────────────────────
+function useChipScroll() {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const animRef = useRef<number | null>(null)
+  const [fading, setFading] = useState(true)
+
+  const onScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    setFading(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  }
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = scrollRef.current
+    if (!el) return
+    const { left, width } = el.getBoundingClientRect()
+    const x = e.clientX - left
+    const EDGE = 64
+    const MAX = 5
+    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null }
+    const speed = x > width - EDGE ? ((x - (width - EDGE)) / EDGE) * MAX
+                : x < EDGE          ? -((EDGE - x) / EDGE) * MAX
+                : 0
+    if (speed !== 0) {
+      const tick = () => { el.scrollLeft += speed; animRef.current = requestAnimationFrame(tick) }
+      animRef.current = requestAnimationFrame(tick)
+    }
+  }
+
+  const onMouseLeave = () => {
+    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null }
+  }
+
+  return { scrollRef, fading, onScroll, onMouseMove, onMouseLeave }
 }
 
 // ─── グリッドアニメーション設定 ────────────────────────────────────
@@ -84,6 +120,9 @@ export default function EventsPage() {
   const [search,    setSearch]    = useState('')
   const [area,      setArea]      = useState('すべての地域')
   const [category,  setCategory]  = useState('すべて')
+
+  const catChips  = useChipScroll()
+  const areaChips = useChipScroll()
 
   useEffect(() => {
     apiClient.get('/api/v1/events')
@@ -143,28 +182,44 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* カテゴリピル（YouTube・Airbnb 方式：横スクロール可） */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide px-8 pb-3">
-          {CATEGORIES.map(cat => (
-            <Pill
-              key={cat}
-              label={cat}
-              active={category === cat}
-              onClick={() => setCategory(cat)}
-            />
-          ))}
+        {/* カテゴリピル */}
+        <div
+          ref={catChips.scrollRef}
+          onScroll={catChips.onScroll}
+          onMouseMove={catChips.onMouseMove}
+          onMouseLeave={catChips.onMouseLeave}
+          className="overflow-x-auto scrollbar-hide pb-3"
+          style={catChips.fading ? {
+            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+          } : undefined}
+        >
+          <div className="flex gap-2 w-max px-8 pr-16">
+            {CATEGORIES.map(cat => (
+              <Pill key={cat} label={cat} active={category === cat}
+                onClick={() => setCategory(cat)} layoutIdPrefix="cat" />
+            ))}
+          </div>
         </div>
 
         {/* 地域ピル */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide px-8 pb-3.5">
-          {AREAS.map(a => (
-            <Pill
-              key={a}
-              label={a}
-              active={area === a}
-              onClick={() => setArea(a)}
-            />
-          ))}
+        <div
+          ref={areaChips.scrollRef}
+          onScroll={areaChips.onScroll}
+          onMouseMove={areaChips.onMouseMove}
+          onMouseLeave={areaChips.onMouseLeave}
+          className="overflow-x-auto scrollbar-hide pb-3.5"
+          style={areaChips.fading ? {
+            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+          } : undefined}
+        >
+          <div className="flex gap-2 w-max px-8 pr-16">
+            {AREAS.map(a => (
+              <Pill key={a} label={a} active={area === a}
+                onClick={() => setArea(a)} layoutIdPrefix="area" />
+            ))}
+          </div>
         </div>
       </div>
 
