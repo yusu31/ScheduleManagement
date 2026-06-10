@@ -11,6 +11,10 @@ class Event < ApplicationRecord
     テクノロジー 教育 祭り・イベント その他
   ].freeze
 
+  TAGS = %w[子連れOK 無料 屋外 室内].freeze
+
+  attribute :tags, :json, default: []
+
   has_many :favorites, dependent: :destroy
   has_many :schedules, dependent: :destroy
   has_many :visit_records, dependent: :destroy

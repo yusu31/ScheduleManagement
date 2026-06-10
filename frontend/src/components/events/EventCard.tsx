@@ -32,6 +32,13 @@ const CATEGORY_STYLES: Record<string, { gradient: string; text: string; Icon: Lu
 }
 const DEFAULT_STYLE = { gradient: 'from-[#5f8b8b] to-[#4a7070]', text: 'text-white', Icon: Tag }
 
+const TAG_BADGE_STYLES: Record<string, string> = {
+  '子連れOK': 'bg-cyan-50 text-cyan-700 border-cyan-200',
+  '無料':     'bg-emerald-50 text-emerald-700 border-emerald-200',
+  '室内':     'bg-slate-50 text-slate-600 border-slate-200',
+  '屋外':     'bg-green-50 text-green-700 border-green-200',
+}
+
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('ja-JP', {
     month: 'short', day: 'numeric', weekday: 'short',
@@ -180,7 +187,21 @@ export default function EventCard({ event }: Props) {
             )}
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
+          {/* タグバッジ */}
+          {(event.tags ?? []).length > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-1">
+              {(event.tags ?? []).map(tag => (
+                <span
+                  key={tag}
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${TAG_BADGE_STYLES[tag] ?? 'bg-gray-50 text-gray-600 border-gray-200'}`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-2.5 flex items-center justify-between">
             <span className="text-[12px] font-semibold text-primary group-hover:translate-x-0.5 transition-transform duration-150">
               詳細を見る →
             </span>

@@ -32,6 +32,12 @@ class ConnpassFetcherService
     "教育" => %w[勉強会 セミナー 講座 ワークショップ 学習]
   }.freeze
 
+  TAG_RULES = {
+    "子連れOK" => %w[子ども 子供 ファミリー 家族 親子 キッズ],
+    "無料" => %w[無料 free],
+    "屋外" => %w[公園 野外 屋外 アウトドア キャンプ]
+  }.freeze
+
   def call
     saved_count = 0
     skipped_count = 0
@@ -73,18 +79,20 @@ class ConnpassFetcherService
     event = Event.find_or_initialize_by(connpass_id: data["event_id"])
     return false unless event.new_record?
 
+    category = category_from(data)
     event.assign_attributes(
       title: data["title"],
       description: data["catch"].presence || data["description"],
       location: data["place"],
       area: area_from(data),
-      category: category_from(data),
+      category: category,
       start_at: data["started_at"],
       end_at: data["ended_at"],
       capacity: data["limit"],
       event_url: data["event_url"],
       image_url: data["image_url"],
-      source: "connpass"
+      source: "connpass",
+      tags: tags_from(data, category)
     )
     event.save
   end
@@ -103,5 +111,17 @@ class ConnpassFetcherService
       return category if keywords.any? { |kw| text.include?(kw) }
     end
     "テクノロジー"
+  end
+
+  def tags_from(data, category)
+    text = [ data["title"], data["catch"], data["description"] ].compact.join(" ")
+    tags = []
+
+    TAG_RULES.each do |tag, keywords|
+      tags << tag if keywords.any? { |kw| text.downcase.include?(kw.downcase) }
+    end
+    tags << "子連れOK" if category == "ファミリー" && !tags.include?("子連れOK")
+    tags << (tags.include?("屋外") ? nil : "室内")
+    tags.compact.uniq
   end
 end

@@ -24,6 +24,7 @@ const CATEGORIES = [
   '自然・アウトドア', '食・グルメ', '文化・伝統', 'ファミリー',
   '教育', '祭り・イベント', 'アート', 'その他',
 ]
+const TAGS = ['子連れOK', '無料', '室内', '屋外']
 
 // ─── スケルトンカード（Spotify・Vercel 方式）─────────────────────────
 function SkeletonCard() {
@@ -128,9 +129,11 @@ export default function EventsPage() {
   const [search,    setSearch]    = useState('')
   const [area,      setArea]      = useState('すべての地域')
   const [category,  setCategory]  = useState('すべて')
+  const [activeTag, setActiveTag] = useState<string | null>(null)
 
   const catChips  = useChipScroll()
   const areaChips = useChipScroll()
+  const tagChips  = useChipScroll()
 
   useEffect(() => {
     apiClient.get('/api/v1/events')
@@ -143,6 +146,7 @@ export default function EventsPage() {
     let result = events
     if (area !== 'すべての地域') result = result.filter(e => e.area === area)
     if (category !== 'すべて')   result = result.filter(e => e.category === category)
+    if (activeTag)               result = result.filter(e => (e.tags ?? []).includes(activeTag))
     if (search.trim()) {
       const q = search.trim().toLowerCase()
       result = result.filter(e =>
@@ -152,7 +156,7 @@ export default function EventsPage() {
       )
     }
     return result
-  }, [events, area, category, search])
+  }, [events, area, category, activeTag, search])
 
   return (
     <div className="min-h-screen">
@@ -216,7 +220,7 @@ export default function EventsPage() {
           onScroll={areaChips.onScroll}
           onMouseMove={areaChips.onMouseMove}
           onMouseLeave={areaChips.onMouseLeave}
-          className="overflow-x-auto scrollbar-hide pb-3.5"
+          className="overflow-x-auto scrollbar-hide pb-3"
           style={areaChips.fading ? {
             maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
@@ -226,6 +230,28 @@ export default function EventsPage() {
             {AREAS.map(a => (
               <Pill key={a} label={a} active={area === a}
                 onClick={() => setArea(a)} layoutIdPrefix="area" />
+            ))}
+          </div>
+        </div>
+
+        {/* タグフィルター */}
+        <div
+          ref={tagChips.scrollRef}
+          onScroll={tagChips.onScroll}
+          onMouseMove={tagChips.onMouseMove}
+          onMouseLeave={tagChips.onMouseLeave}
+          className="overflow-x-auto scrollbar-hide pb-3.5"
+          style={tagChips.fading ? {
+            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
+          } : undefined}
+        >
+          <div className="flex gap-2 w-max px-8 pr-16 items-center">
+            <span className="text-[11px] font-semibold text-app-sub flex-shrink-0 mr-1">タグ</span>
+            {TAGS.map(tag => (
+              <Pill key={tag} label={tag} active={activeTag === tag}
+                onClick={() => setActiveTag(prev => prev === tag ? null : tag)}
+                layoutIdPrefix="tag" />
             ))}
           </div>
         </div>
@@ -265,7 +291,7 @@ export default function EventsPage() {
               // AnimatePresence でフィルター時の出入りをアニメーション
               // layout でフィルター後のカードが滑らかに再配置
               <motion.div
-                key={`${area}-${category}-${search}`}
+                key={`${area}-${category}-${activeTag ?? ''}-${search}`}
                 className="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-x-[28px] gap-y-[24px] py-6"
                 variants={gridVariants}
                 initial="hidden"

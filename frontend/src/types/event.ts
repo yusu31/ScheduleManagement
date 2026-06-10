@@ -12,6 +12,7 @@ export type Event = {
   image_url: string | null
   source: string
   connpass_id: number | null
+  tags: string[]
   created_at: string
   updated_at: string
 }
