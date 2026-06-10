@@ -4,7 +4,15 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import apiClient from '@/lib/axios'
 import EventCard from '@/components/events/EventCard'
+import RandomIllustration from '@/components/RandomIllustration'
 import { Event } from '@/types/event'
+
+const NO_RESULT_IMAGES = [
+  '/images/undraw_not-found_6bgl.svg',
+  '/images/undraw_searching_no1g.svg',
+  '/images/undraw_searching-everywhere_tffi.svg',
+  '/images/undraw_no-data_ig65.svg',
+]
 
 // ─── フィルター用定数 ───────────────────────────────────────────────
 const AREAS = [
@@ -238,12 +246,19 @@ export default function EventsPage() {
 
             {filtered.length === 0 ? (
               <motion.div
-                className="text-center py-24 text-app-sub"
+                className="flex flex-col items-center py-20 text-app-sub"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="text-[40px] mb-3">🔍</div>
-                <p className="text-[14px]">条件に合うイベントが見つかりませんでした</p>
+                <RandomIllustration
+                  srcs={NO_RESULT_IMAGES}
+                  alt="検索結果なし"
+                  width={220}
+                  height={180}
+                  className="mb-5 opacity-80"
+                />
+                <p className="text-[15px] font-semibold text-app-text">条件に合うイベントが見つかりませんでした</p>
+                <p className="text-[13px] mt-1">絞り込み条件を変えてみてください</p>
               </motion.div>
             ) : (
               // staggerChildren でカードを時間差フェードイン

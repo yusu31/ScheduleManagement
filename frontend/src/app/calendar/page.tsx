@@ -8,16 +8,28 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
+import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'
 import jaLocale from '@fullcalendar/core/locales/ja'
 import { EventClickArg, EventHoveringArg, DatesSetArg } from '@fullcalendar/core'
 import {
   ChevronLeft, ChevronRight, CalendarDays, MapPin, Clock,
   Users, ArrowRight, CalendarPlus, Check, Sparkles, ChevronDown,
+  Pencil, ExternalLink, Link,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import apiClient from '@/lib/axios'
 import { useAuth } from '@/contexts/AuthContext'
 import { Event } from '@/types/event'
+import { PersonalEvent } from '@/types/personalEvent'
+import PersonalEventModal from '@/components/calendar/PersonalEventModal'
+import RandomIllustration from '@/components/RandomIllustration'
+
+const NO_SCHEDULE_IMAGES = [
+  '/images/undraw_events-calendar_sudy.svg',
+  '/images/undraw_time-management_4ss6.svg',
+  '/images/undraw_date-night_x6ro.svg',
+  '/images/undraw_directions_oehw.svg',
+]
 
 // ─── カテゴリ設定 ─────────────────────────────────────────────────────
 const CATEGORY_COLORS: Record<string, string> = {
@@ -55,21 +67,21 @@ const AREAS = ['すべてのエリア', '郡山市', '本宮市', 'いわき市'
 
 // ─── ユーモアメッセージ ───────────────────────────────────────────────
 const POPUP_HINTS = [
-  '行ってみたら意外と楽しいかも 🎉',
-  '友達誘ってみては？ 👥',
-  '福島の魅力、再発見するチャンス ✨',
-  '空き時間にぴったりかも 😊',
-  '行かないと後悔するやつかも 🤔',
-  '今週末のネタになりそう 📸',
-  '参加すると視野が広がるよね 🌱',
+  '行ってみたら意外と楽しいかも。',
+  '友達も誘ってみては？',
+  '福島の魅力を再発見するチャンス。',
+  '空き時間にぴったりかも。',
+  '行かないと後悔するやつかも。',
+  '今週末のネタになりそう。',
+  '参加すると視野が広がるよね。',
 ]
 
 const EMPTY_MESSAGES = [
-  'この期間は福島、静かです… 🍵 のんびりするのもアリかも',
-  'イベントなし！これはむしろチャンス。自分だけの贅沢な時間を 🌿',
-  'この期間は予定なし。積ん読消化のチャンスかも 📚',
-  'イベントゼロ！道の駅めぐりとかどうです？🚗',
-  '静かな期間… でも自然の中のお散歩もいいですよ 🍃',
+  'この期間は福島、静かです。のんびりするのもアリかも。',
+  'イベントなし。これはむしろチャンス。自分だけの贅沢な時間を。',
+  'この期間は予定なし。積ん読消化のチャンスかも。',
+  'イベントゼロ。道の駅めぐりとかどうです？',
+  '静かな期間。でも自然の中のお散歩もいいですよ。',
 ]
 
 function randomFrom<T>(arr: T[]): T {
@@ -101,7 +113,11 @@ const VIEW_OPTIONS: { key: ViewKey; label: string }[] = [
 
 type PopupState = {
   id: string
+  type: 'event' | 'personal'
   title: string
+  x: number
+  y: number
+  // イベント用
   category: string
   location?: string
   start_at: string
@@ -109,8 +125,12 @@ type PopupState = {
   capacity?: number
   image_url?: string
   hint: string
-  x: number
-  y: number
+  // マイ予定用
+  event_date?: string
+  start_time?: string
+  end_time?: string
+  memo?: string
+  url?: string
 }
 
 type CalendarEvent = {
@@ -123,6 +143,7 @@ type CalendarEvent = {
   textColor: string
   classNames?: string[]
   extendedProps: {
+    type: 'event' | 'personal'
     category: string
     location?: string
     start_at: string
@@ -133,9 +154,9 @@ type CalendarEvent = {
 }
 
 const LOADING_MESSAGES = [
-  'イベントを福島から召喚中... 🦅',
-  '郡山・いわき・本宮を探索中... 🗺️',
-  '今月の楽しい予定を集めています... 🌸',
+  'イベントを読み込み中...',
+  '郡山・いわき・本宮を探索中...',
+  '今月の予定を集めています...',
 ]
 
 // ─── メインコンポーネント ─────────────────────────────────────────────
@@ -186,6 +207,10 @@ export default function CalendarPage() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
   const [scheduledEventIds, setScheduledEventIds] = useState<Set<number>>(new Set())
   const [scheduleIdMap, setScheduleIdMap] = useState<Map<number, number>>(new Map())
+  const [personalEvents, setPersonalEvents] = useState<PersonalEvent[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalDate, setModalDate] = useState<string | null>(null)
+  const [editingPersonalEvent, setEditingPersonalEvent] = useState<PersonalEvent | null>(null)
 
   const [selectedCategory, setSelectedCategory] = useState('すべて')
   const [selectedArea, setSelectedArea] = useState('すべてのエリア')
@@ -209,9 +234,10 @@ export default function CalendarPage() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [evRes, schRes] = await Promise.allSettled([
+        const [evRes, schRes, peRes] = await Promise.allSettled([
           apiClient.get('/api/v1/events'),
           apiClient.get('/api/v1/schedules').catch(() => ({ data: [] })),
+          apiClient.get('/api/v1/personal_events').catch(() => ({ data: [] })),
         ])
         const events: Event[] = evRes.status === 'fulfilled' ? evRes.value.data : []
         setAllEvents(events)
@@ -219,6 +245,9 @@ export default function CalendarPage() {
           const sch = schRes.value.data as (Event & { schedule_id: number })[]
           setScheduledEventIds(new Set(sch.map(s => s.id)))
           setScheduleIdMap(new Map(sch.map(s => [s.id, s.schedule_id])))
+        }
+        if (peRes.status === 'fulfilled') {
+          setPersonalEvents(peRes.value.data as PersonalEvent[])
         }
       } finally {
         setIsLoading(false)
@@ -230,34 +259,64 @@ export default function CalendarPage() {
   // ─── カレンダーイベント構築 ──────────────────────────────────────
   const buildCalendarEvents = useCallback((
     events: Event[], category: string, area: string, scheduledIds: Set<number>,
-  ): CalendarEvent[] => events
-    .filter(ev => category === 'すべて' || ev.category === category)
-    .filter(ev => area === 'すべてのエリア' || ev.area === area)
-    .map(ev => {
-      const isScheduled = scheduledIds.has(ev.id)
+    personal: PersonalEvent[],
+  ): CalendarEvent[] => {
+    const connpassEvents: CalendarEvent[] = events
+      .filter(ev => category === 'すべて' || ev.category === category)
+      .filter(ev => area === 'すべてのエリア' || ev.area === area)
+      .map(ev => {
+        const isScheduled = scheduledIds.has(ev.id)
+        return {
+          id: String(ev.id),
+          title: ev.title,
+          start: ev.start_at,
+          end: ev.end_at ?? undefined,
+          backgroundColor: isScheduled ? DEFAULT_COLOR : (CATEGORY_COLORS[ev.category] ?? DEFAULT_COLOR),
+          borderColor: isScheduled ? 'rgba(255,255,255,0.4)' : 'transparent',
+          textColor: '#ffffff',
+          classNames: isScheduled ? ['fc-event-scheduled'] : [],
+          extendedProps: {
+            type: 'event' as const,
+            category: ev.category,
+            location: ev.location ?? undefined,
+            start_at: ev.start_at,
+            end_at: ev.end_at ?? undefined,
+            capacity: ev.capacity ?? undefined,
+            image_url: ev.image_url ?? undefined,
+          },
+        }
+      })
+
+    const personalCalEvents: CalendarEvent[] = personal.map(pe => {
+      const startStr = pe.start_time
+        ? `${pe.event_date}T${pe.start_time.slice(0, 5)}`
+        : pe.event_date
+      const endStr = pe.end_time
+        ? `${pe.event_date}T${pe.end_time.slice(0, 5)}`
+        : undefined
       return {
-        id: String(ev.id),
-        title: ev.title,
-        start: ev.start_at,
-        end: ev.end_at ?? undefined,
-        backgroundColor: isScheduled ? DEFAULT_COLOR : (CATEGORY_COLORS[ev.category] ?? DEFAULT_COLOR),
-        borderColor: isScheduled ? 'rgba(255,255,255,0.4)' : 'transparent',
+        id: `personal-${pe.id}`,
+        title: pe.title,
+        start: startStr,
+        end: endStr,
+        backgroundColor: '#10b981',
+        borderColor: 'transparent',
         textColor: '#ffffff',
-        classNames: isScheduled ? ['fc-event-scheduled'] : [],
+        classNames: ['fc-event-personal'],
         extendedProps: {
-          category: ev.category,
-          location: ev.location ?? undefined,
-          start_at: ev.start_at,
-          end_at: ev.end_at ?? undefined,
-          capacity: ev.capacity ?? undefined,
-          image_url: ev.image_url ?? undefined,
+          type: 'personal' as const,
+          category: 'マイ予定',
+          start_at: startStr,
         },
       }
-    }), [])
+    })
+
+    return [...connpassEvents, ...personalCalEvents]
+  }, [])
 
   useEffect(() => {
-    setCalendarEvents(buildCalendarEvents(allEvents, selectedCategory, selectedArea, scheduledEventIds))
-  }, [allEvents, selectedCategory, selectedArea, scheduledEventIds, buildCalendarEvents])
+    setCalendarEvents(buildCalendarEvents(allEvents, selectedCategory, selectedArea, scheduledEventIds, personalEvents))
+  }, [allEvents, selectedCategory, selectedArea, scheduledEventIds, personalEvents, buildCalendarEvents])
 
   // ─── 週サジェスト（今週の参加予定がゼロの場合） ──────────────────
   useEffect(() => {
@@ -327,6 +386,7 @@ export default function CalendarPage() {
     const y = Math.max(80, Math.min(rect.top, window.innerHeight - POPUP_H))
     setPopup({
       id: event.id,
+      type: 'event',
       title: event.title,
       category: event.extendedProps.category,
       location: event.extendedProps.location,
@@ -339,10 +399,107 @@ export default function CalendarPage() {
     })
   }
 
-  const handleEventClick = (arg: EventClickArg) => openPopup(arg.el, arg.event as unknown as Parameters<typeof openPopup>[1])
-  const handleMouseEnter = (arg: EventHoveringArg) => openPopup(arg.el, arg.event as unknown as Parameters<typeof openPopup>[1])
+  const handleEventClick = (arg: EventClickArg) => {
+    if (arg.event.extendedProps.type === 'personal') {
+      const peId = Number(arg.event.id.replace('personal-', ''))
+      const pe = personalEvents.find(p => p.id === peId) ?? null
+      setEditingPersonalEvent(pe)
+      setModalDate(pe?.event_date ?? null)
+      setModalOpen(true)
+      return
+    }
+    openPopup(arg.el, arg.event as unknown as Parameters<typeof openPopup>[1])
+  }
+  const handleMouseEnter = (arg: EventHoveringArg) => {
+    if (arg.event.extendedProps.type === 'personal') {
+      const peId = Number(arg.event.id.replace('personal-', ''))
+      const pe = personalEvents.find(p => p.id === peId)
+      if (!pe) return
+      if (popupTimerRef.current) clearTimeout(popupTimerRef.current)
+      const rect = arg.el.getBoundingClientRect()
+      const POPUP_W = 280
+      const POPUP_H = 260
+      const SIDEBAR_W = 288
+      let x = rect.right + 8 + POPUP_W <= window.innerWidth
+        ? rect.right + 8
+        : rect.left - 8 - POPUP_W >= SIDEBAR_W
+          ? rect.left - 8 - POPUP_W
+          : SIDEBAR_W + (window.innerWidth - SIDEBAR_W - POPUP_W) / 2
+      x = Math.max(SIDEBAR_W + 8, Math.min(window.innerWidth - POPUP_W - 8, x))
+      const y = Math.max(80, Math.min(rect.top, window.innerHeight - POPUP_H))
+      setPopup({
+        id: `personal-${pe.id}`,
+        type: 'personal',
+        title: pe.title,
+        event_date: pe.event_date,
+        start_time: pe.start_time ?? undefined,
+        end_time: pe.end_time ?? undefined,
+        location: pe.location ?? undefined,
+        url: pe.url ?? undefined,
+        memo: pe.memo ?? undefined,
+        // イベント用フィールドはダミー値（使われない）
+        category: 'マイ予定',
+        start_at: pe.event_date,
+        hint: '',
+        x, y,
+      })
+      return
+    }
+    openPopup(arg.el, arg.event as unknown as Parameters<typeof openPopup>[1])
+  }
   const handleMouseLeave = () => {
     popupTimerRef.current = setTimeout(() => setPopup(null), 150)
+  }
+
+  // ─── 日付クリック（マイ予定の新規追加） ─────────────────────────
+  const handleDateClick = (arg: DateClickArg) => {
+    setEditingPersonalEvent(null)
+    setModalDate(arg.dateStr)
+    setModalOpen(true)
+  }
+
+  // ─── マイ予定 CRUD ───────────────────────────────────────────────
+  const handlePersonalEventSave = async ({
+    title, memo, date, startTime, endTime, location, url,
+  }: {
+    title: string; memo: string; date: string
+    startTime: string; endTime: string
+    location: string; url: string
+  }) => {
+    const payload = {
+      personal_event: {
+        title, memo, event_date: date,
+        start_time: startTime || null,
+        end_time: endTime || null,
+        location: location || null,
+        url: url || null,
+      },
+    }
+    try {
+      if (editingPersonalEvent) {
+        const res = await apiClient.put(`/api/v1/personal_events/${editingPersonalEvent.id}`, payload)
+        setPersonalEvents(prev => prev.map(pe => pe.id === editingPersonalEvent.id ? res.data : pe))
+        toast('マイ予定を更新しました', { style: { fontSize: '13px' } })
+      } else {
+        const res = await apiClient.post('/api/v1/personal_events', payload)
+        setPersonalEvents(prev => [...prev, res.data])
+        toast('マイ予定を追加しました', { style: { fontSize: '13px', fontWeight: '600' } })
+      }
+    } catch {
+      toast.error('保存に失敗しました。もう一度お試しください。')
+      throw new Error('save failed')
+    }
+  }
+
+  const handlePersonalEventDelete = async (id: number) => {
+    try {
+      await apiClient.delete(`/api/v1/personal_events/${id}`)
+      setPersonalEvents(prev => prev.filter(pe => pe.id !== id))
+      toast('マイ予定を削除しました', { style: { fontSize: '13px' } })
+    } catch {
+      toast.error('削除に失敗しました。もう一度お試しください。')
+      throw new Error('delete failed')
+    }
   }
 
   // ─── 参加予定に追加 / 解除 ──────────────────────────────────────
@@ -353,10 +510,10 @@ export default function CalendarPage() {
       const isAdded = scheduledEventIds.has(id)
       if (isAdded) {
         setScheduledEventIds(prev => { const s = new Set(prev); s.delete(id); return s })
-        toast('参加予定を解除しました', { icon: '📤', style: { fontSize: '13px' } })
+        toast('参加予定を解除しました', { style: { fontSize: '13px' } })
       } else {
         setScheduledEventIds(prev => new Set(prev).add(id))
-        toast('カレンダーに追加しました 🎉', { style: { fontSize: '13px', fontWeight: '600' } })
+        toast('カレンダーに追加しました', { style: { fontSize: '13px', fontWeight: '600' } })
       }
       return
     }
@@ -370,13 +527,13 @@ export default function CalendarPage() {
           await apiClient.delete(`/api/v1/schedules/${scheduleId}`)
           setScheduledEventIds(prev => { const s = new Set(prev); s.delete(id); return s })
           setScheduleIdMap(prev => { const m = new Map(prev); m.delete(id); return m })
-          toast('参加予定を解除しました', { icon: '📤', style: { fontSize: '13px' } })
+          toast('参加予定を解除しました', { style: { fontSize: '13px' } })
         }
       } else {
         const res = await apiClient.post('/api/v1/schedules', { event_id: id })
         setScheduledEventIds(prev => new Set(prev).add(id))
         setScheduleIdMap(prev => new Map(prev).set(id, res.data.id))
-        toast('カレンダーに追加しました 🎉', { style: { fontSize: '13px', fontWeight: '600' } })
+        toast('カレンダーに追加しました', { style: { fontSize: '13px', fontWeight: '600' } })
       }
     } catch {
       toast.error('操作に失敗しました')
@@ -397,7 +554,7 @@ export default function CalendarPage() {
             exit={{ opacity: 0, y: -8 }}
             className="mb-4 px-4 py-3 rounded-xl bg-primary/10 border border-primary/25 flex items-center gap-3"
           >
-            <span className="text-[20px] shrink-0">🎉</span>
+            <CalendarDays size={18} className="shrink-0 text-primary" />
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-bold text-primary">
                 今日は{todayEvents.length}件のイベントがあります！
@@ -561,13 +718,14 @@ export default function CalendarPage() {
           ) : (
             <FullCalendar
               ref={calendarRef}
-              plugins={[dayGridPlugin, timeGridPlugin, listPlugin]}
+              plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               locale={jaLocale}
               events={calendarEvents}
               eventClick={handleEventClick}
               eventMouseEnter={handleMouseEnter}
               eventMouseLeave={handleMouseLeave}
+              dateClick={handleDateClick}
               headerToolbar={false}
               datesSet={(arg: DatesSetArg) => {
                 setCurrentTitle(arg.view.title)
@@ -607,7 +765,7 @@ export default function CalendarPage() {
                   <Sparkles size={15} className="text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-bold text-app-text">今週まだ予定なし 🤔</p>
+                  <p className="text-[12px] font-bold text-app-text">今週まだ予定なし</p>
                   <p className="text-[11px] text-app-sub mt-0.5 mb-2">こんなイベントはどうですか？</p>
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0">
@@ -632,9 +790,16 @@ export default function CalendarPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-5 text-[13px] text-app-sub/60 italic bg-white/40 rounded-xl"
+              className="flex flex-col items-center py-6 bg-white/40 rounded-xl"
             >
-              {emptyMsg}
+              <RandomIllustration
+                srcs={NO_SCHEDULE_IMAGES}
+                alt="予定なし"
+                width={140}
+                height={110}
+                className="mb-3 opacity-70"
+              />
+              <p className="text-[13px] text-app-sub/80 italic text-center px-4">{emptyMsg}</p>
             </motion.div>
           )}
 
@@ -654,6 +819,16 @@ export default function CalendarPage() {
         </div>
       )}
 
+      {/* ─── マイ予定モーダル ─────────────────────────────────────── */}
+      <PersonalEventModal
+        isOpen={modalOpen}
+        selectedDate={modalDate}
+        existingEvent={editingPersonalEvent}
+        onClose={() => setModalOpen(false)}
+        onSave={handlePersonalEventSave}
+        onDelete={handlePersonalEventDelete}
+      />
+
       {/* ─── ホバー/クリックポップアップ ────────────────────────── */}
       <AnimatePresence>
         {popup && (
@@ -663,12 +838,72 @@ export default function CalendarPage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
-            style={{ position: 'fixed', left: popup.x, top: popup.y, zIndex: 9999, width: 300 }}
+            style={{ position: 'fixed', left: popup.x, top: popup.y, zIndex: 9999, width: popup.type === 'personal' ? 280 : 300 }}
             onMouseEnter={() => { if (popupTimerRef.current) clearTimeout(popupTimerRef.current) }}
             onMouseLeave={() => setPopup(null)}
             className="bg-white rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]"
           >
-            {/* ─ 上5分の3: 画像エリア ─ */}
+
+            {/* ─ マイ予定ポップアップ ─ */}
+            {popup.type === 'personal' ? (
+              <div>
+                <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-emerald-100 bg-emerald-50">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Pencil size={13} className="text-emerald-600 shrink-0" />
+                    <p className="text-[13px] font-bold text-emerald-800 truncate">{popup.title}</p>
+                  </div>
+                  <button onClick={() => setPopup(null)} className="shrink-0 w-5 h-5 rounded-full bg-emerald-200/60 flex items-center justify-center text-emerald-600 hover:bg-emerald-200 transition-colors ml-2">
+                    <span className="text-[9px] font-bold">✕</span>
+                  </button>
+                </div>
+                <div className="px-4 pt-3 pb-3.5 flex flex-col gap-2">
+                  {popup.event_date && (
+                    <div className="flex items-center gap-2 text-[11px] text-app-sub">
+                      <CalendarDays size={11} className="shrink-0 text-emerald-500" />
+                      <span>{new Date(popup.event_date).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })}</span>
+                      {(popup.start_time || popup.end_time) && (
+                        <span className="ml-1 text-emerald-600 font-medium">
+                          {popup.start_time ?? ''}{popup.end_time ? `〜${popup.end_time}` : ''}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {popup.location && (
+                    <div className="flex items-center gap-2 text-[11px] text-app-sub">
+                      <MapPin size={11} className="shrink-0 text-emerald-500" />
+                      <span className="line-clamp-1">{popup.location}</span>
+                    </div>
+                  )}
+                  {popup.url && (
+                    <div className="flex items-center gap-2 text-[11px] text-app-sub">
+                      <Link size={11} className="shrink-0 text-emerald-500" />
+                      <a href={popup.url} target="_blank" rel="noopener noreferrer" className="truncate text-emerald-600 hover:underline flex items-center gap-1">
+                        リンクを開く <ExternalLink size={9} />
+                      </a>
+                    </div>
+                  )}
+                  {popup.memo && (
+                    <p className="text-[11px] text-app-sub bg-gray-50 rounded-lg px-3 py-2 line-clamp-3 leading-relaxed">
+                      {popup.memo}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => {
+                      setPopup(null)
+                      const peId = Number(popup.id.replace('personal-', ''))
+                      const pe = personalEvents.find(p => p.id === peId) ?? null
+                      setEditingPersonalEvent(pe)
+                      setModalDate(pe?.event_date ?? null)
+                      setModalOpen(true)
+                    }}
+                    className="mt-1 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                  >
+                    <Pencil size={11} />編集する
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>{/* ─ 上5分の3: 画像エリア ─ */}
             <div className="relative w-full h-[172px] overflow-hidden">
               {popup.image_url ? (
                 <Image src={popup.image_url} alt={popup.title} fill className="object-cover" />
@@ -750,6 +985,8 @@ export default function CalendarPage() {
                 </button>
               </div>
             </div>
+            </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

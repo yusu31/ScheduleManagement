@@ -4,6 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import RandomIllustration from '@/components/RandomIllustration'
+
+const NO_FAV_IMAGES = [
+  '/images/undraw_love-is-in-the-air_n3mt.svg',
+  '/images/undraw_pure-love_cvaw.svg',
+  '/images/undraw_taken_mshk.svg',
+  '/images/undraw_quality-time_h2b9.svg',
+]
 import EventCard from '@/components/events/EventCard'
 import { useAuth } from '@/contexts/AuthContext'
 import { useFavorites } from '@/contexts/FavoritesContext'
@@ -68,11 +76,15 @@ export default function FavoritesPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="max-w-md mx-auto mt-20 text-center"
+          className="max-w-sm mx-auto mt-12 text-center"
         >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-            <Heart size={36} className="text-gray-300" />
-          </div>
+          <RandomIllustration
+            srcs={NO_FAV_IMAGES}
+            alt="お気に入りなし"
+            width={260}
+            height={200}
+            className="mx-auto mb-6 opacity-90"
+          />
           <h2 className="text-[18px] font-bold text-app-text mb-2">まだお気に入りがありません</h2>
           <p className="text-[13px] text-app-sub mb-6 leading-relaxed">
             {isLoggedIn
