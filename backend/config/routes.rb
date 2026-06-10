@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       resources :events, only: %i[index show]
       resources :favorites, only: %i[index create destroy]
       resources :schedules, only: %i[index create destroy]
+      resources :personal_events, only: %i[index create update destroy]
     end
   end
 
