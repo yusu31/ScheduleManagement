@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_10_002837) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_10_052431) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -26,6 +26,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_10_002837) do
     t.integer "connpass_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "tags"
     t.index ["area"], name: "index_events_on_area"
     t.index ["category"], name: "index_events_on_category"
     t.index ["connpass_id"], name: "index_events_on_connpass_id", unique: true
