@@ -338,22 +338,25 @@ export default function ConquerPage() {
     [visitRecords]
   )
 
-  // DEV: 地区の全市町村を一括記録
+  // DEV: 地区の全市町村を一括記録 → 直接お祝いモーダルを表示
   const handleDevFillRegion = useCallback(async (region: typeof FUKUSHIMA_REGIONS[number]) => {
     const unvisited = region.municipalities.filter((m) => !recordMap.has(m))
-    if (unvisited.length === 0) return
-    try {
-      const results = await Promise.all(
-        unvisited.map((m) =>
-          apiClient.post<VisitRecord>('/api/v1/visit_records', {
-            visit_record: { municipality: m, companion_type: '一人', visited_at: new Date().toISOString() },
-          })
+    if (unvisited.length > 0) {
+      try {
+        const results = await Promise.all(
+          unvisited.map((m) =>
+            apiClient.post<VisitRecord>('/api/v1/visit_records', {
+              visit_record: { municipality: m, companion_type: '一人', visited_at: new Date().toISOString() },
+            })
+          )
         )
-      )
-      setVisitRecords((prev) => [...prev, ...results.map((r) => r.data)])
-    } catch {
-      // dev ツールなのでエラーは無視
+        setVisitRecords((prev) => [...prev, ...results.map((r) => r.data)])
+      } catch {
+        // dev ツールなのでエラーは無視
+      }
     }
+    // DEV: 制覇済みかどうかに関わらず直接モーダル表示
+    setCelebratingRegion(region)
   }, [recordMap])
 
   const regionOf = useCallback((record: VisitRecord) => {

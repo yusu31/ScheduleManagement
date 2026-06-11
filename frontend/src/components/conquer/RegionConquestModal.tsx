@@ -19,15 +19,20 @@ type Props = {
 }
 
 export default function RegionConquestModal({ region, onAdd, onClose, alreadyConquered }: Props) {
-  const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(alreadyConquered)
   const [flyOut, setFlyOut] = useState(false)
-  const fired = useRef(false)
+  const firedConfetti = useRef(false)
+  const onAddRef = useRef(onAdd)
+  const onCloseRef = useRef(onClose)
 
+  useEffect(() => { onAddRef.current = onAdd }, [onAdd])
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
+
+  // 紙吹雪
   useEffect(() => {
-    if (fired.current) return
-    fired.current = true
-    const timer = setTimeout(() => {
+    if (firedConfetti.current) return
+    firedConfetti.current = true
+    const t = setTimeout(() => {
       confetti({
         particleCount: 160,
         spread: 80,
@@ -35,19 +40,25 @@ export default function RegionConquestModal({ region, onAdd, onClose, alreadyCon
         colors: [region.color, '#ffd700', '#ffffff', '#ff6b6b'],
       })
     }, 500)
-    return () => clearTimeout(timer)
+    return () => clearTimeout(t)
   }, [region.color])
 
-  const handleAdd = async () => {
-    if (added || adding) return
-    setAdding(true)
-    const ok = await onAdd()
-    setAdding(false)
-    if (ok) {
+  // 自動保存 → 自動クローズ（2.8秒後）
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      if (!alreadyConquered) {
+        await onAddRef.current()
+      }
       setAdded(true)
       setFlyOut(true)
-      setTimeout(() => onClose(), 1200)
-    }
+      setTimeout(() => onCloseRef.current(), 900)
+    }, 2800)
+    return () => clearTimeout(t)
+  }, [alreadyConquered])
+
+  const handleSkip = () => {
+    setFlyOut(true)
+    setTimeout(() => onClose(), 900)
   }
 
   return (
@@ -69,8 +80,8 @@ export default function RegionConquestModal({ region, onAdd, onClose, alreadyCon
         />
 
         {/* コンテンツ */}
-        <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
-          {/* 地区名 */}
+        <div className="relative z-10 flex flex-col items-center gap-5 px-8 text-center">
+          {/* テキスト */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -117,30 +128,27 @@ export default function RegionConquestModal({ region, onAdd, onClose, alreadyCon
             ) : null}
           </AnimatePresence>
 
-          {/* ボタン */}
+          {/* 保存ステータス（ボタンなし） */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="flex flex-col items-center gap-3"
+            transition={{ delay: 1.4 }}
+            className="flex flex-col items-center gap-2"
           >
-            {!added ? (
-              <button
-                onClick={handleAdd}
-                disabled={adding}
-                className="px-8 py-3 rounded-full font-bold text-lg text-black transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #ffd700, #ffb300)', boxShadow: '0 4px 20px rgba(255,215,0,0.5)' }}
-              >
-                {adding ? '追加中...' : '✨ コレクションに追加！'}
-              </button>
+            {added ? (
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.1em' }}>
+                ✓ コレクションに追加しました
+              </p>
             ) : (
-              <p className="text-white font-bold text-lg">コレクションに追加しました！</p>
+              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em' }}>
+                コレクションに保存中...
+              </p>
             )}
             <button
-              onClick={onClose}
-              className="text-white/60 text-sm hover:text-white/90 transition-colors"
+              onClick={handleSkip}
+              className="text-white/25 text-[11px] hover:text-white/55 transition-colors"
             >
-              閉じる
+              スキップ
             </button>
           </motion.div>
         </div>
