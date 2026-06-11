@@ -338,6 +338,24 @@ export default function ConquerPage() {
     [visitRecords]
   )
 
+  // DEV: 地区の全市町村を一括記録
+  const handleDevFillRegion = useCallback(async (region: typeof FUKUSHIMA_REGIONS[number]) => {
+    const unvisited = region.municipalities.filter((m) => !recordMap.has(m))
+    if (unvisited.length === 0) return
+    try {
+      const results = await Promise.all(
+        unvisited.map((m) =>
+          apiClient.post<VisitRecord>('/api/v1/visit_records', {
+            visit_record: { municipality: m, companion_type: 'ひとり', visited_at: new Date().toISOString() },
+          })
+        )
+      )
+      setVisitRecords((prev) => [...prev, ...results.map((r) => r.data)])
+    } catch {
+      // dev ツールなのでエラーは無視
+    }
+  }, [recordMap])
+
   const regionOf = useCallback((record: VisitRecord) => {
     for (const r of FUKUSHIMA_REGIONS) {
       if (r.municipalities.includes(record.municipality)) return r.name
@@ -471,7 +489,17 @@ export default function ConquerPage() {
                 {region.name}
               </span>
               <span className="text-[10px] text-app-sub">（{region.ruby}）</span>
-              <div className="ml-auto flex items-center gap-1">
+              <div className="ml-auto flex items-center gap-2">
+                {/* DEV: 地区一括制覇ボタン */}
+                <button
+                  onClick={() => handleDevFillRegion(region)}
+                  disabled={region.completed}
+                  title="DEV: この地区の全市町村を一括記録"
+                  className="text-[9px] font-bold px-1.5 py-0.5 rounded transition-opacity disabled:opacity-20"
+                  style={{ background: '#1f1f1f', color: '#f59e0b', border: '1px dashed #555' }}
+                >
+                  ⚡DEV
+                </button>
                 {region.completed ? (
                   <span className="flex items-center gap-1 bg-yellow-50 border border-yellow-200 text-yellow-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                     <Trophy size={9} />全制覇！
