@@ -6,6 +6,6 @@ class CreateRegionConquests < ActiveRecord::Migration[7.2]
       t.datetime :conquered_at, null: false
       t.timestamps
     end
-    add_index :region_conquests, [:user_id, :region_id], unique: true
+    add_index :region_conquests, [ :user_id, :region_id ], unique: true
   end
 end

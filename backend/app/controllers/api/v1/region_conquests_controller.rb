@@ -12,7 +12,7 @@ module Api
 
       def destroy_all
         @current_user.region_conquests.destroy_all
-        render json: { message: 'Cleared' }
+        render json: { message: "Cleared" }
       end
 
       def create
