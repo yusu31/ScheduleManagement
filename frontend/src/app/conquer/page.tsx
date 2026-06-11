@@ -346,7 +346,7 @@ export default function ConquerPage() {
       const results = await Promise.all(
         unvisited.map((m) =>
           apiClient.post<VisitRecord>('/api/v1/visit_records', {
-            visit_record: { municipality: m, companion_type: 'ひとり', visited_at: new Date().toISOString() },
+            visit_record: { municipality: m, companion_type: '一人', visited_at: new Date().toISOString() },
           })
         )
       )
