@@ -8,6 +8,11 @@ Rails.application.routes.draw do
       resources :schedules, only: %i[index create destroy]
       resources :personal_events, only: %i[index create update destroy]
       resources :visit_records, only: %i[index create update destroy]
+      resources :region_conquests, only: %i[index create] do
+        collection do
+          delete :destroy_all
+        end
+      end
       get "weather", to: "weather#show"
     end
   end
