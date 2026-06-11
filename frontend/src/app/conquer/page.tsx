@@ -7,6 +7,9 @@ import apiClient from '@/lib/axios'
 import { useAuth } from '@/contexts/AuthContext'
 import VisitRecordModal from '@/components/conquer/VisitRecordModal'
 import FukushimaMap from '@/components/conquer/FukushimaMap'
+import RegionConquestModal from '@/components/conquer/RegionConquestModal'
+import AllConquestModal from '@/components/conquer/AllConquestModal'
+import { useConquerCollection } from '@/hooks/useConquerCollection'
 
 type VisitRecord = {
   id: number
@@ -279,6 +282,11 @@ export default function ConquerPage() {
   const [isLoadingRecords, setIsLoadingRecords] = useState(false)
   const [selectedMunicipality, setSelectedMunicipality] = useState<string | null>(null)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [celebratingRegion, setCelebratingRegion] = useState<typeof FUKUSHIMA_REGIONS[number] | null>(null)
+  const [showAllConquest, setShowAllConquest] = useState(false)
+  const prevCompletedRef = useRef<Record<string, boolean>>({})
+  const prevAllConqueredRef = useRef(false)
+  const { conquests, addConquest, hasConquered } = useConquerCollection()
 
   useEffect(() => setMounted(true), [])
 
@@ -361,6 +369,29 @@ export default function ConquerPage() {
     [recordMap]
   )
 
+  // 地区制覇を検知：ローディング完了後に false→true の変化を捕捉
+  useEffect(() => {
+    if (isLoadingRecords) return
+    for (const region of regionStats) {
+      const wasCompleted = prevCompletedRef.current[region.id] ?? false
+      if (!wasCompleted && region.completed && !hasConquered(region.id)) {
+        setCelebratingRegion(region)
+        break
+      }
+    }
+    prevCompletedRef.current = Object.fromEntries(regionStats.map((r) => [r.id, r.completed]))
+  }, [regionStats, isLoadingRecords, hasConquered])
+
+  // 全59市町村制覇を検知
+  useEffect(() => {
+    if (isLoadingRecords) return
+    const allDone = regionStats.length > 0 && regionStats.every((r) => r.completed)
+    if (!prevAllConqueredRef.current && allDone && !hasConquered('all')) {
+      setShowAllConquest(true)
+    }
+    prevAllConqueredRef.current = allDone
+  }, [regionStats, isLoadingRecords, hasConquered])
+
   const visitedCount = recordMap.size
 
   if (!mounted) {
@@ -390,12 +421,22 @@ export default function ConquerPage() {
               {isLoadingRecords ? '読み込み中...' : `${visitedCount} / 59 市町村制覇`}
             </p>
           </div>
-          {visitedCount > 0 && (
-            <div className="ml-auto flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
-              <Trophy size={13} className="text-yellow-500" />
-              <span className="text-[12px] font-semibold text-yellow-600">{visitedCount}制覇！</span>
-            </div>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {conquests.length > 0 && (
+              <a
+                href="/conquer/collection"
+                className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 hover:bg-amber-100 transition-colors"
+              >
+                <Trophy size={13} className="text-amber-500" />
+                <span className="text-[12px] font-semibold text-amber-600">{conquests.length}/10</span>
+              </a>
+            )}
+            {visitedCount > 0 && (
+              <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
+                <span className="text-[12px] font-semibold text-yellow-600">{visitedCount}市町村</span>
+              </div>
+            )}
+          </div>
         </motion.div>
         <p className="text-[13px] text-app-sub mt-3 leading-relaxed">
           市町村をクリックして訪問を記録しよう。<br />
@@ -537,6 +578,28 @@ export default function ConquerPage() {
           onEdit={(municipality) => setSelectedMunicipality(municipality)}
         />
       )}
+
+      {/* 地区制覇お祝いモーダル */}
+      {celebratingRegion && (
+        <RegionConquestModal
+          region={celebratingRegion}
+          alreadyConquered={hasConquered(celebratingRegion.id)}
+          onAdd={() => addConquest(celebratingRegion.id)}
+          onClose={() => setCelebratingRegion(null)}
+        />
+      )}
+
+      {/* 全59市町村制覇エンドロール */}
+      {showAllConquest && (
+        <AllConquestModal
+          regions={FUKUSHIMA_REGIONS}
+          onClose={() => {
+            addConquest('all')
+            setShowAllConquest(false)
+          }}
+        />
+      )}
     </div>
   )
 }
+

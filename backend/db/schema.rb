@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_11_113656) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_11_142031) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -55,6 +55,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_11_113656) do
     t.string "location"
     t.string "url"
     t.index ["user_id"], name: "index_personal_events_on_user_id"
+  end
+
+  create_table "region_conquests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "region_id", null: false
+    t.datetime "conquered_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "region_id"], name: "index_region_conquests_on_user_id_and_region_id", unique: true
+    t.index ["user_id"], name: "index_region_conquests_on_user_id"
   end
 
   create_table "schedules", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -110,6 +120,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_11_113656) do
   add_foreign_key "favorites", "events"
   add_foreign_key "favorites", "users"
   add_foreign_key "personal_events", "users"
+  add_foreign_key "region_conquests", "users"
   add_foreign_key "schedules", "events"
   add_foreign_key "schedules", "users"
   add_foreign_key "visit_records", "events"
