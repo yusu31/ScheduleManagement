@@ -38,6 +38,8 @@ function formatDate(dateStr: string): string {
 type Props = {
   visitRecords: VisitRecord[]
   onMunicipalityClick: (name: string) => void
+  pendingMunicipalities?: Set<string>
+  onPendingClick?: (name: string) => void
 }
 
 const VISITED_COLOR = '#5F8B8B'
@@ -49,7 +51,7 @@ const W = 900
 const H = 600
 const POPUP_W = 200
 
-export default function FukushimaMap({ visitRecords, onMunicipalityClick }: Props) {
+export default function FukushimaMap({ visitRecords, onMunicipalityClick, pendingMunicipalities, onPendingClick }: Props) {
   const [geoData, setGeoData] = useState<GeoData | null>(null)
   const [hoveredName, setHoveredName] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
@@ -177,6 +179,55 @@ export default function FukushimaMap({ visitRecords, onMunicipalityClick }: Prop
                 transition: 'opacity 0.2s',
               }}
             />
+          )
+        })}
+
+        {/* 確認待ちピン（過去の予定がある未記録の市町村） */}
+        {pendingMunicipalities && pendingMunicipalities.size > 0 && geoData.features.map((feature) => {
+          const name = feature.properties.N03_004 ?? ''
+          const code = feature.properties.N03_007 ?? name
+          if (!pendingMunicipalities.has(name)) return null
+          const centroid = getCentroid(feature.geometry.coordinates)
+          return (
+            <g
+              key={`pending-${code}`}
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => { e.stopPropagation(); onPendingClick?.(name) }}
+            >
+              {/* 発光リング */}
+              <circle
+                cx={centroid.x}
+                cy={centroid.y}
+                r={14}
+                fill="rgba(245,158,11,0.15)"
+                stroke="rgba(245,158,11,0.5)"
+                strokeWidth={1.5}
+              >
+                <animate attributeName="r" values="12;16;12" dur="2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" />
+              </circle>
+              {/* 塗りつぶし円 */}
+              <circle
+                cx={centroid.x}
+                cy={centroid.y}
+                r={10}
+                fill="#f59e0b"
+                stroke="white"
+                strokeWidth={2}
+              />
+              {/* ? テキスト */}
+              <text
+                x={centroid.x}
+                y={centroid.y + 4}
+                textAnchor="middle"
+                fontSize={11}
+                fontWeight={900}
+                fill="white"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >
+                ?
+              </text>
+            </g>
           )
         })}
 

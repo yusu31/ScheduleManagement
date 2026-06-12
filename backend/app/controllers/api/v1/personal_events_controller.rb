@@ -41,7 +41,7 @@ module Api
       end
 
       def personal_event_params
-        params.require(:personal_event).permit(:title, :memo, :event_date, :start_time, :end_time, :location, :url)
+        params.require(:personal_event).permit(:title, :memo, :event_date, :start_time, :end_time, :location, :url, :municipality)
       end
     end
   end

@@ -9,6 +9,7 @@ import VisitRecordModal from '@/components/conquer/VisitRecordModal'
 import FukushimaMap from '@/components/conquer/FukushimaMap'
 import RegionConquestModal from '@/components/conquer/RegionConquestModal'
 import AllConquestModal from '@/components/conquer/AllConquestModal'
+import PendingConfirmationModal, { PendingConfirmation, PendingSource } from '@/components/conquer/PendingConfirmationModal'
 import { useConquerCollection } from '@/hooks/useConquerCollection'
 
 type VisitRecord = {
@@ -284,6 +285,10 @@ export default function ConquerPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [celebratingRegion, setCelebratingRegion] = useState<typeof FUKUSHIMA_REGIONS[number] | null>(null)
   const [showAllConquest, setShowAllConquest] = useState(false)
+  const [pendingConfirmations, setPendingConfirmations] = useState<PendingConfirmation[]>([])
+  const [activePending, setActivePending] = useState<PendingConfirmation | null>(null)
+  const [pendingQueue, setPendingQueue] = useState<PendingSource[]>([])
+  const [pendingMunicipalityForRecord, setPendingMunicipalityForRecord] = useState<string | null>(null)
   const prevCompletedRef = useRef<Record<string, boolean>>({})
   const prevAllConqueredRef = useRef(false)
   const { conquests, addConquest, hasConquered } = useConquerCollection()
@@ -295,8 +300,12 @@ export default function ConquerPage() {
     const load = async () => {
       setIsLoadingRecords(true)
       try {
-        const res = await apiClient.get<VisitRecord[]>('/api/v1/visit_records')
-        setVisitRecords(res.data)
+        const [recordsRes, pendingRes] = await Promise.all([
+          apiClient.get<VisitRecord[]>('/api/v1/visit_records'),
+          apiClient.get<PendingConfirmation[]>('/api/v1/conquer/pending_confirmations').catch(() => ({ data: [] })),
+        ])
+        setVisitRecords(recordsRes.data)
+        setPendingConfirmations(pendingRes.data)
       } catch {
         // ロード失敗時は空のまま
       } finally {
@@ -317,6 +326,15 @@ export default function ConquerPage() {
       return [...prev, record]
     })
     setSelectedMunicipality(null)
+    // 記録済みになったら確認待ちリストから除去
+    setPendingConfirmations(prev => prev.filter(p => p.municipality !== record.municipality))
+    // キューに次の確認対象があれば順番に開く
+    if (pendingQueue.length > 0 && pendingMunicipalityForRecord) {
+      setPendingQueue(q => q.slice(1))
+    } else {
+      setPendingMunicipalityForRecord(null)
+      setPendingQueue([])
+    }
   }
 
   const handleDeleted = (id: number) => {
@@ -358,6 +376,34 @@ export default function ConquerPage() {
     // DEV: 制覇済みかどうかに関わらず直接モーダル表示
     setCelebratingRegion(region)
   }, [recordMap])
+
+  // 確認待ちピン：市町村Setを生成
+  const pendingMunicipalitiesSet = useMemo(
+    () => new Set(pendingConfirmations.map((p) => p.municipality)),
+    [pendingConfirmations]
+  )
+
+  // 確認待ちピンクリック → モーダルを開く
+  const handlePendingClick = useCallback((name: string) => {
+    const found = pendingConfirmations.find((p) => p.municipality === name)
+    if (found) setActivePending(found)
+  }, [pendingConfirmations])
+
+  // 「記録する」押下 → キューに積んで訪問記録モーダルへ
+  const handlePendingConfirmed = useCallback((municipality: string, checkedSources: PendingSource[]) => {
+    setActivePending(null)
+    setPendingMunicipalityForRecord(municipality)
+    setPendingQueue(checkedSources.slice(1)) // 1件目を開いて残りをキュー
+    setSelectedMunicipality(municipality)
+  }, [])
+
+  // 「スキップ」→ 確認待ちリストから該当市町村を除去（次回アクセスで再表示）
+  const handlePendingSkip = useCallback(() => {
+    if (activePending) {
+      setPendingConfirmations(prev => prev.filter(p => p.municipality !== activePending.municipality))
+    }
+    setActivePending(null)
+  }, [activePending])
 
   const regionOf = useCallback((record: VisitRecord) => {
     for (const r of FUKUSHIMA_REGIONS) {
@@ -473,7 +519,12 @@ export default function ConquerPage() {
       {/* SVGマップ */}
       <div className="px-6 pb-6">
         <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.05)] overflow-hidden" style={{ height: '600px' }}>
-          <FukushimaMap visitRecords={visitRecords} onMunicipalityClick={setSelectedMunicipality} />
+          <FukushimaMap
+            visitRecords={visitRecords}
+            onMunicipalityClick={setSelectedMunicipality}
+            pendingMunicipalities={pendingMunicipalitiesSet}
+            onPendingClick={handlePendingClick}
+          />
         </div>
       </div>
 
@@ -617,6 +668,16 @@ export default function ConquerPage() {
           alreadyConquered={hasConquered(celebratingRegion.id)}
           onAdd={() => addConquest(celebratingRegion.id)}
           onClose={() => setCelebratingRegion(null)}
+        />
+      )}
+
+      {/* 確認待ちモーダル */}
+      {activePending && (
+        <PendingConfirmationModal
+          confirmation={activePending}
+          onConfirmed={handlePendingConfirmed}
+          onSkip={handlePendingSkip}
+          onClose={() => setActivePending(null)}
         />
       )}
 

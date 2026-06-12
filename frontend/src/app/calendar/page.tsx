@@ -460,11 +460,11 @@ export default function CalendarPage() {
 
   // ─── マイ予定 CRUD ───────────────────────────────────────────────
   const handlePersonalEventSave = async ({
-    title, memo, date, startTime, endTime, location, url,
+    title, memo, date, startTime, endTime, location, url, municipality,
   }: {
     title: string; memo: string; date: string
     startTime: string; endTime: string
-    location: string; url: string
+    location: string; url: string; municipality: string
   }) => {
     const payload = {
       personal_event: {
@@ -473,6 +473,7 @@ export default function CalendarPage() {
         end_time: endTime || null,
         location: location || null,
         url: url || null,
+        municipality: municipality || null,
       },
     }
     try {
