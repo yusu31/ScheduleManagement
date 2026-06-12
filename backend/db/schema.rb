@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_11_142031) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_12_130700) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -54,6 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_11_142031) do
     t.time "end_time"
     t.string "location"
     t.string "url"
+    t.string "municipality"
     t.index ["user_id"], name: "index_personal_events_on_user_id"
   end
 
