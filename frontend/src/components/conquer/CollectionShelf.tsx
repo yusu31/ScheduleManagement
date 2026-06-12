@@ -24,22 +24,22 @@ type Props = {
 }
 
 const ITEM_LABELS: Record<string, string> = {
-  kenpo: 'こけし',
+  kenpo: '土湯こけし',
   koriyama: '三春滝桜',
   sukagawa: 'クリスタル',
   kennan: '白河だるま',
   aizu: '赤べこ',
-  okuaizu: '只見線',
+  okuaizu: '只見のSL',
   minamiaizu: 'ネギ',
-  soma: '馬',
-  futaba: 'Jヴィレッジ',
-  iwaki: 'フタバスズキリュウ',
-  all: '黄金トロフィー',
+  soma: '相馬野馬追の競走馬',
+  futaba: 'サッカーボール',
+  iwaki: 'サーフボード',
+  all: '福島県制覇トロフィー',
 }
 
 export default function CollectionShelf({ regions, conquests }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const allItems: RegionDef[] = [
     ...regions,
@@ -48,14 +48,16 @@ export default function CollectionShelf({ regions, conquests }: Props) {
 
   const conquestMap = new Map(conquests.map((c) => [c.region_id, c]))
 
+  // 制覇済みアイテムを順番通りに並べた配列（モーダルのナビゲーションに使用）
+  const conqueredItems = allItems
+    .filter((item) => conquestMap.has(item.id))
+    .map((item) => ({ region: item, conquest: conquestMap.get(item.id)! }))
+
   const rows = [
     allItems.slice(0, 4),
     allItems.slice(4, 8),
     allItems.slice(8, 11),
   ]
-
-  const selectedRegion = selectedId ? (allItems.find((r) => r.id === selectedId) ?? null) : null
-  const selectedConquest = selectedId ? (conquestMap.get(selectedId) ?? null) : null
 
   return (
     <>
@@ -64,9 +66,9 @@ export default function CollectionShelf({ regions, conquests }: Props) {
           borderRadius: 28,
           overflow: 'hidden',
           position: 'relative',
-          background: 'linear-gradient(160deg, #0c0a20 0%, #1c1840 40%, #271e4e 70%, #181628 100%)',
+          background: 'linear-gradient(160deg, #141230 0%, #221e4a 40%, #2d2460 70%, #1c1a38 100%)',
           boxShadow: '0 40px 100px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.07)',
-          padding: '36px 56px 28px',
+          padding: '18px 44px 14px',
         }}
       >
         {/* 左の縦サポート柱 */}
@@ -87,7 +89,7 @@ export default function CollectionShelf({ regions, conquests }: Props) {
         }} />
 
         {/* ヘッダー */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ textAlign: 'center', marginBottom: 14 }}>
           <p style={{
             fontSize: 10,
             fontWeight: 800,
@@ -109,7 +111,7 @@ export default function CollectionShelf({ regions, conquests }: Props) {
         {rows.map((row, rowIdx) => (
           <div key={rowIdx}>
             {/* アイテム列 */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 18, paddingBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 36, paddingBottom: 0 }}>
               {row.map((item) => {
                 const conquest = conquestMap.get(item.id)
                 const isConquered = !!conquest
@@ -122,22 +124,40 @@ export default function CollectionShelf({ regions, conquests }: Props) {
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      width: 84,
+                      width: 120,
                       cursor: isConquered ? 'pointer' : 'default',
                     }}
                     onMouseEnter={() => setHoveredId(item.id)}
                     onMouseLeave={() => setHoveredId(null)}
-                    onClick={() => isConquered && setSelectedId(item.id)}
+                    onClick={() => {
+                      if (isConquered) {
+                        const idx = conqueredItems.findIndex((ci) => ci.region.id === item.id)
+                        setSelectedIndex(idx)
+                      }
+                    }}
                   >
-                    {/* モデルエリア（枠なし） */}
-                    <div style={{ position: 'relative', width: 76, height: 76 }}>
-                      {/* ホバーグロー */}
+                    {/* ラベル（モデルの上に表示） */}
+                    <span style={{
+                      marginBottom: 6,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: '0.03em',
+                      color: isConquered ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.11)',
+                      transition: 'color 0.2s ease',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {isConquered ? (ITEM_LABELS[item.id] ?? item.name) : '—'}
+                    </span>
+
+                    {/* モデルエリア（枠なし・底付き） */}
+                    <div style={{ position: 'relative', width: 110, height: 110 }}>
+                      {/* ホバーグロー（丸いglow、四角枠なし） */}
                       {isConquered && (
                         <div style={{
                           position: 'absolute',
-                          inset: -12,
+                          inset: -14,
                           borderRadius: '50%',
-                          background: `radial-gradient(circle, ${item.color}${isHovered ? '30' : '12'} 0%, transparent 70%)`,
+                          background: `radial-gradient(circle, ${item.color}${isHovered ? '45' : '18'} 0%, transparent 68%)`,
                           transition: 'background 0.3s ease',
                           pointerEvents: 'none',
                         }} />
@@ -145,9 +165,9 @@ export default function CollectionShelf({ regions, conquests }: Props) {
 
                       {/* 3Dモデル / ロック */}
                       <div style={{
-                        width: 76,
-                        height: 76,
-                        transform: isHovered && isConquered ? 'translateY(-13px)' : 'translateY(0)',
+                        width: 110,
+                        height: 110,
+                        transform: isHovered && isConquered ? 'translateY(-10px)' : 'translateY(0)',
                         transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                       }}>
                         {isConquered ? (
@@ -162,34 +182,22 @@ export default function CollectionShelf({ regions, conquests }: Props) {
                         )}
                       </div>
 
-                      {/* 棚面への影（楕円） */}
+                      {/* 棚面への落ち影（底付き感） */}
                       {isConquered && (
                         <div style={{
                           position: 'absolute',
-                          bottom: isHovered ? -22 : -11,
+                          bottom: isHovered ? -26 : -4,
                           left: '50%',
                           transform: 'translateX(-50%)',
-                          width: isHovered ? 34 : 50,
+                          width: isHovered ? 30 : 52,
                           height: 10,
-                          background: `radial-gradient(ellipse, ${item.color}60 0%, rgba(0,0,0,0.4) 45%, transparent 70%)`,
+                          background: `radial-gradient(ellipse, ${item.color}70 0%, rgba(0,0,0,0.5) 45%, transparent 70%)`,
                           filter: 'blur(4px)',
                           transition: 'all 0.3s ease',
                           pointerEvents: 'none',
                         }} />
                       )}
                     </div>
-
-                    {/* ラベル */}
-                    <span style={{
-                      marginTop: 12,
-                      fontSize: 10,
-                      fontWeight: 600,
-                      letterSpacing: '0.03em',
-                      color: isConquered ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.11)',
-                      transition: 'color 0.2s ease',
-                    }}>
-                      {isConquered ? (ITEM_LABELS[item.id] ?? item.name) : '—'}
-                    </span>
                   </div>
                 )
               })}
@@ -227,7 +235,7 @@ export default function CollectionShelf({ regions, conquests }: Props) {
               }} />
             </div>
 
-            <div style={{ height: 24 }} />
+            <div style={{ height: 10 }} />
           </div>
         ))}
 
@@ -260,11 +268,11 @@ export default function CollectionShelf({ regions, conquests }: Props) {
         </div>
       </div>
 
-      {selectedId && selectedRegion && selectedConquest && (
+      {selectedIndex !== null && (
         <CollectionItemModal
-          region={selectedRegion}
-          conquest={selectedConquest}
-          onClose={() => setSelectedId(null)}
+          items={conqueredItems}
+          initialIndex={selectedIndex}
+          onClose={() => setSelectedIndex(null)}
         />
       )}
     </>

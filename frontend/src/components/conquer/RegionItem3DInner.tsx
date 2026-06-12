@@ -19,43 +19,163 @@ const GLB_REGIONS = new Set<string>([
   'all',
 ])
 
-function GlbModel({ regionId }: { regionId: string }) {
-  const { scene } = useGLTF(`/conquer/models/${regionId}.glb`)
-  const cloned = useMemo(() => scene.clone(), [scene])
-  return <primitive object={cloned} />
+// 個別調整設定（スケールはバウンディングボックスで自動計算）
+const GLB_CONFIGS: Record<string, {
+  modelFile?: string
+  rotation?: [number, number, number]
+  yOffset?: number
+  targetSize?: number
+  cameraTarget?: [number, number, number]
+  materialColor?: string
+  materialColors?: string[]  // メッシュパーツごとに色を割り当て（循環適用）
+}> = {
+  kenpo: { rotation: [0, 0, 0] },
+  soma:  { modelFile: 'armored_horse', targetSize: 2.5 },
+  iwaki: {
+    modelFile: 'prancha_de_surf_surfboard',
+    rotation: [Math.PI / 2, 0, 0.3],
+    targetSize: 2.5,
+    materialColors: ['#FF6B6B', '#FF8E53', '#FFD93D', '#6BCB77', '#4D96FF', '#845EC2', '#FF6B9D'],
+  },
 }
 
-// ── 奥会津SL：黒色に変換 ───────────────────────────────────
+// バウンディングボックスを基準にスケーリング・中央寄せを行う共通関数
+function autoFitClone(clone: THREE.Object3D, targetSize = 1.4, yOffset = 0): void {
+  // GLBはmatrixAutoUpdate=falseでロードされることがあるため全ノードで有効化する
+  // これをしないとposition変更後にmatrixが再ビルドされずレンダリングに反映されない
+  clone.traverse((obj) => {
+    obj.matrixAutoUpdate = true
+  })
+  clone.updateMatrixWorld(true)
+  const box = new THREE.Box3().setFromObject(clone)
+  const size = box.getSize(new THREE.Vector3())
+  const maxDim = Math.max(size.x, size.y, size.z)
+  if (maxDim > 0 && isFinite(maxDim)) {
+    const s = targetSize / maxDim
+    clone.scale.setScalar(s)
+    clone.updateMatrixWorld(true)
+    const newBox = new THREE.Box3().setFromObject(clone)
+    const center = newBox.getCenter(new THREE.Vector3())
+    clone.position.set(-center.x, -center.y + yOffset, -center.z)
+    // position.set後にmatrixを強制再ビルド（これがないと位置変更が描画に反映されない）
+    clone.updateMatrixWorld(true)
+  }
+}
+
+function GlbModel({ regionId }: { regionId: string }) {
+  const cfg = GLB_CONFIGS[regionId]
+  const modelFile = cfg?.modelFile ?? regionId
+  const { scene } = useGLTF(`/conquer/models/${modelFile}.glb`)
+  const rotKey = cfg?.rotation ? cfg.rotation.join(',') : ''
+  const tSize = cfg?.targetSize ?? 2.5
+  const yOff = cfg?.yOffset ?? 0
+
+  // スケール・位置をclone自身ではなく親Groupに適用する方式
+  // clone.position/scaleを直接変えると SkinnedMesh でmatrix更新が不安定なため
+  const matColor = cfg?.materialColor
+  const matColors = cfg?.materialColors
+
+  const { cloned, groupScale, groupPos } = useMemo(() => {
+    const clone = scene.clone()
+    clone.traverse((obj) => { obj.matrixAutoUpdate = true })
+
+    // 単色上書き
+    if (matColor) {
+      clone.traverse((obj) => {
+        if ((obj as THREE.Mesh).isMesh) {
+          (obj as THREE.Mesh).material = new THREE.MeshStandardMaterial({
+            color: matColor, roughness: 0.55, metalness: 0.05,
+          })
+        }
+      })
+    }
+
+    // パーツごとに異なる色を割り当て
+    if (matColors) {
+      const meshes: THREE.Mesh[] = []
+      clone.traverse((obj) => { if ((obj as THREE.Mesh).isMesh) meshes.push(obj as THREE.Mesh) })
+      meshes.forEach((mesh, i) => {
+        mesh.material = new THREE.MeshStandardMaterial({
+          color: matColors[i % matColors.length],
+          roughness: 0.25,
+          metalness: 0.08,
+        })
+      })
+    }
+
+    if (cfg?.rotation) clone.rotation.set(...cfg.rotation)
+    clone.updateMatrixWorld(true)
+
+    const box = new THREE.Box3().setFromObject(clone)
+    const size = box.getSize(new THREE.Vector3())
+    const maxDim = Math.max(size.x, size.y, size.z)
+    const s = maxDim > 0 && isFinite(maxDim) ? tSize / maxDim : 1
+    const center = box.getCenter(new THREE.Vector3())
+
+    return {
+      cloned: clone,
+      groupScale: s,
+      groupPos: [-center.x * s, -center.y * s + yOff, -center.z * s] as [number, number, number],
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene, regionId, rotKey, tSize, yOff, matColor, matColors])
+
+  return (
+    <group position={groupPos} scale={groupScale}>
+      <primitive object={cloned} />
+    </group>
+  )
+}
+
+// ── 奥会津SL：黒色に変換 + 自動スケーリング ──────────────────
 function OkuaizuSL() {
   const { scene } = useGLTF('/conquer/models/okuaizu.glb')
   const cloned = useMemo(() => {
     const clone = scene.clone()
+    // 黒色変換
     clone.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         (child as THREE.Mesh).material = new THREE.MeshStandardMaterial({
-          color: '#1c1c1c',
-          roughness: 0.4,
-          metalness: 0.7,
+          color: '#2a2a2a',
+          roughness: 0.15,
+          metalness: 0.92,
         })
       }
     })
+    // 横向きに回転してからBBで自動スケーリング
+    clone.rotation.set(0, Math.PI / 2, 0)
+    autoFitClone(clone, 2.5, -0.1)
     return clone
   }, [scene])
   return <primitive object={cloned} />
 }
 
 // ── 双葉スタジアム（Jヴィレッジ）+ ボール転がしアニメーション ──
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FutabaStadium() {
   const { scene } = useGLTF('/conquer/models/futaba.glb')
   const { scene: ballScene } = useGLTF('/conquer/models/futaba_ball.glb')
-  const stadiumClone = useMemo(() => scene.clone(), [scene])
-  const ballClone = useMemo(() => ballScene.clone(), [ballScene])
   const ballRef = useRef<THREE.Group>(null)
+
+  const stadiumClone = useMemo(() => {
+    const clone = scene.clone()
+    // スタジアムを斜め前から見えるよう前傾させてからBBで自動スケーリング
+    clone.rotation.set(-Math.PI / 2.5, 0, 0)
+    clone.updateMatrixWorld(true)
+    autoFitClone(clone, 2.5, -0.1)
+    return clone
+  }, [scene])
+
+  const ballClone = useMemo(() => {
+    const bc = ballScene.clone()
+    autoFitClone(bc, 0.22)
+    return bc
+  }, [ballScene])
 
   useFrame((state) => {
     if (ballRef.current) {
       const t = state.clock.getElapsedTime()
-      ballRef.current.position.x = Math.sin(t * 0.9) * 0.3
+      ballRef.current.position.x = Math.sin(t * 0.9) * 0.28
       ballRef.current.position.z = Math.cos(t * 0.6) * 0.2
       ballRef.current.rotation.x += 0.05
       ballRef.current.rotation.z += 0.03
@@ -66,7 +186,7 @@ function FutabaStadium() {
     <group>
       <primitive object={stadiumClone} />
       <group ref={ballRef} position={[0, 0.1, 0]}>
-        <primitive object={ballClone} scale={0.06} />
+        <primitive object={ballClone} />
       </group>
     </group>
   )
@@ -457,6 +577,48 @@ function HulaDancer() {
   )
 }
 
+// ── サーフボード ────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function Surfboard() {
+  // 鼻から尻尾にかけて7色のストライプ（上=ノーズ、下=テール）
+  const stripes: { r0: number; r1: number; h: number; color: string }[] = [
+    { r0: 0.06, r1: 0.22, h: 0.20, color: '#FF6B6B' },
+    { r0: 0.22, r1: 0.36, h: 0.20, color: '#FF8E53' },
+    { r0: 0.36, r1: 0.44, h: 0.18, color: '#FFD93D' },
+    { r0: 0.44, r1: 0.44, h: 0.16, color: '#6BCB77' },
+    { r0: 0.44, r1: 0.38, h: 0.18, color: '#4D96FF' },
+    { r0: 0.38, r1: 0.26, h: 0.20, color: '#845EC2' },
+    { r0: 0.26, r1: 0.08, h: 0.20, color: '#FF6B9D' },
+  ]
+  const totalH = stripes.reduce((s, seg) => s + seg.h, 0)
+  const positions: number[] = []
+  let acc = totalH / 2
+  for (const seg of stripes) {
+    acc -= seg.h / 2
+    positions.push(acc)
+    acc -= seg.h / 2
+  }
+
+  return (
+    <group rotation={[0.15, 0, 0.1]}>
+      {/* ボード本体：Z方向に薄く潰してサーフボードらしい形に */}
+      <group scale={[1, 1, 0.15]}>
+        {stripes.map((seg, i) => (
+          <mesh key={i} position={[0, positions[i], 0]}>
+            <cylinderGeometry args={[seg.r0, seg.r1, seg.h, 20]} />
+            <meshStandardMaterial color={seg.color} roughness={0.22} metalness={0.08} />
+          </mesh>
+        ))}
+      </group>
+      {/* フィン（テール下部） */}
+      <mesh position={[0, -(totalH / 2 + 0.14), 0.01]}>
+        <coneGeometry args={[0.08, 0.30, 6]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.55} />
+      </mesh>
+    </group>
+  )
+}
+
 // ── 黄金トロフィー ─────────────────────────────────────────
 function Trophy() {
   const gold = { color: '#d4af37', metalness: 0.92, roughness: 0.1 }
@@ -506,7 +668,7 @@ const REGION_COLORS: Record<string, string> = {
 
 function ItemShape({ regionId }: { regionId: string }) {
   if (regionId === 'okuaizu') return <OkuaizuSL />
-  if (regionId === 'futaba') return <FutabaStadium />
+  if (regionId === 'futaba') return <GlbModel regionId="futaba_ball" />
   if (GLB_REGIONS.has(regionId)) {
     return <GlbModel regionId={regionId} />
   }
@@ -534,21 +696,25 @@ type Props = {
 }
 
 export default function RegionItem3DInner({ regionId, autoRotate = true }: Props) {
+  const glbCfg = GLB_CONFIGS[regionId]
+  const camTarget = (glbCfg?.cameraTarget ?? [0, 0, 0]) as [number, number, number]
+
   return (
-    <Canvas camera={{ position: [0, 0.3, 3], fov: 45 }} style={{ width: '100%', height: '100%' }}>
+    <Canvas camera={{ position: [0, 0.6, 2.5], fov: 65 }} style={{ width: '100%', height: '100%' }}>
       <ambientLight intensity={0.9} />
       <directionalLight position={[5, 5, 5]} intensity={1.5} />
       <directionalLight position={[-3, 2, -3]} intensity={0.5} />
       <pointLight position={[0, 3, 2]} intensity={0.7} color="#fff8e8" />
       <Suspense fallback={null}>
         <ItemShape regionId={regionId} />
-        <Environment preset="city" />
+        <Environment preset="apartment" />
       </Suspense>
       <OrbitControls
         autoRotate={autoRotate}
         autoRotateSpeed={3}
         enableZoom={false}
         enablePan={false}
+        target={camTarget}
       />
     </Canvas>
   )
