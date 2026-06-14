@@ -31,8 +31,9 @@ export default function SignInPage() {
     try {
       await signIn(email, password)
       router.push('/events')
-    } catch {
-      setError('メールアドレスまたはパスワードが正しくありません。')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'ログインに失敗しました'
+      setError(msg)
     } finally {
       setIsSubmitting(false)
     }
@@ -72,7 +73,7 @@ export default function SignInPage() {
                 メールアドレス
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@email.com"

@@ -58,18 +58,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     passwordConfirmation: string,
     name: string
   ) => {
-    const response = await apiClient.post('/auth', {
-      email,
-      password,
-      password_confirmation: passwordConfirmation,
-      name,
-    })
-    setCurrentUser(response.data.data)
+    try {
+      const response = await apiClient.post('/auth', {
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+        name,
+      })
+      setCurrentUser(response.data.data)
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { errors?: string[] } } }
+      const messages = axiosErr?.response?.data?.errors
+      throw new Error(Array.isArray(messages) ? messages.join(' / ') : '登録に失敗しました')
+    }
   }
 
   const signIn = async (email: string, password: string) => {
-    const response = await apiClient.post('/auth/sign_in', { email, password })
-    setCurrentUser(response.data.data)
+    try {
+      const response = await apiClient.post('/auth/sign_in', { email, password })
+      setCurrentUser(response.data.data)
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { errors?: string[] } } }
+      const messages = axiosErr?.response?.data?.errors
+      throw new Error(Array.isArray(messages) ? messages.join(' / ') : 'ログインに失敗しました')
+    }
   }
 
   const signOut = async () => {

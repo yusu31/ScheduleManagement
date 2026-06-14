@@ -42,8 +42,9 @@ export default function SignUpPage() {
     try {
       await signUp(email, password, passwordConfirmation, name)
       router.push('/events')
-    } catch {
-      setError('登録に失敗しました。入力内容をご確認ください。')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '登録に失敗しました'
+      setError(msg)
     } finally {
       setIsSubmitting(false)
     }
@@ -104,7 +105,7 @@ export default function SignUpPage() {
                 メールアドレス
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@email.com"
