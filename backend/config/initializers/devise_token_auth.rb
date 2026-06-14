@@ -8,4 +8,7 @@ DeviseTokenAuth.setup do |config|
   # Rails API モードではセッションが無効なため bypass_sign_in を無効化
   config.bypass_sign_in = false
   config.default_confirm_success_url = nil
+  # UserOmniauthCallbacks Concern のデフォルトコールバックを無効化し
+  # email形式バリデーション（is not an email）を外す
+  config.default_callbacks = false
 end
