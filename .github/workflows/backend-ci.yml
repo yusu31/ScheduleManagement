@@ -18,7 +18,7 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
           working-directory: backend
-      - run: bin/brakeman --no-pager --no-update-check
+      - run: bin/brakeman --no-pager
 
   lint:
     runs-on: ubuntu-latest
