@@ -72,7 +72,10 @@ export default function RegionConquestModal({ region, onAdd, onClose, alreadyCon
       colors: goldColors, gravity: 1.0, scalar: 0.9,
     }), 2700)
 
-    return () => { [t1, t2, t3, t4, t5, t6].forEach(clearTimeout) }
+    return () => {
+      [t1, t2, t3, t4, t5, t6].forEach(clearTimeout)
+      firedConfetti.current = false
+    }
   }, [region.color])
 
   // 保存（自動クローズなし）
@@ -90,7 +93,6 @@ export default function RegionConquestModal({ region, onAdd, onClose, alreadyCon
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        onClick={onClose}
       >
         {/* 背景写真 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
