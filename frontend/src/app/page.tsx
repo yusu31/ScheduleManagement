@@ -1,64 +1,56 @@
 import Link from 'next/link'
-import RandomIllustration from '@/components/RandomIllustration'
-
-const HERO_IMAGES = [
-  '/images/undraw_around-the-world_1p8h.svg',
-  '/images/undraw_walk-in-the-city_tk65.svg',
-  '/images/undraw_millennial-girl_30gk.svg',
-  '/images/undraw_travel-mode_103y.svg',
-]
+import { ChevronDown } from 'lucide-react'
+import WeeklyEvents from '@/components/WeeklyEvents'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="max-w-5xl w-full flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20 py-16">
+    <>
+      {/* ─── フルスクリーンヒーロー ─── */}
+      <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden px-6">
 
-        {/* 左：テキスト＋CTA */}
-        <div className="text-center lg:text-left flex-1">
-          <h1 className="mb-5 leading-none">
-            <span className="block">
-              <span className="text-[56px] font-black text-primary">F</span>
-              <span className="text-[36px] font-bold text-app-text">ukushima</span>
-            </span>
-            <span className="block">
-              <span className="text-[56px] font-black text-primary">E</span>
-              <span className="text-[36px] font-bold text-app-text">vent </span>
-              <span className="text-[56px] font-black text-primary">F</span>
-              <span className="text-[36px] font-bold text-app-text">inder</span>
-            </span>
-          </h1>
-          <p className="text-app-sub text-[15px] mb-8 max-w-sm leading-relaxed mx-auto lg:mx-0">
-            福島県内のイベント情報をひとつに。<br />
-            郡山・いわき・福島市など、地域のイベントをまとめてチェック。
+        {/* 背景グラデーション */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a3f3f] via-[#2d6464] to-[#0d2b2b]" />
+
+        {/* 装飾：ぼかした光の円 */}
+        <div className="absolute top-1/4 right-[20%] w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 left-[15%] w-[360px] h-[360px] rounded-full bg-teal-400/10 blur-[100px] pointer-events-none" />
+
+        {/* コンテンツ */}
+        <div className="relative z-10 max-w-2xl">
+          <p className="text-white/50 text-[11px] font-semibold tracking-[0.3em] uppercase mb-6">
+            Fukushima Event Finder
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-            <Link
-              href="/events"
-              className="bg-primary hover:bg-primary-dark text-white text-[14px] font-semibold px-7 py-3 rounded-[12px] transition-colors shadow-md"
-            >
-              イベントを探す →
-            </Link>
-            <Link
-              href="/calendar"
-              className="bg-white border border-app-border hover:bg-app-bg text-app-text text-[14px] font-semibold px-7 py-3 rounded-[12px] transition-colors"
-            >
-              カレンダーで見る
-            </Link>
-          </div>
+
+          <h1 className="text-[52px] sm:text-[68px] font-black text-white leading-[1.1] mb-6 drop-shadow-sm">
+            福島のイベント、<br />全部ここに。
+          </h1>
+
+          <p className="text-white/65 text-[16px] sm:text-[18px] leading-relaxed mb-10 max-w-sm mx-auto">
+            郡山・いわき・福島市など、地域の<br />イベントをまとめてチェック。
+          </p>
+
+          <Link
+            href="/events"
+            className="
+              inline-flex items-center gap-2
+              bg-white text-[#2d6464] font-bold text-[15px]
+              px-9 py-4 rounded-2xl
+              hover:bg-white/90 active:scale-[0.97]
+              transition-all shadow-[0_8px_32px_rgba(0,0,0,0.25)]
+            "
+          >
+            イベントを探す →
+          </Link>
         </div>
 
-        {/* 右：イラスト（ランダム） */}
-        <div className="flex-1 flex justify-center">
-          <RandomIllustration
-            srcs={HERO_IMAGES}
-            alt="地域のイベントを探そう"
-            width={460}
-            height={360}
-            priority
-            className="w-full max-w-[380px] lg:max-w-[460px] drop-shadow-sm"
-          />
+        {/* スクロールインジケーター */}
+        <div className="absolute bottom-8 flex flex-col items-center gap-1 text-white/30 animate-bounce">
+          <ChevronDown size={22} />
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* ─── 今週のおすすめセクション ─── */}
+      <WeeklyEvents />
+    </>
   )
 }
