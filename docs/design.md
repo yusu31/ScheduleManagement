@@ -85,7 +85,7 @@ MySQL（データベース） :3306（Docker）
 |---------|------|------|------|
 | GET | `/api/v1/schedules` | 自分のスケジュール一覧取得 | 必要 |
 | POST | `/api/v1/schedules` | イベントをスケジュールに追加 | 必要 |
-| DELETE | `/api/v1/schedules/:event_id` | スケジュールから削除 | 必要 |
+| DELETE | `/api/v1/schedules/:id` | スケジュールから削除（`:id` はスケジュールレコードのID） | 必要 |
 
 ### お気に入り
 
@@ -93,13 +93,17 @@ MySQL（データベース） :3306（Docker）
 |---------|------|------|------|
 | GET | `/api/v1/favorites` | お気に入り一覧取得 | 必要 |
 | POST | `/api/v1/favorites` | お気に入りに追加 | 必要 |
-| DELETE | `/api/v1/favorites/:event_id` | お気に入りから削除 | 必要 |
+| DELETE | `/api/v1/favorites/:id` | お気に入りから削除（`:id` はお気に入りレコードのID） | 必要 |
 
 ### Connpass 連携
 
-| メソッド | パス | 説明 | 認証 |
-|---------|------|------|------|
-| POST | `/api/v1/connpass/fetch` | Connpass から福島関連イベントを取得・保存 | 必要（MVP では admin のみ） |
+Connpass からのイベント取得は HTTP API エンドポイントではなく、**Rails Rake タスク**として実装されている。
+
+```bash
+bundle exec rake connpass:fetch
+```
+
+> 実行すると `ConnpassFetcherService` が呼び出され、取得済み（`connpass_id` が重複する）イベントはスキップされる。
 
 ### 訪問記録（マップ制覇）
 
@@ -151,10 +155,10 @@ Phase 4 機能（F-15）。
 ## Connpass API 連携フロー
 
 ```
-管理者が POST /api/v1/connpass/fetch を実行
+管理者が bundle exec rake connpass:fetch を実行
   │
   ▼
-Rails が Connpass API を呼び出す
+ConnpassFetcherService が Connpass API を呼び出す
   GET https://connpass.com/api/v1/event/?keyword=福島&count=100
   │
   ▼
@@ -165,6 +169,8 @@ Rails が Connpass API を呼び出す
   ▼
 保存完了。次回のイベント一覧取得時に自動表示される
 ```
+
+> ⚠️ Connpass API v1（`/api/v1/event/`）は現在 403 を返す状態。v2 API 対応は別 Issue で対応予定。
 
 ---
 
