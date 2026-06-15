@@ -30,6 +30,11 @@ module Api
         render json: { message: "Record deleted" }
       end
 
+      def destroy_all
+        current_user.visit_records.destroy_all
+        render json: { message: "Cleared" }
+      end
+
       private
 
       def visit_record_params

@@ -548,16 +548,18 @@ export default function ConquerPage() {
               </span>
               <span className="text-[10px] text-app-sub">（{region.ruby}）</span>
               <div className="ml-auto flex items-center gap-2">
-                {/* DEV: 地区一括制覇ボタン */}
-                <button
-                  onClick={() => handleDevFillRegion(region)}
-                  disabled={region.completed}
-                  title="DEV: この地区の全市町村を一括記録"
-                  className="text-[9px] font-bold px-1.5 py-0.5 rounded transition-opacity disabled:opacity-20"
-                  style={{ background: '#1f1f1f', color: '#f59e0b', border: '1px dashed #555' }}
-                >
-                  ⚡DEV
-                </button>
+                {/* DEV: 地区一括制覇ボタン（開発環境のみ表示） */}
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    onClick={() => handleDevFillRegion(region)}
+                    disabled={region.completed}
+                    title="DEV: この地区の全市町村を一括記録"
+                    className="text-[9px] font-bold px-1.5 py-0.5 rounded transition-opacity disabled:opacity-20"
+                    style={{ background: '#1f1f1f', color: '#f59e0b', border: '1px dashed #555' }}
+                  >
+                    ⚡DEV
+                  </button>
+                )}
                 {region.completed ? (
                   <span className="flex items-center gap-1 bg-yellow-50 border border-yellow-200 text-yellow-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                     <Trophy size={9} />全制覇！
