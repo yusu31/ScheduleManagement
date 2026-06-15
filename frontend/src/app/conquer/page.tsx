@@ -290,7 +290,8 @@ export default function ConquerPage() {
   const [pendingEventId, setPendingEventId] = useState<number | null>(null)
   const prevCompletedRef = useRef<Record<string, boolean>>({})
   const prevAllConqueredRef = useRef(false)
-  const { conquests, addConquest, hasConquered } = useConquerCollection()
+  const isInitialLoadRef = useRef(true)
+  const { conquests, isLoading: isConquestsLoading, addConquest, hasConquered } = useConquerCollection()
 
   useEffect(() => setMounted(true), [])
 
@@ -438,28 +439,29 @@ export default function ConquerPage() {
     [recordMap]
   )
 
-  // 地区制覇を検知：ローディング完了後に false→true の変化を捕捉
+  // 地区制覇・全制覇を検知：両ローディング完了後、初回は現在状態を記録するだけ（既存制覇でモーダルを出さない）
   useEffect(() => {
-    if (isLoadingRecords) return
+    if (isLoadingRecords || isConquestsLoading) return
+    const allDone = regionStats.length > 0 && regionStats.every((r) => r.completed)
+    if (isInitialLoadRef.current) {
+      prevCompletedRef.current = Object.fromEntries(regionStats.map((r) => [r.id, r.completed]))
+      prevAllConqueredRef.current = allDone
+      isInitialLoadRef.current = false
+      return
+    }
     for (const region of regionStats) {
       const wasCompleted = prevCompletedRef.current[region.id] ?? false
-      if (!wasCompleted && region.completed && !hasConquered(region.id)) {
+      if (!wasCompleted && region.completed) {
         setCelebratingRegion(region)
         break
       }
     }
     prevCompletedRef.current = Object.fromEntries(regionStats.map((r) => [r.id, r.completed]))
-  }, [regionStats, isLoadingRecords, hasConquered])
-
-  // 全59市町村制覇を検知
-  useEffect(() => {
-    if (isLoadingRecords) return
-    const allDone = regionStats.length > 0 && regionStats.every((r) => r.completed)
-    if (!prevAllConqueredRef.current && allDone && !hasConquered('all')) {
+    if (!prevAllConqueredRef.current && allDone) {
       setShowAllConquest(true)
     }
     prevAllConqueredRef.current = allDone
-  }, [regionStats, isLoadingRecords, hasConquered])
+  }, [regionStats, isLoadingRecords, isConquestsLoading])
 
   const visitedCount = recordMap.size
 

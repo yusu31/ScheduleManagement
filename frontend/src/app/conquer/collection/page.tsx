@@ -7,6 +7,7 @@ import Link from 'next/link'
 import CollectionShelf from '@/components/conquer/CollectionShelf'
 import { useConquerCollection } from '@/hooks/useConquerCollection'
 import { useAuth } from '@/contexts/AuthContext'
+import apiClient from '@/lib/axios'
 
 const FUKUSHIMA_REGIONS = [
   { id: 'kenpo', name: '県北', ruby: 'けんぽく', color: '#5a9e7a' },
@@ -41,7 +42,7 @@ export default function CollectionPage() {
   // DEV: 全データをリセット
   const handleReset = useCallback(async () => {
     setDevBusy(true)
-    await fetch('/api/v1/region_conquests/destroy_all', { method: 'DELETE' })
+    await apiClient.delete('/api/v1/region_conquests/destroy_all')
     window.location.reload()
   }, [])
 

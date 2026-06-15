@@ -31,7 +31,7 @@ export default function RegionConquestModal({ region, onAdd, onClose, alreadyCon
     if (firedConfetti.current) return
     firedConfetti.current = true
 
-    const fire = (opts: confetti.Options) => confetti(opts)
+    const fire = (opts: confetti.Options) => confetti({ zIndex: 9999, ...opts })
     const goldColors = ['#ffd700', '#ffaa00', '#fffbe0', '#ffcc00']
     const fullColors = [region.color, '#ffd700', '#ffffff', '#ff6b6b', '#a855f7', '#22d3ee', '#6bcb77', '#ff9a3c']
 
