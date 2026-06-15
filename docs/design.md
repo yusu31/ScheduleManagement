@@ -109,7 +109,42 @@ Phase 4 機能（F-15）。
 |---------|------|------|------|
 | GET | `/api/v1/visit_records` | 自分の訪問記録一覧取得 | 必要 |
 | POST | `/api/v1/visit_records` | 訪問記録を登録 | 必要 |
+| PATCH/PUT | `/api/v1/visit_records/:id` | 訪問記録を更新 | 必要 |
 | DELETE | `/api/v1/visit_records/:id` | 訪問記録を削除 | 必要 |
+| DELETE | `/api/v1/visit_records/destroy_all` | 自分の訪問記録をすべて削除（リセット） | 必要 |
+
+### マップ制覇コレクション（region_conquests）
+
+市町村ごとの制覇フラグ管理テーブル。
+
+| メソッド | パス | 説明 | 認証 |
+|---------|------|------|------|
+| GET | `/api/v1/region_conquests` | 制覇済み市町村一覧取得 | 必要 |
+| POST | `/api/v1/region_conquests` | 市町村を制覇済みに登録 | 必要 |
+| DELETE | `/api/v1/region_conquests/destroy_all` | 制覇記録をすべて削除（リセット） | 必要 |
+
+### 訪問確認ピン（conquer）
+
+| メソッド | パス | 説明 | 認証 |
+|---------|------|------|------|
+| GET | `/api/v1/conquer/pending_confirmations` | 訪問記録あり・未制覇の市町村一覧取得 | 必要 |
+
+### マイ予定（personal_events）
+
+ユーザーが独自に登録する予定管理機能。
+
+| メソッド | パス | 説明 | 認証 |
+|---------|------|------|------|
+| GET | `/api/v1/personal_events` | 自分のマイ予定一覧取得 | 必要 |
+| POST | `/api/v1/personal_events` | マイ予定を登録 | 必要 |
+| PATCH/PUT | `/api/v1/personal_events/:id` | マイ予定を更新 | 必要 |
+| DELETE | `/api/v1/personal_events/:id` | マイ予定を削除 | 必要 |
+
+### 天気予報
+
+| メソッド | パス | 説明 | 認証 |
+|---------|------|------|------|
+| GET | `/api/v1/weather?lat=xxx&lon=yyy&date=yyyy-mm-dd` | 指定座標・日付の天気予報取得（OpenWeatherMap API） | 不要 |
 
 ---
 
