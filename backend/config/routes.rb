@@ -10,7 +10,11 @@ Rails.application.routes.draw do
       resources :schedules, only: %i[index create destroy]
       resources :personal_events, only: %i[index create update destroy]
       get "conquer/pending_confirmations", to: "conquer#pending_confirmations"
-      resources :visit_records, only: %i[index create update destroy]
+      resources :visit_records, only: %i[index create update destroy] do
+        collection do
+          delete :destroy_all
+        end
+      end
       resources :region_conquests, only: %i[index create] do
         collection do
           delete :destroy_all

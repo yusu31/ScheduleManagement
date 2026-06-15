@@ -39,10 +39,13 @@ export default function CollectionPage() {
     setDevBusy(false)
   }, [addConquest])
 
-  // DEV: 全データをリセット
+  // DEV: 全データをリセット（visit_records と region_conquests 両方削除）
   const handleReset = useCallback(async () => {
     setDevBusy(true)
-    await apiClient.delete('/api/v1/region_conquests/destroy_all')
+    await Promise.all([
+      apiClient.delete('/api/v1/region_conquests/destroy_all'),
+      apiClient.delete('/api/v1/visit_records/destroy_all'),
+    ])
     window.location.reload()
   }, [])
 
@@ -123,43 +126,45 @@ export default function CollectionPage() {
         )}
       </div>
 
-      {/* ── DEV TOOLS ─────────────────────────────────────── */}
-      <div className="px-6 pb-12">
-        <div
-          className="rounded-2xl p-4"
-          style={{
-            background: 'repeating-linear-gradient(45deg, #1a1a1a 0px, #1a1a1a 8px, #222 8px, #222 16px)',
-            border: '1.5px solid #444',
-          }}
-        >
-          <p
-            className="text-[9px] font-bold tracking-[0.4em] uppercase mb-3"
-            style={{ color: '#f59e0b' }}
+      {/* ── DEV TOOLS（開発環境のみ表示） ────────────────── */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="px-6 pb-12">
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: 'repeating-linear-gradient(45deg, #1a1a1a 0px, #1a1a1a 8px, #222 8px, #222 16px)',
+              border: '1.5px solid #444',
+            }}
           >
-            ⚙ Dev Tools — 本番前に削除
-          </p>
-          <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={handleFillAll}
-              disabled={devBusy}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-bold transition-all active:scale-95 disabled:opacity-50"
-              style={{ background: '#16a34a', color: '#fff' }}
+            <p
+              className="text-[9px] font-bold tracking-[0.4em] uppercase mb-3"
+              style={{ color: '#f59e0b' }}
             >
-              <Zap size={13} />
-              全地区を一括制覇
-            </button>
-            <button
-              onClick={handleReset}
-              disabled={devBusy}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-bold transition-all active:scale-95 disabled:opacity-50"
-              style={{ background: '#dc2626', color: '#fff' }}
-            >
-              <RotateCcw size={13} />
-              全データをリセット
-            </button>
+              ⚙ Dev Tools
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={handleFillAll}
+                disabled={devBusy}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-bold transition-all active:scale-95 disabled:opacity-50"
+                style={{ background: '#16a34a', color: '#fff' }}
+              >
+                <Zap size={13} />
+                全地区を一括制覇
+              </button>
+              <button
+                onClick={handleReset}
+                disabled={devBusy}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-bold transition-all active:scale-95 disabled:opacity-50"
+                style={{ background: '#dc2626', color: '#fff' }}
+              >
+                <RotateCcw size={13} />
+                全データをリセット
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
