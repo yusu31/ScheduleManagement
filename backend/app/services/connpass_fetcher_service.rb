@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ConnpassFetcherService
-  API_URL = "https://connpass.com/api/v1/event/"
+  API_URL = "https://connpass.com/api/v2/events/"
   KEYWORDS = %w[福島].freeze
   FETCH_COUNT = 100
 
@@ -61,6 +61,7 @@ class ConnpassFetcherService
   def fetch_events(keyword)
     conn = Faraday.new do |f|
       f.headers["User-Agent"] = "FukushimaEventNavi/1.0"
+      f.headers["X-API-Key"] = ENV.fetch("CONNPASS_API_KEY", "")
     end
     response = conn.get(API_URL, keyword: keyword, count: FETCH_COUNT)
 
