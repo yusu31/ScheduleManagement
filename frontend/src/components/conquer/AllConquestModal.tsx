@@ -222,7 +222,7 @@ export default function AllConquestModal({ regions, onClose }: Props) {
           <p style={{ fontSize: 14, color: '#999', marginTop: 40 }}>
             {new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
-          <p style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Fukushima Event Finder</p>
+          <p style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Roami</p>
         </div>
       </div>
 

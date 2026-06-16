@@ -155,7 +155,7 @@ export default function Sidebar() {
           </>
         )}
         <p className="text-[10px] text-app-sub/60 text-center mt-4">
-          © {new Date().getFullYear()} Fukushima Event Finder
+          © {new Date().getFullYear()} Roami
         </p>
       </div>
     </aside>

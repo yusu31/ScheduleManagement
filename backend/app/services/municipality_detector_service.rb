@@ -44,7 +44,7 @@ class MunicipalityDetectorService
     http.read_timeout = 5
 
     req = Net::HTTP::Get.new(uri)
-    req["User-Agent"] = "FukushimaEventNavi/1.0"
+    req["User-Agent"] = "Roami/1.0"
     req["Accept-Language"] = "ja"
 
     response = http.request(req)
