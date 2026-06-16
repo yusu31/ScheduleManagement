@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart } from 'lucide-react'
+import { Heart, SlidersHorizontal, X } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import apiClient from '@/lib/axios'
 import EventCard from '@/components/events/EventCard'
 import RandomIllustration from '@/components/RandomIllustration'
+import FilterDrawer from '@/components/events/FilterDrawer'
 import { Event } from '@/types/event'
 import { useFavorites } from '@/contexts/FavoritesContext'
 
@@ -16,18 +17,6 @@ const NO_RESULT_IMAGES = [
   '/images/undraw_searching-everywhere_tffi.svg',
   '/images/undraw_no-data_ig65.svg',
 ]
-
-// ─── フィルター用定数 ───────────────────────────────────────────────
-const AREAS = [
-  'すべての地域', '郡山市', '本宮市', 'いわき市',
-  '福島市', '会津若松市', '南相馬市', '白河市', 'その他',
-]
-const CATEGORIES = [
-  'すべて', 'テクノロジー', '音楽', 'スポーツ',
-  '自然・アウトドア', '食・グルメ', '文化・伝統', 'ファミリー',
-  '教育', '祭り・イベント', 'アート', 'その他',
-]
-const TAGS = ['子連れOK', '無料', '室内', '屋外']
 
 // ─── スケルトンカード（Spotify・Vercel 方式）─────────────────────────
 function SkeletonCard() {
@@ -42,75 +31,6 @@ function SkeletonCard() {
       </div>
     </div>
   )
-}
-
-// ─── ピルボタン ────────────────────────────────────────────────────
-type PillProps = {
-  label: string
-  active: boolean
-  onClick: () => void
-  layoutIdPrefix: string
-}
-function Pill({ label, active, onClick, layoutIdPrefix }: PillProps) {
-  return (
-    <motion.button
-      onClick={onClick}
-      className={`
-        relative flex-shrink-0 px-3.5 py-1.5 rounded-full text-[12px] font-semibold
-        transition-colors duration-150 outline-none whitespace-nowrap
-        ${active
-          ? 'text-white'
-          : 'bg-white/60 border border-white/60 text-app-sub hover:text-app-text hover:bg-white/80'
-        }
-      `}
-      whileTap={{ scale: 0.94 }}
-    >
-      {label}
-      {active && (
-        <motion.span
-          layoutId={`${layoutIdPrefix}-active`}
-          className="absolute inset-0 rounded-full bg-primary -z-10"
-          transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-        />
-      )}
-    </motion.button>
-  )
-}
-
-// ─── エッジスクロールフック ─────────────────────────────────────────
-function useChipScroll() {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const animRef = useRef<number | null>(null)
-  const [fading, setFading] = useState(true)
-
-  const onScroll = () => {
-    const el = scrollRef.current
-    if (!el) return
-    setFading(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
-  }
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = scrollRef.current
-    if (!el) return
-    const { left, width } = el.getBoundingClientRect()
-    const x = e.clientX - left
-    const EDGE = 64
-    const MAX = 5
-    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null }
-    const speed = x > width - EDGE ? ((x - (width - EDGE)) / EDGE) * MAX
-                : x < EDGE          ? -((EDGE - x) / EDGE) * MAX
-                : 0
-    if (speed !== 0) {
-      const tick = () => { el.scrollLeft += speed; animRef.current = requestAnimationFrame(tick) }
-      animRef.current = requestAnimationFrame(tick)
-    }
-  }
-
-  const onMouseLeave = () => {
-    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null }
-  }
-
-  return { scrollRef, fading, onScroll, onMouseMove, onMouseLeave }
 }
 
 // ─── スマートページネーション ──────────────────────────────────────
@@ -185,15 +105,26 @@ export default function EventsPage() {
   const [page,      setPage]      = useState(1)
   const [showPast,  setShowPast]  = useState(false)
   const searchParams = useSearchParams()
-  const [tab,       setTab]       = useState<'all' | 'favorites'>(
+  const [tab,         setTab]         = useState<'all' | 'favorites'>(
     searchParams.get('tab') === 'favorites' ? 'favorites' : 'all'
   )
+  const [drawerOpen,  setDrawerOpen]  = useState(false)
 
   const { isFavorited } = useFavorites()
 
-  const catChips  = useChipScroll()
-  const areaChips = useChipScroll()
-  const tagChips  = useChipScroll()
+  const activeFilterCount = [
+    category !== 'すべて',
+    area !== 'すべての地域',
+    activeTag !== null,
+    showPast,
+  ].filter(Boolean).length
+
+  const resetFilters = () => {
+    setCategory('すべて')
+    setArea('すべての地域')
+    setActiveTag(null)
+    setShowPast(false)
+  }
 
   useEffect(() => {
     apiClient.get('/api/v1/events')
@@ -240,119 +171,126 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen">
 
-      {/* ─── フィルターバー ─── */}
-      <div className="bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-40">
-        {/* タブ：すべて / お気に入り */}
-        <div className="px-8 pt-3.5 pb-0 flex gap-1">
-          {(['all', 'favorites'] as const).map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all duration-150 ${
-                tab === t
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-app-sub hover:bg-app-border'
-              }`}
-            >
-              {t === 'favorites' && <Heart size={12} className={tab === 'favorites' ? 'fill-white' : ''} />}
-              {t === 'all' ? 'すべて' : 'お気に入り'}
-            </button>
-          ))}
-        </div>
+      {/* ─── フィルターバー（新デザイン） ─── */}
+      <div className="bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-40 px-6 pt-3.5 pb-3">
 
-        {/* 検索バー（Spotify 方式：上部に常設） */}
-        <div className="px-8 pt-3 pb-2">
-          <div className="relative max-w-[480px]">
-            {/* 検索アイコン */}
-            <svg
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-sub pointer-events-none"
-              fill="none" stroke="currentColor" strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" strokeLinecap="round" />
+        {/* 行1: 検索バー ＋ 絞り込みボタン */}
+        <div className="flex items-center gap-2 mb-2.5">
+          <div className="relative flex-1 max-w-[520px]">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-app-sub pointer-events-none"
+              fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" strokeLinecap="round" />
             </svg>
             <input
               type="text"
               placeholder="イベント名・場所で検索..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 bg-app-bg border-[1.5px] border-app-border rounded-full text-[13px] text-app-text outline-none focus:border-primary focus:bg-white focus:shadow-[0_0_0_3px_rgba(95,139,139,0.12)] transition-all placeholder:text-app-sub"
+              className="w-full pl-10 pr-10 py-2.5 bg-app-bg border-[1.5px] border-app-border rounded-full text-[13px] text-app-text outline-none focus:border-primary focus:bg-white focus:shadow-[0_0_0_3px_rgba(95,139,139,0.12)] transition-all placeholder:text-app-sub"
             />
-            {/* ✕ クリアボタン */}
             {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-app-sub hover:text-app-text transition-colors text-[16px] leading-none"
-              >
-                ✕
-              </button>
+              <button onClick={() => setSearch('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-app-sub hover:text-app-text transition-colors text-[16px] leading-none">✕</button>
             )}
           </div>
+
+          {/* 絞り込みボタン */}
+          <motion.button
+            onClick={() => setDrawerOpen(true)}
+            whileTap={{ scale: 0.94 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 18 }}
+            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold transition-colors border ${
+              activeFilterCount > 0
+                ? 'bg-primary text-white border-primary shadow-[0_2px_12px_rgba(95,139,139,0.35)]'
+                : 'bg-white text-app-sub border-app-border hover:border-primary hover:text-primary'
+            }`}
+          >
+            <SlidersHorizontal size={14} />
+            絞り込み
+            {activeFilterCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-400 text-white text-[10px] font-bold flex items-center justify-center"
+              >
+                {activeFilterCount}
+              </motion.span>
+            )}
+          </motion.button>
         </div>
 
-        {/* カテゴリピル */}
-        <div
-          ref={catChips.scrollRef}
-          onScroll={catChips.onScroll}
-          onMouseMove={catChips.onMouseMove}
-          onMouseLeave={catChips.onMouseLeave}
-          className="overflow-x-auto scrollbar-hide pb-3"
-          style={catChips.fading ? {
-            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
-          } : undefined}
-        >
-          <div className="flex gap-2 w-max px-8 pr-16">
-            {CATEGORIES.map(cat => (
-              <Pill key={cat} label={cat} active={category === cat}
-                onClick={() => setCategory(cat)} layoutIdPrefix="cat" />
-            ))}
-          </div>
-        </div>
+        {/* 行2: タブ ＋ アクティブフィルターチップ */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* タブ */}
+          {(['all', 'favorites'] as const).map(t => (
+            <motion.button
+              key={t}
+              onClick={() => setTab(t)}
+              whileTap={{ scale: 0.93 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 18 }}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold transition-all ${
+                tab === t ? 'bg-primary text-white shadow-sm' : 'text-app-sub hover:bg-app-border'
+              }`}
+            >
+              {t === 'favorites' && <Heart size={11} className={tab === 'favorites' ? 'fill-white' : ''} />}
+              {t === 'all' ? 'すべて' : 'お気に入り'}
+            </motion.button>
+          ))}
 
-        {/* 地域ピル */}
-        <div
-          ref={areaChips.scrollRef}
-          onScroll={areaChips.onScroll}
-          onMouseMove={areaChips.onMouseMove}
-          onMouseLeave={areaChips.onMouseLeave}
-          className="overflow-x-auto scrollbar-hide pb-3"
-          style={areaChips.fading ? {
-            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
-          } : undefined}
-        >
-          <div className="flex gap-2 w-max px-8 pr-16">
-            {AREAS.map(a => (
-              <Pill key={a} label={a} active={area === a}
-                onClick={() => setArea(a)} layoutIdPrefix="area" />
-            ))}
-          </div>
-        </div>
-
-        {/* タグフィルター */}
-        <div
-          ref={tagChips.scrollRef}
-          onScroll={tagChips.onScroll}
-          onMouseMove={tagChips.onMouseMove}
-          onMouseLeave={tagChips.onMouseLeave}
-          className="overflow-x-auto scrollbar-hide pb-3.5"
-          style={tagChips.fading ? {
-            maskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, black 78%, transparent 100%)',
-          } : undefined}
-        >
-          <div className="flex gap-2 w-max px-8 pr-16 items-center">
-            <span className="text-[11px] font-semibold text-app-sub flex-shrink-0 mr-1">タグ</span>
-            {TAGS.map(tag => (
-              <Pill key={tag} label={tag} active={activeTag === tag}
-                onClick={() => setActiveTag(prev => prev === tag ? null : tag)}
-                layoutIdPrefix="tag" />
-            ))}
-          </div>
+          {/* アクティブフィルターチップ（選択中のみ表示） */}
+          <AnimatePresence>
+            {category !== 'すべて' && (
+              <motion.button key="cat" onClick={() => setCategory('すべて')}
+                initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 480, damping: 20 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
+              >
+                {category} <X size={11} />
+              </motion.button>
+            )}
+            {area !== 'すべての地域' && (
+              <motion.button key="area" onClick={() => setArea('すべての地域')}
+                initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 480, damping: 20 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
+              >
+                {area} <X size={11} />
+              </motion.button>
+            )}
+            {activeTag && (
+              <motion.button key="tag" onClick={() => setActiveTag(null)}
+                initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 480, damping: 20 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
+              >
+                {activeTag} <X size={11} />
+              </motion.button>
+            )}
+            {showPast && (
+              <motion.button key="past" onClick={() => setShowPast(false)}
+                initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 480, damping: 20 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
+              >
+                終了済み含む <X size={11} />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* ─── フィルタードロワー ─── */}
+      <FilterDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        category={category} setCategory={setCategory}
+        area={area} setArea={setArea}
+        activeTag={activeTag} setActiveTag={setActiveTag}
+        showPast={showPast} setShowPast={setShowPast}
+        onReset={resetFilters}
+      />
 
       {/* ─── メインコンテンツ ─── */}
       <main className="max-w-[1160px] mx-auto px-8 py-8 pb-28">

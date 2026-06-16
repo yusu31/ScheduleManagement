@@ -24,7 +24,7 @@ const DEFAULT_GRADIENT = 'from-[#5f8b8b] to-[#3a6b6b]'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('ja-JP', {
-    month: 'long', day: 'numeric', weekday: 'short',
+    year: 'numeric', month: 'long', day: 'numeric', weekday: 'short',
   })
 }
 
@@ -92,6 +92,7 @@ function SkeletonCard() {
 export default function WeeklyEvents() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [isThisWeek, setIsThisWeek] = useState(true)
 
   useEffect(() => {
     const today = new Date()
@@ -104,12 +105,14 @@ export default function WeeklyEvents() {
       .get(`/api/v1/events?start_date=${fmt(today)}&end_date=${fmt(weekLater)}&sort=start_asc`)
       .then(res => {
         const data: Event[] = res.data
-        // 今週が3件未満なら直近イベントで補完
-        if (data.length >= 3) {
+        if (data.length > 0) {
           setEvents(data.slice(0, 3))
+          setIsThisWeek(true)
         } else {
+          // 今週0件なら直近イベントにフォールバック（タイトルも切り替える）
           return apiClient.get('/api/v1/events?sort=start_asc').then(r => {
             setEvents((r.data as Event[]).slice(0, 3))
+            setIsThisWeek(false)
           })
         }
       })
@@ -127,10 +130,10 @@ export default function WeeklyEvents() {
         <div className="flex items-end justify-between mb-8">
           <div>
             <p className="text-[11px] font-semibold tracking-widest text-primary uppercase mb-1">
-              Coming Soon
+              {isThisWeek ? 'This Week' : 'Coming Soon'}
             </p>
             <h2 className="text-[26px] font-black text-gray-800">
-              今週のおすすめ
+              {isThisWeek ? '今週のおすすめ' : '直近のおすすめ'}
             </h2>
           </div>
           <Link

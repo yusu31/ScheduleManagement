@@ -41,7 +41,7 @@ const TAG_BADGE_STYLES: Record<string, string> = {
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('ja-JP', {
-    month: 'short', day: 'numeric', weekday: 'short',
+    year: 'numeric', month: 'short', day: 'numeric', weekday: 'short',
     hour: '2-digit', minute: '2-digit',
   })
 }
