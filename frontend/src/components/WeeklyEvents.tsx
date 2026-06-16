@@ -110,7 +110,7 @@ export default function WeeklyEvents() {
           setIsThisWeek(true)
         } else {
           // 今週0件なら直近イベントにフォールバック（タイトルも切り替える）
-          return apiClient.get('/api/v1/events?sort=start_asc').then(r => {
+          return apiClient.get(`/api/v1/events?start_date=${fmt(today)}&sort=start_asc`).then(r => {
             setEvents((r.data as Event[]).slice(0, 3))
             setIsThisWeek(false)
           })

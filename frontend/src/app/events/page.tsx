@@ -96,33 +96,28 @@ const cardVariants = {
 const PER_PAGE = 12
 
 export default function EventsPage() {
-  const [events,    setEvents]    = useState<Event[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [search,    setSearch]    = useState('')
-  const [area,      setArea]      = useState('すべての地域')
-  const [category,  setCategory]  = useState('すべて')
-  const [activeTag, setActiveTag] = useState<string | null>(null)
-  const [page,      setPage]      = useState(1)
-  const [showPast,  setShowPast]  = useState(false)
+  const [events,     setEvents]     = useState<Event[]>([])
+  const [isLoading,  setIsLoading]  = useState(true)
+  const [search,     setSearch]     = useState('')
+  const [areas,      setAreas]      = useState<string[]>([])
+  const [categories, setCategories] = useState<string[]>([])
+  const [tags,       setTags]       = useState<string[]>([])
+  const [page,       setPage]       = useState(1)
+  const [showPast,   setShowPast]   = useState(false)
   const searchParams = useSearchParams()
-  const [tab,         setTab]         = useState<'all' | 'favorites'>(
+  const [tab,        setTab]        = useState<'all' | 'favorites'>(
     searchParams.get('tab') === 'favorites' ? 'favorites' : 'all'
   )
-  const [drawerOpen,  setDrawerOpen]  = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const { isFavorited } = useFavorites()
 
-  const activeFilterCount = [
-    category !== 'すべて',
-    area !== 'すべての地域',
-    activeTag !== null,
-    showPast,
-  ].filter(Boolean).length
+  const activeFilterCount = categories.length + areas.length + tags.length + (showPast ? 1 : 0)
 
   const resetFilters = () => {
-    setCategory('すべて')
-    setArea('すべての地域')
-    setActiveTag(null)
+    setCategories([])
+    setAreas([])
+    setTags([])
     setShowPast(false)
   }
 
@@ -135,10 +130,10 @@ export default function EventsPage() {
   const filtered = useMemo(() => {
     const now = new Date()
     let result = events
-    if (tab === 'favorites')     result = result.filter(e => isFavorited(e.id))
-    if (area !== 'すべての地域') result = result.filter(e => e.area === area)
-    if (category !== 'すべて')   result = result.filter(e => e.category === category)
-    if (activeTag)               result = result.filter(e => (e.tags ?? []).includes(activeTag))
+    if (tab === 'favorites')    result = result.filter(e => isFavorited(e.id))
+    if (areas.length > 0)       result = result.filter(e => areas.includes(e.area))
+    if (categories.length > 0)  result = result.filter(e => categories.includes(e.category))
+    if (tags.length > 0)        result = result.filter(e => tags.some(t => (e.tags ?? []).includes(t)))
     if (search.trim()) {
       const q = search.trim().toLowerCase()
       result = result.filter(e =>
@@ -158,7 +153,7 @@ export default function EventsPage() {
       .filter(e => { const d = new Date(e.start_at); return d < now && d >= oneYearAgo })
       .sort((a, b) => new Date(b.start_at).getTime() - new Date(a.start_at).getTime())
     return [...upcoming, ...past]
-  }, [events, area, category, activeTag, search, showPast, tab, isFavorited])
+  }, [events, areas, categories, tags, search, showPast, tab, isFavorited])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paginated  = useMemo(() => {
@@ -166,7 +161,7 @@ export default function EventsPage() {
     return filtered.slice(start, start + PER_PAGE)
   }, [filtered, page])
 
-  useEffect(() => { setPage(1) }, [area, category, activeTag, search, showPast, tab])
+  useEffect(() => { setPage(1) }, [areas, categories, tags, search, showPast, tab])
 
   return (
     <div className="min-h-screen">
@@ -239,37 +234,41 @@ export default function EventsPage() {
             </motion.button>
           ))}
 
-          {/* アクティブフィルターチップ（選択中のみ表示） */}
+          {/* アクティブフィルターチップ（選択中のみ表示・複数） */}
           <AnimatePresence>
-            {category !== 'すべて' && (
-              <motion.button key="cat" onClick={() => setCategory('すべて')}
+            {categories.map(cat => (
+              <motion.button key={`cat-${cat}`}
+                onClick={() => setCategories(prev => prev.filter(c => c !== cat))}
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 480, damping: 20 }}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
               >
-                {category} <X size={11} />
+                {cat} <X size={11} />
               </motion.button>
-            )}
-            {area !== 'すべての地域' && (
-              <motion.button key="area" onClick={() => setArea('すべての地域')}
+            ))}
+            {areas.map(a => (
+              <motion.button key={`area-${a}`}
+                onClick={() => setAreas(prev => prev.filter(x => x !== a))}
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 480, damping: 20 }}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
               >
-                {area} <X size={11} />
+                {a} <X size={11} />
               </motion.button>
-            )}
-            {activeTag && (
-              <motion.button key="tag" onClick={() => setActiveTag(null)}
+            ))}
+            {tags.map(t => (
+              <motion.button key={`tag-${t}`}
+                onClick={() => setTags(prev => prev.filter(x => x !== t))}
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 480, damping: 20 }}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
               >
-                {activeTag} <X size={11} />
+                {t} <X size={11} />
               </motion.button>
-            )}
+            ))}
             {showPast && (
-              <motion.button key="past" onClick={() => setShowPast(false)}
+              <motion.button key="past"
+                onClick={() => setShowPast(false)}
                 initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 480, damping: 20 }}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[12px] font-semibold hover:bg-primary/20 transition-colors"
@@ -285,9 +284,9 @@ export default function EventsPage() {
       <FilterDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        category={category} setCategory={setCategory}
-        area={area} setArea={setArea}
-        activeTag={activeTag} setActiveTag={setActiveTag}
+        categories={categories} setCategories={setCategories}
+        areas={areas} setAreas={setAreas}
+        tags={tags} setTags={setTags}
         showPast={showPast} setShowPast={setShowPast}
         onReset={resetFilters}
       />
@@ -353,7 +352,7 @@ export default function EventsPage() {
             ) : (
               <>
               <motion.div
-                key={`${area}-${category}-${activeTag ?? ''}-${search}-${page}`}
+                key={`${areas.join(',')}-${categories.join(',')}-${tags.join(',')}-${search}-${page}`}
                 className="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-x-[28px] gap-y-[24px] py-6"
                 variants={gridVariants}
                 initial="hidden"
