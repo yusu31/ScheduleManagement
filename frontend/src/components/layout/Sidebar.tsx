@@ -3,16 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Home, CalendarDays, CalendarRange, Heart, Sprout, MapPin, Trophy } from 'lucide-react'
+import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useFavorites } from '@/contexts/FavoritesContext'
 
 const navItems: { href: string; label: string; Icon: LucideIcon }[] = [
-  { href: '/', label: 'ホーム', Icon: Home },
-  { href: '/events', label: 'イベント一覧', Icon: CalendarDays },
+  { href: '/today', label: '今日', Icon: Sun },
+  { href: '/personal-events', label: '予定', Icon: CalendarDays },
   { href: '/calendar', label: 'カレンダー', Icon: CalendarRange },
-  { href: '/favorites', label: 'お気に入り', Icon: Heart },
+  { href: '/events', label: 'イベント', Icon: Ticket },
   { href: '/conquer', label: 'マップ制覇', Icon: MapPin },
   { href: '/conquer/collection', label: 'コレクション', Icon: Trophy },
 ]
@@ -23,7 +22,6 @@ export default function Sidebar() {
 
   const pathname = usePathname()
   const { isLoggedIn, currentUser, signOut, isLoading } = useAuth()
-  const { favorites } = useFavorites()
 
   if (!mounted) {
     return (
@@ -60,7 +58,7 @@ export default function Sidebar() {
             <Sprout size={17} className="text-primary" />
           </span>
           <span className="font-bold text-[14px] text-app-text tracking-wide leading-tight">
-            Fukushima<br />Event Finder
+            Roami
           </span>
         </Link>
       </div>
@@ -85,11 +83,6 @@ export default function Sidebar() {
                 >
                   <Icon size={16} />
                   {label}
-                  {href === '/favorites' && isLoggedIn && favorites.length > 0 && (
-                    <span className="ml-auto min-w-[18px] h-[18px] rounded-full bg-red-400 text-white text-[10px] font-bold flex items-center justify-center px-1">
-                      {favorites.length > 9 ? '9+' : favorites.length}
-                    </span>
-                  )}
                 </Link>
               </li>
             )

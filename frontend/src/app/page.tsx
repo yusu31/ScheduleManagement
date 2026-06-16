@@ -22,15 +22,15 @@ export default function Home() {
           </p>
 
           <h1 className="text-[52px] sm:text-[68px] font-black text-white leading-[1.1] mb-6 drop-shadow-sm">
-            福島のイベント、<br />全部ここに。
+            おでかけを、<br />もっと楽しく。
           </h1>
 
           <p className="text-white/65 text-[16px] sm:text-[18px] leading-relaxed mb-10 max-w-sm mx-auto">
-            郡山・いわき・福島市など、地域の<br />イベントをまとめてチェック。
+            予定を管理して、地域のイベントを発見。<br />福島でのおでかけをまるっと記録。
           </p>
 
           <Link
-            href="/events"
+            href="/personal-events"
             className="
               inline-flex items-center gap-2
               bg-white text-[#2d6464] font-bold text-[15px]
@@ -39,7 +39,7 @@ export default function Home() {
               transition-all shadow-[0_8px_32px_rgba(0,0,0,0.25)]
             "
           >
-            イベントを探す →
+            予定を管理する →
           </Link>
         </div>
 
