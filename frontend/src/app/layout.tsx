@@ -18,8 +18,8 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Fukushima Event Finder',
-  description: '福島県内のイベント情報をひと目で。郡山・いわき・福島市など地域のイベントを検索・カレンダーで管理できます。',
+  title: 'Roami',
+  description: '福島のおでかけ・予定をまるっと管理。郡山・いわき・福島市など地域のイベントを検索・カレンダーで管理できます。',
 }
 
 export default function RootLayout({

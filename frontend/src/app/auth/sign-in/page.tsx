@@ -50,7 +50,7 @@ export default function SignInPage() {
             <Sprout size={24} className="text-primary" />
           </span>
           <h1 className="text-[22px] font-bold text-app-text">ログイン</h1>
-          <p className="text-[13px] text-app-sub mt-1">Fukushima Event Finder へようこそ</p>
+          <p className="text-[13px] text-app-sub mt-1">Roami へようこそ</p>
         </div>
 
         {/* フォームカード */}

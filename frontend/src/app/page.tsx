@@ -18,7 +18,7 @@ export default function Home() {
         {/* コンテンツ */}
         <div className="relative z-10 max-w-2xl">
           <p className="text-white/50 text-[11px] font-semibold tracking-[0.3em] uppercase mb-6">
-            Fukushima Event Finder
+            Roami
           </p>
 
           <h1 className="text-[52px] sm:text-[68px] font-black text-white leading-[1.1] mb-6 drop-shadow-sm">

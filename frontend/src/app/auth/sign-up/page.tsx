@@ -61,7 +61,7 @@ export default function SignUpPage() {
             <Sprout size={24} className="text-primary" />
           </span>
           <h1 className="text-[22px] font-bold text-app-text">新規登録</h1>
-          <p className="text-[13px] text-app-sub mt-1">Fukushima Event Finder に参加しよう</p>
+          <p className="text-[13px] text-app-sub mt-1">Roami に参加しよう</p>
         </div>
 
         {/* フォームカード */}

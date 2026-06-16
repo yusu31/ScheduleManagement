@@ -60,7 +60,7 @@ class ConnpassFetcherService
 
   def fetch_events(keyword)
     conn = Faraday.new do |f|
-      f.headers["User-Agent"] = "FukushimaEventNavi/1.0"
+      f.headers["User-Agent"] = "Roami/1.0"
       f.headers["X-API-Key"] = ENV.fetch("CONNPASS_API_KEY", "")
     end
 
