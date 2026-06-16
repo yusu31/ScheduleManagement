@@ -56,6 +56,7 @@ export default function EventCard({ event }: Props) {
 
   const favorited = isFavorited(event.id)
   const style = CATEGORY_STYLES[event.category] ?? DEFAULT_STYLE
+  const isPast = new Date(event.start_at) < new Date()
 
   async function handleFavorite(e: React.MouseEvent) {
     e.preventDefault()
@@ -100,7 +101,7 @@ export default function EventCard({ event }: Props) {
         transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.8 }}
       >
         {/* 画像エリア */}
-        <div className="relative w-full aspect-video overflow-hidden">
+        <div className={`relative w-full aspect-video overflow-hidden${isPast ? ' opacity-75' : ''}`}>
           {event.image_url ? (
             <motion.div
               className="relative w-full h-full"
@@ -119,17 +120,31 @@ export default function EventCard({ event }: Props) {
             </motion.div>
           )}
 
-          {/* カテゴリバッジ（左上・常時表示） */}
-          <div className={`
-            absolute top-3 left-3 z-10
-            inline-flex items-center gap-1 px-2.5 py-1 rounded-full
-            bg-gradient-to-r ${style.gradient}
-            text-[11px] font-bold ${style.text}
-            shadow-[0_2px_8px_rgba(0,0,0,0.2)]
-          `}>
-            <style.Icon size={11} />
-            {event.category}
+          {/* カテゴリ＋地区バッジ（左上・常時表示） */}
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 flex-wrap max-w-[80%]">
+            <div className={`
+              inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+              bg-gradient-to-r ${style.gradient}
+              text-[11px] font-bold ${style.text}
+              shadow-[0_2px_8px_rgba(0,0,0,0.2)]
+            `}>
+              <style.Icon size={11} />
+              {event.category}
+            </div>
+            {event.area && event.area !== 'その他' && (
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-sm text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.2)]">
+                <MapPin size={10} />
+                {event.area}
+              </div>
+            )}
           </div>
+
+          {/* 終了バナー（過去イベント） */}
+          {isPast && (
+            <div className="absolute bottom-0 inset-x-0 z-10 bg-black/55 backdrop-blur-sm py-1 text-center text-[10px] font-bold text-white/90 tracking-[0.15em]">
+              終了
+            </div>
+          )}
 
           {/* ♡ ボタン（右上・常時表示） */}
           <motion.button

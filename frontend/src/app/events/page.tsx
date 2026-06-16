@@ -110,6 +110,53 @@ function useChipScroll() {
   return { scrollRef, fading, onScroll, onMouseMove, onMouseLeave }
 }
 
+// ─── スマートページネーション ──────────────────────────────────────
+function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+  const getPages = (): (number | '...')[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
+    const pages: (number | '...')[] = [1]
+    if (page > 3) pages.push('...')
+    for (let p = Math.max(2, page - 1); p <= Math.min(totalPages - 1, page + 1); p++) pages.push(p)
+    if (page < totalPages - 2) pages.push('...')
+    pages.push(totalPages)
+    return pages
+  }
+  const btnBase = 'min-w-[36px] h-9 rounded-full text-[13px] font-semibold transition-all duration-150 flex items-center justify-center'
+  return (
+    <div className="flex items-center justify-center gap-1 mt-6 mb-10">
+      <button
+        onClick={() => { onChange(page - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+        disabled={page === 1}
+        className={`${btnBase} px-3 text-app-sub hover:bg-app-border disabled:opacity-30 disabled:cursor-not-allowed`}
+        aria-label="前のページ"
+      >
+        ←
+      </button>
+      {getPages().map((p, i) =>
+        p === '...' ? (
+          <span key={`dots-${i}`} className="min-w-[36px] h-9 flex items-center justify-center text-[13px] text-app-sub select-none">···</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => { onChange(p as number); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            className={`${btnBase} px-2 ${p === page ? 'bg-primary text-white shadow-sm' : 'text-app-sub hover:bg-app-border'}`}
+          >
+            {p}
+          </button>
+        )
+      )}
+      <button
+        onClick={() => { onChange(page + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+        disabled={page === totalPages}
+        className={`${btnBase} px-3 text-app-sub hover:bg-app-border disabled:opacity-30 disabled:cursor-not-allowed`}
+        aria-label="次のページ"
+      >
+        →
+      </button>
+    </div>
+  )
+}
+
 // ─── グリッドアニメーション設定 ────────────────────────────────────
 // staggerChildren: 各カードを 0.05 秒ずつ時間差で出現させる
 const gridVariants = {
@@ -123,6 +170,8 @@ const cardVariants = {
 }
 
 // ─── メインページ ─────────────────────────────────────────────────
+const PER_PAGE = 12
+
 export default function EventsPage() {
   const [events,    setEvents]    = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -130,6 +179,8 @@ export default function EventsPage() {
   const [area,      setArea]      = useState('すべての地域')
   const [category,  setCategory]  = useState('すべて')
   const [activeTag, setActiveTag] = useState<string | null>(null)
+  const [page,      setPage]      = useState(1)
+  const [showPast,  setShowPast]  = useState(false)
 
   const catChips  = useChipScroll()
   const areaChips = useChipScroll()
@@ -141,8 +192,8 @@ export default function EventsPage() {
       .finally(() => setIsLoading(false))
   }, [])
 
-  // useMemo でフィルタリング（useEffect より効率的・シンプル）
   const filtered = useMemo(() => {
+    const now = new Date()
     let result = events
     if (area !== 'すべての地域') result = result.filter(e => e.area === area)
     if (category !== 'すべて')   result = result.filter(e => e.category === category)
@@ -155,8 +206,26 @@ export default function EventsPage() {
         e.area.toLowerCase().includes(q)
       )
     }
-    return result
-  }, [events, area, category, activeTag, search])
+    const oneYearAgo = new Date(now)
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+
+    const upcoming = result
+      .filter(e => new Date(e.start_at) >= now)
+      .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
+    if (!showPast) return upcoming
+    const past = result
+      .filter(e => { const d = new Date(e.start_at); return d < now && d >= oneYearAgo })
+      .sort((a, b) => new Date(b.start_at).getTime() - new Date(a.start_at).getTime())
+    return [...upcoming, ...past]
+  }, [events, area, category, activeTag, search, showPast])
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+  const paginated  = useMemo(() => {
+    const start = (page - 1) * PER_PAGE
+    return filtered.slice(start, start + PER_PAGE)
+  }, [filtered, page])
+
+  useEffect(() => { setPage(1) }, [area, category, activeTag, search, showPast])
 
   return (
     <div className="min-h-screen">
@@ -266,9 +335,38 @@ export default function EventsPage() {
           </div>
         ) : (
           <>
-            <p className="text-[13px] text-app-sub font-medium mb-2">
-              {filtered.length}件のイベントが見つかりました
-            </p>
+            <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
+              <p className="text-[13px] text-app-sub font-medium">
+                {filtered.length}件のイベントが見つかりました
+              </p>
+              <div className="flex items-center gap-3">
+                {/* 終了済みトグル */}
+                <label className="flex items-center gap-2 cursor-pointer select-none" onClick={() => setShowPast(v => !v)}>
+                  <div className="relative w-9 h-5 flex-shrink-0">
+                    <div className={`absolute inset-0 rounded-full transition-colors duration-200 ${showPast ? 'bg-primary' : 'bg-gray-200'}`} />
+                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${showPast ? 'translate-x-4' : ''}`} />
+                  </div>
+                  <span className="text-[12px] text-app-sub font-medium whitespace-nowrap">終了済みを表示</span>
+                </label>
+                {/* ページドロップダウン */}
+                {totalPages > 1 && (
+                  <div className="relative">
+                    <select
+                      value={page}
+                      onChange={e => setPage(Number(e.target.value))}
+                      className="appearance-none text-[12px] font-semibold text-app-text bg-white border border-app-border rounded-full pl-3 pr-7 py-1.5 outline-none cursor-pointer hover:bg-app-bg transition-colors"
+                    >
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>{i + 1} / {totalPages} ページ</option>
+                      ))}
+                    </select>
+                    <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-app-sub" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {filtered.length === 0 ? (
               <motion.div
@@ -287,18 +385,16 @@ export default function EventsPage() {
                 <p className="text-[13px] mt-1">絞り込み条件を変えてみてください</p>
               </motion.div>
             ) : (
-              // staggerChildren でカードを時間差フェードイン
-              // AnimatePresence でフィルター時の出入りをアニメーション
-              // layout でフィルター後のカードが滑らかに再配置
+              <>
               <motion.div
-                key={`${area}-${category}-${activeTag ?? ''}-${search}`}
+                key={`${area}-${category}-${activeTag ?? ''}-${search}-${page}`}
                 className="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-x-[28px] gap-y-[24px] py-6"
                 variants={gridVariants}
                 initial="hidden"
                 animate="show"
               >
                 <AnimatePresence mode="popLayout">
-                  {filtered.map(event => (
+                  {paginated.map(event => (
                     <motion.div
                       key={event.id}
                       variants={cardVariants}
@@ -311,6 +407,9 @@ export default function EventsPage() {
                   ))}
                 </AnimatePresence>
               </motion.div>
+
+              {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onChange={setPage} />}
+              </>
             )}
           </>
         )}

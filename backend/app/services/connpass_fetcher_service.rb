@@ -2,7 +2,7 @@
 
 class ConnpassFetcherService
   API_URL = "https://connpass.com/api/v2/events/"
-  KEYWORDS = %w[福島].freeze
+  KEYWORDS = %w[福島 郡山 いわき 会津].freeze
   FETCH_COUNT = 100
 
   AREA_KEYWORDS = {
@@ -63,20 +63,44 @@ class ConnpassFetcherService
       f.headers["User-Agent"] = "FukushimaEventNavi/1.0"
       f.headers["X-API-Key"] = ENV.fetch("CONNPASS_API_KEY", "")
     end
-    response = conn.get(API_URL, keyword: keyword, count: FETCH_COUNT)
 
-    unless response.success?
-      Rails.logger.error("Connpass API returned #{response.status}")
-      return []
+    all_events = []
+    start = 0
+
+    loop do
+      response = conn.get(API_URL, keyword: keyword, count: FETCH_COUNT, start: start)
+      unless response.success?
+        Rails.logger.error("Connpass API returned #{response.status}")
+        break
+      end
+
+      body = JSON.parse(response.body)
+      events = body["events"] || []
+      all_events.concat(events)
+
+      fetched_so_far = start + events.size
+      available = body["results_available"].to_i
+      break if fetched_so_far >= available || events.empty?
+
+      start += FETCH_COUNT
+      sleep(1)
     end
 
-    JSON.parse(response.body)["events"] || []
+    all_events
   rescue Faraday::Error => e
     Rails.logger.error("Connpass API error: #{e.message}")
     []
   end
 
   def save_event(data)
+    return false if online_event?(data)
+
+    address = data["address"].to_s
+    return false if address.present? && !address.include?("福島県")
+
+    area = area_from(data)
+    return false if area == "その他"
+
     event = Event.find_or_initialize_by(connpass_id: data["id"])
     return false unless event.new_record?
 
@@ -85,7 +109,7 @@ class ConnpassFetcherService
       title: data["title"],
       description: data["catch"].presence || data["description"],
       location: data["place"],
-      area: area_from(data),
+      area: area,
       category: category,
       start_at: data["started_at"],
       end_at: data["ended_at"],
@@ -96,6 +120,14 @@ class ConnpassFetcherService
       tags: tags_from(data, category)
     )
     event.save
+  end
+
+  def online_event?(data)
+    place = data["place"].to_s
+    address = data["address"].to_s
+    %w[オンライン online Online Zoom zoom YouTube youtube].any? do |kw|
+      place.include?(kw) || address.include?(kw)
+    end
   end
 
   def area_from(data)
