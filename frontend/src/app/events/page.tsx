@@ -2,10 +2,13 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Heart } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import apiClient from '@/lib/axios'
 import EventCard from '@/components/events/EventCard'
 import RandomIllustration from '@/components/RandomIllustration'
 import { Event } from '@/types/event'
+import { useFavorites } from '@/contexts/FavoritesContext'
 
 const NO_RESULT_IMAGES = [
   '/images/undraw_not-found_6bgl.svg',
@@ -181,6 +184,12 @@ export default function EventsPage() {
   const [activeTag, setActiveTag] = useState<string | null>(null)
   const [page,      setPage]      = useState(1)
   const [showPast,  setShowPast]  = useState(false)
+  const searchParams = useSearchParams()
+  const [tab,       setTab]       = useState<'all' | 'favorites'>(
+    searchParams.get('tab') === 'favorites' ? 'favorites' : 'all'
+  )
+
+  const { isFavorited } = useFavorites()
 
   const catChips  = useChipScroll()
   const areaChips = useChipScroll()
@@ -195,6 +204,7 @@ export default function EventsPage() {
   const filtered = useMemo(() => {
     const now = new Date()
     let result = events
+    if (tab === 'favorites')     result = result.filter(e => isFavorited(e.id))
     if (area !== 'すべての地域') result = result.filter(e => e.area === area)
     if (category !== 'すべて')   result = result.filter(e => e.category === category)
     if (activeTag)               result = result.filter(e => (e.tags ?? []).includes(activeTag))
@@ -217,7 +227,7 @@ export default function EventsPage() {
       .filter(e => { const d = new Date(e.start_at); return d < now && d >= oneYearAgo })
       .sort((a, b) => new Date(b.start_at).getTime() - new Date(a.start_at).getTime())
     return [...upcoming, ...past]
-  }, [events, area, category, activeTag, search, showPast])
+  }, [events, area, category, activeTag, search, showPast, tab, isFavorited])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paginated  = useMemo(() => {
@@ -225,15 +235,33 @@ export default function EventsPage() {
     return filtered.slice(start, start + PER_PAGE)
   }, [filtered, page])
 
-  useEffect(() => { setPage(1) }, [area, category, activeTag, search, showPast])
+  useEffect(() => { setPage(1) }, [area, category, activeTag, search, showPast, tab])
 
   return (
     <div className="min-h-screen">
 
       {/* ─── フィルターバー ─── */}
       <div className="bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-40">
+        {/* タブ：すべて / お気に入り */}
+        <div className="px-8 pt-3.5 pb-0 flex gap-1">
+          {(['all', 'favorites'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all duration-150 ${
+                tab === t
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-app-sub hover:bg-app-border'
+              }`}
+            >
+              {t === 'favorites' && <Heart size={12} className={tab === 'favorites' ? 'fill-white' : ''} />}
+              {t === 'all' ? 'すべて' : 'お気に入り'}
+            </button>
+          ))}
+        </div>
+
         {/* 検索バー（Spotify 方式：上部に常設） */}
-        <div className="px-8 pt-3.5 pb-2">
+        <div className="px-8 pt-3 pb-2">
           <div className="relative max-w-[480px]">
             {/* 検索アイコン */}
             <svg
