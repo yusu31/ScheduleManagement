@@ -170,7 +170,7 @@ export default function EventDetailPage() {
             {/* 説明文 */}
             {event.description && (
               <p className="text-[14px] leading-[1.85] text-app-text mb-6 whitespace-pre-wrap">
-                {event.description}
+                {event.description.replace(/<[^>]*>/g, '')}
               </p>
             )}
 
