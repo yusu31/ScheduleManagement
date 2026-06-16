@@ -77,7 +77,7 @@ class ConnpassFetcherService
   end
 
   def save_event(data)
-    event = Event.find_or_initialize_by(connpass_id: data["event_id"])
+    event = Event.find_or_initialize_by(connpass_id: data["id"])
     return false unless event.new_record?
 
     category = category_from(data)
@@ -90,7 +90,7 @@ class ConnpassFetcherService
       start_at: data["started_at"],
       end_at: data["ended_at"],
       capacity: data["limit"],
-      event_url: data["event_url"],
+      event_url: data["url"],
       image_url: data["image_url"],
       source: "connpass",
       tags: tags_from(data, category)
