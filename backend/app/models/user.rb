@@ -12,6 +12,12 @@ class User < ApplicationRecord
   # :validatable のemail format検証を上書き（任意の文字列を許可する）
   validates :email, presence: true, uniqueness: { case_sensitive: false }
 
+  # default_callbacks=false で uid が空になるバグを補完
+  before_validation :set_uid_from_email, on: :create
+  def set_uid_from_email
+    self.uid = email if uid.blank?
+  end
+
   has_many :favorites, dependent: :destroy
   has_many :schedules, dependent: :destroy
   has_many :visit_records, dependent: :destroy

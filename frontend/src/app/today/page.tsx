@@ -53,76 +53,128 @@ type TodayItem =
   | { type: 'scheduled'; id: string; sortKey: string; data: ScheduledEvent }
 
 // ─── サブコンポーネント ────────────────────────────────────────────────────
-function PersonalItem({ item, onClick }: { item: PersonalEvent; onClick: () => void }) {
+function PersonalItem({
+  item, checked, onToggle, onClick, showCheck,
+}: {
+  item: PersonalEvent
+  checked: boolean
+  onToggle: () => void
+  onClick: () => void
+  showCheck: boolean
+}) {
   const start = item.start_time ? item.start_time.slice(0, 5) : null
   const end = item.end_time ? item.end_time.slice(0, 5) : null
 
   return (
-    <motion.button
+    <motion.div
       layout
       initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
+      animate={{ opacity: checked ? 0.45 : 1, x: 0 }}
       exit={{ opacity: 0, x: 6 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      onClick={onClick}
-      className="w-full flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-emerald-50/70 active:bg-emerald-50 transition-colors text-left group"
+      className="flex items-start gap-2 px-4 py-3 rounded-xl hover:bg-emerald-50/70 transition-colors group"
     >
-      <div className="w-14 shrink-0 text-right pt-0.5">
-        {start ? (
-          <div className="flex flex-col items-end">
-            <span className="text-[12px] font-bold text-emerald-700">{start}</span>
-            {end && <span className="text-[10px] text-gray-400">{end}</span>}
-          </div>
-        ) : (
-          <span className="text-[10px] text-gray-400 font-medium">終日</span>
-        )}
-      </div>
-      <div className="w-[3px] rounded-full bg-emerald-400 self-stretch shrink-0 mt-1 min-h-[20px]" />
-      <div className="flex-1 min-w-0">
-        <p className="text-[14px] font-semibold text-app-text leading-snug">{item.title}</p>
-        {item.location && (
-          <p className="flex items-center gap-1 text-[11px] text-app-sub mt-0.5">
-            <MapPin size={10} className="text-emerald-500 shrink-0" />
-            <span className="truncate">{item.location}</span>
+      {showCheck && (
+        <button
+          onClick={onToggle}
+          className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 transition-all ${
+            checked
+              ? 'border-emerald-500 bg-emerald-500'
+              : 'border-gray-300 hover:border-emerald-400'
+          }`}
+        >
+          {checked && <Check size={10} className="text-white" strokeWidth={3} />}
+        </button>
+      )}
+      <button
+        onClick={onClick}
+        className="flex-1 flex items-start gap-3 text-left min-w-0"
+      >
+        <div className="w-14 shrink-0 text-right pt-0.5">
+          {start ? (
+            <div className="flex flex-col items-end">
+              <span className="text-[12px] font-bold text-emerald-700">{start}</span>
+              {end && <span className="text-[10px] text-gray-400">{end}</span>}
+            </div>
+          ) : (
+            <span className="text-[10px] text-gray-400 font-medium">終日</span>
+          )}
+        </div>
+        <div className="w-[3px] rounded-full bg-emerald-400 self-stretch shrink-0 mt-1 min-h-[20px]" />
+        <div className="flex-1 min-w-0">
+          <p className={`text-[14px] font-semibold text-app-text leading-snug ${checked ? 'line-through' : ''}`}>
+            {item.title}
           </p>
-        )}
-      </div>
-      <Pencil size={13} className="text-gray-300 group-hover:text-emerald-500 transition-colors shrink-0 mt-1" />
-    </motion.button>
+          {item.location && (
+            <p className="flex items-center gap-1 text-[11px] text-app-sub mt-0.5">
+              <MapPin size={10} className="text-emerald-500 shrink-0" />
+              <span className="truncate">{item.location}</span>
+            </p>
+          )}
+        </div>
+        <Pencil size={13} className="text-gray-300 group-hover:text-emerald-500 transition-colors shrink-0 mt-1" />
+      </button>
+    </motion.div>
   )
 }
 
-function ScheduledItem({ item, onClick }: { item: ScheduledEvent; onClick: () => void }) {
+function ScheduledItem({
+  item, checked, onToggle, onClick, showCheck,
+}: {
+  item: ScheduledEvent
+  checked: boolean
+  onToggle: () => void
+  onClick: () => void
+  showCheck: boolean
+}) {
   const timeStr = utcToJstTimeStr(item.start_at)
 
   return (
-    <motion.button
+    <motion.div
       layout
       initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
+      animate={{ opacity: checked ? 0.45 : 1, x: 0 }}
       exit={{ opacity: 0, x: 6 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      onClick={onClick}
-      className="w-full flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-primary/5 active:bg-primary/8 transition-colors text-left group"
+      className="flex items-start gap-2 px-4 py-3 rounded-xl hover:bg-primary/5 transition-colors group"
     >
-      <div className="w-14 shrink-0 text-right pt-0.5">
-        <span className="text-[12px] font-bold text-primary">{timeStr}</span>
-      </div>
-      <div className="w-[3px] rounded-full bg-primary self-stretch shrink-0 mt-1 min-h-[20px]" />
-      <div className="flex-1 min-w-0">
-        <p className="text-[14px] font-semibold text-app-text leading-snug">{item.title}</p>
-        {item.location && (
-          <p className="flex items-center gap-1 text-[11px] text-app-sub mt-0.5">
-            <MapPin size={10} className="text-primary/60 shrink-0" />
-            <span className="truncate">{item.location}</span>
+      {showCheck && (
+        <button
+          onClick={onToggle}
+          className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 transition-all ${
+            checked
+              ? 'border-primary bg-primary'
+              : 'border-gray-300 hover:border-primary/60'
+          }`}
+        >
+          {checked && <Check size={10} className="text-white" strokeWidth={3} />}
+        </button>
+      )}
+      <button
+        onClick={onClick}
+        className="flex-1 flex items-start gap-3 text-left min-w-0"
+      >
+        <div className="w-14 shrink-0 text-right pt-0.5">
+          <span className="text-[12px] font-bold text-primary">{timeStr}</span>
+        </div>
+        <div className="w-[3px] rounded-full bg-primary self-stretch shrink-0 mt-1 min-h-[20px]" />
+        <div className="flex-1 min-w-0">
+          <p className={`text-[14px] font-semibold text-app-text leading-snug ${checked ? 'line-through' : ''}`}>
+            {item.title}
           </p>
-        )}
-        <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-medium text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded-full">
-          <Ticket size={9} />イベント参加予定
-        </span>
-      </div>
-      <ChevronRight size={13} className="text-gray-300 group-hover:text-primary transition-colors shrink-0 mt-1" />
-    </motion.button>
+          {item.location && (
+            <p className="flex items-center gap-1 text-[11px] text-app-sub mt-0.5">
+              <MapPin size={10} className="text-primary/60 shrink-0" />
+              <span className="truncate">{item.location}</span>
+            </p>
+          )}
+          <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-medium text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded-full">
+            <Ticket size={9} />イベント参加予定
+          </span>
+        </div>
+        <ChevronRight size={13} className="text-gray-300 group-hover:text-primary transition-colors shrink-0 mt-1" />
+      </button>
+    </motion.div>
   )
 }
 
@@ -136,6 +188,7 @@ export default function TodayPage() {
   const [scheduledEventIds, setScheduledEventIds] = useState<Set<number>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [addingId, setAddingId] = useState<string | null>(null)
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<PersonalEvent | null>(null)
@@ -216,6 +269,25 @@ export default function TodayPage() {
   const displayItems = selectedWeekDay && selectedWeekDay !== today ? selectedDayItems : todayItems
   const isViewingToday = !selectedWeekDay || selectedWeekDay === today
 
+  // チェック済みを下部に移動（今日のみ）
+  const sortedDisplayItems = isViewingToday
+    ? [
+        ...displayItems.filter(item => !checkedIds.has(item.id)),
+        ...displayItems.filter(item => checkedIds.has(item.id)),
+      ]
+    : displayItems
+
+  const allChecked = isViewingToday && displayItems.length > 0 && displayItems.every(item => checkedIds.has(item.id))
+
+  const handleToggleCheck = (id: string) => {
+    setCheckedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   // ─── 今週のミニカレンダー ────────────────────────────────────────────────
   const weekDays = (() => {
     const [y, m, d] = today.split('-').map(Number)
@@ -285,9 +357,8 @@ export default function TodayPage() {
   const handleAddToSchedule = async (eventId: number) => {
     setAddingId(String(eventId))
     try {
-      const res = await apiClient.post('/api/v1/schedules', { event_id: eventId })
+      await apiClient.post('/api/v1/schedules', { event_id: eventId })
       setScheduledEventIds(prev => new Set(prev).add(eventId))
-      setScheduleIdMap(prev => new Map(prev).set(eventId, res.data.id))
       setSuggestEvents(prev => prev.filter(ev => ev.id !== eventId))
       toast('カレンダーに追加しました', { style: { fontSize: '13px', fontWeight: '600' } })
     } catch {
@@ -325,8 +396,7 @@ export default function TodayPage() {
     return (
       <main className="flex-1 p-6 max-w-2xl mx-auto w-full">
         <div className="animate-pulse space-y-4 mt-2">
-          <div className="h-4 bg-gray-200 rounded-lg w-36" />
-          <div className="h-7 bg-gray-200 rounded-lg w-52" />
+          <div className="h-[160px] bg-gray-200 rounded-3xl" />
           <div className="h-[120px] bg-gray-100 rounded-2xl mt-5" />
           <div className="h-[220px] bg-gray-100 rounded-2xl" />
           <div className="h-[100px] bg-gray-100 rounded-2xl" />
@@ -338,27 +408,48 @@ export default function TodayPage() {
   return (
     <main className="flex-1 p-6 max-w-2xl mx-auto w-full pb-28">
 
-      {/* ─── グリーティング & 日付 ───────────────────────────────────── */}
+      {/* ─── ヒーローカード ──────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-        className="mb-6"
+        transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+        className={`mb-6 rounded-3xl overflow-hidden p-6 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ${
+          isEvening
+            ? 'bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600'
+            : 'bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-500'
+        }`}
       >
-        <div className="flex items-center gap-1.5 mb-1">
+        <div className="flex items-center gap-1.5 mb-3">
           {isEvening
-            ? <Moon size={14} className="text-indigo-400" />
-            : <Sun size={14} className="text-amber-400" />
+            ? <Moon size={15} className="text-white/80" />
+            : <Sun size={15} className="text-white/80" />
           }
-          <p className="text-[13px] text-app-sub font-medium">
-            {getGreeting(currentUser?.name)}
-          </p>
+          <p className="text-[13px] text-white/80 font-medium">{getGreeting(currentUser?.name)}</p>
         </div>
-        <h1 className="text-[26px] font-black text-app-text">
-          {new Date().toLocaleDateString('ja-JP', {
-            month: 'long', day: 'numeric', weekday: 'long',
-          })}
-        </h1>
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-[13px] font-semibold text-white/70 mb-0.5">
+              {new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })}
+            </p>
+            <div className="flex items-end gap-1 leading-none">
+              <span className="text-[80px] font-black text-white leading-none tracking-tight">
+                {new Date().getDate()}
+              </span>
+              <span className="text-[28px] font-bold text-white/90 mb-3">
+                {new Date().toLocaleDateString('ja-JP', { weekday: 'short' })}
+              </span>
+            </div>
+          </div>
+          <div className="text-right pb-2">
+            <p className="text-[12px] text-white/70 mb-0.5">今日の予定</p>
+            <div className="flex items-end justify-end gap-0.5">
+              <span className="text-[44px] font-black text-white leading-none">
+                {todayItems.length}
+              </span>
+              <span className="text-[18px] font-bold text-white/90 mb-1">件</span>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* ─── 今週のミニカレンダー ───────────────────────────────────── */}
@@ -442,13 +533,16 @@ export default function TodayPage() {
 
         {/* 予定リスト */}
         <AnimatePresence mode="popLayout" initial={false}>
-          {displayItems.length > 0 ? (
+          {sortedDisplayItems.length > 0 ? (
             <div className="py-1.5">
-              {displayItems.map(item =>
+              {sortedDisplayItems.map(item =>
                 item.type === 'personal' ? (
                   <PersonalItem
                     key={item.id}
                     item={item.data}
+                    checked={checkedIds.has(item.id)}
+                    onToggle={() => handleToggleCheck(item.id)}
+                    showCheck={isViewingToday}
                     onClick={() => {
                       setEditingEvent(item.data)
                       setModalDate(item.data.event_date)
@@ -459,6 +553,9 @@ export default function TodayPage() {
                   <ScheduledItem
                     key={item.id}
                     item={item.data}
+                    checked={checkedIds.has(item.id)}
+                    onToggle={() => handleToggleCheck(item.id)}
+                    showCheck={isViewingToday}
                     onClick={() => window.open(`/events/${item.data.id}`, '_blank')}
                   />
                 )
@@ -486,6 +583,23 @@ export default function TodayPage() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* ─── 全チェック完了メッセージ ───────────────────────────────── */}
+      <AnimatePresence>
+        {allChecked && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="mb-4 flex items-center justify-center gap-2 py-4 px-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100"
+          >
+            <span className="text-xl">✨</span>
+            <p className="text-[14px] font-bold text-emerald-700">今日の予定すべて完了！</p>
+            <span className="text-xl">✨</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── 今日・明日のConnpassイベント推薦 ──────────────────────── */}
       <AnimatePresence>
