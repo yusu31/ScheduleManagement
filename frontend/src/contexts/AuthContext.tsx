@@ -37,7 +37,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const response = await apiClient.get('/auth/validate_token')
-      setCurrentUser(response.data.data)
+      const userData = response.data.data
+      setCurrentUser(userData)
+      // uid がレスポンスヘッダーで欠損していた場合をボディから補完
+      if (userData?.email) {
+        localStorage.setItem('uid', userData.email)
+      }
     } catch {
       localStorage.removeItem('access-token')
       localStorage.removeItem('client')
@@ -65,7 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password_confirmation: passwordConfirmation,
         name,
       })
-      setCurrentUser(response.data.data)
+      const userData = response.data.data
+      setCurrentUser(userData)
+      if (userData?.email) localStorage.setItem('uid', userData.email)
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { errors?: string[] } } }
       const messages = axiosErr?.response?.data?.errors
@@ -76,7 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       const response = await apiClient.post('/auth/sign_in', { email, password })
-      setCurrentUser(response.data.data)
+      const userData = response.data.data
+      setCurrentUser(userData)
+      if (userData?.email) localStorage.setItem('uid', userData.email)
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { errors?: string[] } } }
       const messages = axiosErr?.response?.data?.errors
@@ -85,11 +94,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await apiClient.delete('/auth/sign_out')
-    localStorage.removeItem('access-token')
-    localStorage.removeItem('client')
-    localStorage.removeItem('uid')
-    setCurrentUser(null)
+    try {
+      await apiClient.delete('/auth/sign_out')
+    } catch {
+      // サーバーエラーでもローカルは必ずクリア
+    } finally {
+      localStorage.removeItem('access-token')
+      localStorage.removeItem('client')
+      localStorage.removeItem('uid')
+      setCurrentUser(null)
+    }
   }
 
   return (

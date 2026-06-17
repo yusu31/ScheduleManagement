@@ -32,8 +32,8 @@ apiClient.interceptors.response.use((response) => {
 
     if (accessToken) {
       localStorage.setItem('access-token', accessToken)
-      localStorage.setItem('client', client)
-      localStorage.setItem('uid', uid)
+      if (client) localStorage.setItem('client', client)
+      if (uid) localStorage.setItem('uid', uid)
     }
   }
   return response
