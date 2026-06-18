@@ -11,6 +11,7 @@ html {
   background: linear-gradient(135deg, #cce8e0 0%, #deeaf8 50%, #ccdcf0 100%);
   background-attachment: fixed;
   min-height: 100%;
+  transition: background 0.4s ease;
 }
 
 body {
@@ -18,6 +19,14 @@ body {
   background: transparent;
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
+}
+
+/* ─── テーマ背景時の文字視認性向上 ──────────────────────── */
+/* 写真・暗い背景のとき、背景なしで浮いているテキスト専用 */
+html[data-theme-bg="photo"] .theme-readable,
+html[data-theme-bg="dark"] .theme-readable {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75), 0 3px 12px rgba(0, 0, 0, 0.45);
 }
 
 /* ─── FullCalendar カスタムスタイル ─────────────────────────── */

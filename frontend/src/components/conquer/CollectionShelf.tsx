@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Lock } from 'lucide-react'
 import RegionItem3D from './RegionItem3D'
 import CollectionItemModal from './CollectionItemModal'
+import { useTheme, isThemeDark } from '@/contexts/ThemeContext'
 
 type ConquestEntry = {
   id: number
@@ -40,6 +41,8 @@ const ITEM_LABELS: Record<string, string> = {
 export default function CollectionShelf({ regions, conquests }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const { currentTheme } = useTheme()
+  const dark = isThemeDark(currentTheme)
 
   const allItems: RegionDef[] = [
     ...regions,
@@ -66,25 +69,39 @@ export default function CollectionShelf({ regions, conquests }: Props) {
           borderRadius: 28,
           overflow: 'hidden',
           position: 'relative',
-          background: 'linear-gradient(160deg, #141230 0%, #221e4a 40%, #2d2460 70%, #1c1a38 100%)',
-          boxShadow: '0 40px 100px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.07)',
+          background: dark
+            ? 'rgba(10, 8, 28, 0.58)'
+            : 'rgba(255, 255, 255, 0.18)',
+          backdropFilter: 'blur(24px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+          border: dark
+            ? '1px solid rgba(255,255,255,0.1)'
+            : '1px solid rgba(255,255,255,0.45)',
+          boxShadow: dark
+            ? '0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)'
+            : '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5)',
           padding: '18px 44px 14px',
+          transition: 'background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease',
         }}
       >
         {/* 左の縦サポート柱 */}
         <div style={{
           position: 'absolute', left: 18, top: 0, bottom: 0, width: 8,
-          background: 'linear-gradient(180deg, rgba(210,230,255,0.18) 0%, rgba(210,230,255,0.06) 100%)',
-          borderLeft: '1.5px solid rgba(255,255,255,0.28)',
-          borderRight: '1px solid rgba(255,255,255,0.04)',
+          background: dark
+            ? 'linear-gradient(180deg, rgba(210,230,255,0.18) 0%, rgba(210,230,255,0.06) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%)',
+          borderLeft: '1.5px solid rgba(255,255,255,0.4)',
+          borderRight: '1px solid rgba(255,255,255,0.08)',
           borderRadius: '0 0 4px 4px',
         }} />
         {/* 右の縦サポート柱 */}
         <div style={{
           position: 'absolute', right: 18, top: 0, bottom: 0, width: 8,
-          background: 'linear-gradient(180deg, rgba(210,230,255,0.18) 0%, rgba(210,230,255,0.06) 100%)',
-          borderLeft: '1px solid rgba(255,255,255,0.04)',
-          borderRight: '1.5px solid rgba(255,255,255,0.28)',
+          background: dark
+            ? 'linear-gradient(180deg, rgba(210,230,255,0.18) 0%, rgba(210,230,255,0.06) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%)',
+          borderLeft: '1px solid rgba(255,255,255,0.08)',
+          borderRight: '1.5px solid rgba(255,255,255,0.4)',
           borderRadius: '0 0 4px 4px',
         }} />
 
@@ -95,7 +112,7 @@ export default function CollectionShelf({ regions, conquests }: Props) {
             fontWeight: 800,
             letterSpacing: '0.55em',
             textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.22)',
+            color: dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)',
             marginBottom: 6,
           }}>
             Collection
@@ -142,7 +159,9 @@ export default function CollectionShelf({ regions, conquests }: Props) {
                       fontSize: 10,
                       fontWeight: 600,
                       letterSpacing: '0.03em',
-                      color: isConquered ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.11)',
+                      color: isConquered
+                        ? (dark ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.65)')
+                        : (dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.18)'),
                       transition: 'color 0.2s ease',
                       whiteSpace: 'nowrap',
                     }}>
@@ -177,7 +196,7 @@ export default function CollectionShelf({ regions, conquests }: Props) {
                             width: '100%', height: '100%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                           }}>
-                            <Lock size={20} style={{ color: 'rgba(255,255,255,0.09)' }} />
+                            <Lock size={20} style={{ color: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)' }} />
                           </div>
                         )}
                       </div>
@@ -208,10 +227,18 @@ export default function CollectionShelf({ regions, conquests }: Props) {
               height: 16,
               margin: '0 -56px',
               position: 'relative',
-              background: 'linear-gradient(180deg, rgba(230,245,255,0.3) 0%, rgba(200,225,255,0.14) 55%, rgba(180,205,255,0.04) 100%)',
-              borderTop: '2px solid rgba(255,255,255,0.48)',
-              borderBottom: '1px solid rgba(0,0,0,0.22)',
-              boxShadow: '0 12px 36px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.32)',
+              background: dark
+                ? 'linear-gradient(180deg, rgba(230,245,255,0.28) 0%, rgba(200,225,255,0.12) 55%, rgba(180,205,255,0.03) 100%)'
+                : 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 55%, rgba(255,255,255,0.08) 100%)',
+              borderTop: dark
+                ? '2px solid rgba(255,255,255,0.48)'
+                : '2px solid rgba(255,255,255,0.75)',
+              borderBottom: dark
+                ? '1px solid rgba(0,0,0,0.22)'
+                : '1px solid rgba(0,0,0,0.08)',
+              boxShadow: dark
+                ? '0 12px 36px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.32)'
+                : '0 6px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)',
             }}>
               {/* 左側の反射ハイライト */}
               <div style={{
@@ -249,7 +276,9 @@ export default function CollectionShelf({ regions, conquests }: Props) {
             <span style={{
               fontSize: 18,
               fontWeight: 800,
-              color: conquests.length === 11 ? '#d4af37' : 'rgba(255,255,255,0.55)',
+              color: conquests.length === 11
+                ? '#d4af37'
+                : (dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.45)'),
               letterSpacing: '-0.02em',
               lineHeight: 1,
             }}>
@@ -259,7 +288,7 @@ export default function CollectionShelf({ regions, conquests }: Props) {
               fontSize: 9,
               fontWeight: 600,
               letterSpacing: '0.28em',
-              color: 'rgba(255,255,255,0.16)',
+              color: dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.25)',
               textTransform: 'uppercase',
             }}>
               / 11 acquired

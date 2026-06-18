@@ -285,9 +285,8 @@ export default function TodayPage() {
   const handleAddToSchedule = async (eventId: number) => {
     setAddingId(String(eventId))
     try {
-      const res = await apiClient.post('/api/v1/schedules', { event_id: eventId })
+      await apiClient.post('/api/v1/schedules', { event_id: eventId })
       setScheduledEventIds(prev => new Set(prev).add(eventId))
-      setScheduleIdMap(prev => new Map(prev).set(eventId, res.data.id))
       setSuggestEvents(prev => prev.filter(ev => ev.id !== eventId))
       toast('カレンダーに追加しました', { style: { fontSize: '13px', fontWeight: '600' } })
     } catch {

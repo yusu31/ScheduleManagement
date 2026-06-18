@@ -301,7 +301,7 @@ export default function EventsPage() {
         ) : (
           <>
             <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
-              <p className="text-[13px] text-app-sub font-medium">
+              <p className="text-[13px] text-app-sub font-medium theme-readable">
                 {filtered.length}件のイベントが見つかりました
               </p>
               <div className="flex items-center gap-3">
@@ -311,7 +311,7 @@ export default function EventsPage() {
                     <div className={`absolute inset-0 rounded-full transition-colors duration-200 ${showPast ? 'bg-primary' : 'bg-gray-200'}`} />
                     <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${showPast ? 'translate-x-4' : ''}`} />
                   </div>
-                  <span className="text-[12px] text-app-sub font-medium whitespace-nowrap">終了済みを表示</span>
+                  <span className="text-[12px] text-app-sub font-medium whitespace-nowrap theme-readable">終了済みを表示</span>
                 </label>
                 {/* ページドロップダウン */}
                 {totalPages > 1 && (
