@@ -4,7 +4,9 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import Sidebar from '@/components/layout/Sidebar'
+import ThemePickerModal from '@/components/theme/ThemePickerModal'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -31,15 +33,18 @@ export default function RootLayout({
     <html lang="ja">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
-          <FavoritesProvider>
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <main className="flex-1 min-w-0 overflow-y-auto">
-                {children}
-              </main>
-            </div>
-            <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
-          </FavoritesProvider>
+          <ThemeProvider>
+            <FavoritesProvider>
+              <div className="flex min-h-screen">
+                <Sidebar />
+                <main className="flex-1 min-w-0 overflow-y-auto">
+                  {children}
+                </main>
+              </div>
+              <ThemePickerModal />
+              <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
+            </FavoritesProvider>
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

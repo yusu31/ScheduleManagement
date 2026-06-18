@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy } from 'lucide-react'
+import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTheme } from '@/contexts/ThemeContext'
 
 const navItems: { href: string; label: string; Icon: LucideIcon }[] = [
   { href: '/today', label: '今日', Icon: Sun },
@@ -22,6 +23,7 @@ export default function Sidebar() {
 
   const pathname = usePathname()
   const { isLoggedIn, currentUser, signOut, isLoading } = useAuth()
+  const { openPicker, currentTheme } = useTheme()
 
   if (!mounted) {
     return (
@@ -89,6 +91,26 @@ export default function Sidebar() {
           })}
         </ul>
       </nav>
+
+      {/* テーマ変更ボタン */}
+      <div className="px-3 pb-2">
+        <button
+          onClick={openPicker}
+          className="
+            w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
+            text-[13px] font-medium text-app-sub
+            hover:bg-white/60 hover:text-app-text transition-colors
+          "
+        >
+          <Palette size={15} />
+          <span>背景テーマ</span>
+          {currentTheme && (
+            <span className="ml-auto text-[11px] text-primary font-semibold truncate max-w-[70px]">
+              {currentTheme.name}
+            </span>
+          )}
+        </button>
+      </div>
 
       {/* 下部：認証エリア */}
       <div className="px-3 pb-5 pt-3 border-t border-white/50">
