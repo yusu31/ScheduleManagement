@@ -18,10 +18,10 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // ログイン済みなら /events へリダイレクト
+  // ログイン済みなら /today へリダイレクト
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
-      router.replace('/events')
+      router.replace('/today')
     }
   }, [isLoggedIn, isLoading, router])
 
@@ -41,7 +41,7 @@ export default function SignUpPage() {
     setIsSubmitting(true)
     try {
       await signUp(email, password, passwordConfirmation, name)
-      router.push('/events')
+      router.push('/today')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '登録に失敗しました'
       setError(msg)
