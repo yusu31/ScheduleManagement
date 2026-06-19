@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 export type ThemeCategory =
   | 'Japan' | 'Nature' | 'Ocean' | 'Sky' | 'Night' | 'Flower' | 'Food'
-  | 'IllustAnime' | 'IllustFantasy' | 'IllustPop'
+  | 'IllustAnime' | 'IllustScene' | 'IllustFantasy' | 'IllustPop'
   | 'Pastel' | 'Lofi' | 'Neon'
 
 export type ThemeItem = {
@@ -68,24 +68,26 @@ export const THEMES: ThemeItem[] = [
   { id: 'food-3', category: 'Food', name: 'フルーツ',               ...p('food/fruits.jpg') },
   { id: 'food-4', category: 'Food', name: 'クロワッサン',           ...p('food/croissant.jpg') },
 
-  // ── IllustAnime（アニメ/風景イラスト）───────────────────────────
+  // ── IllustAnime（アニメ/キャラ）──────────────────────────────────
   { id: 'illust-6',  category: 'IllustAnime', name: '放課後教室',                  ...p('illustration/classroom.jpg') },
   { id: 'illust-12', category: 'IllustAnime', name: '夏のイラスト',                ...p('illustration/summer-illust.jpg') },
   { id: 'illust-16', category: 'IllustAnime', name: '崖の猫',                      ...p('illustration/cat-cliff.jpg') },
   { id: 'illust-18', category: 'IllustAnime', name: 'ビーチパーティー', dark: true, ...p('illustration/beach-party.jpg') },
   { id: 'illust-20', category: 'IllustAnime', name: '少女と夕焼け',    dark: true, ...p('illustration/girl-sunset.jpg') },
   { id: 'illust-26', category: 'IllustAnime', name: '女性イラスト',                ...p('illustration/woman.svg') },
-  { id: 'illust-29', category: 'IllustAnime', name: '村',                          ...p('illustration/village.svg') },
-  { id: 'ocean-3',   category: 'IllustAnime', name: 'ギリシャ港',                  ...p('ocean/greek-port.jpg') },
-  { id: 'ocean-4',   category: 'IllustAnime', name: '地中海',                      ...p('ocean/mediterranean.jpg') },
-  { id: 'ocean-5',   category: 'IllustAnime', name: 'ポップビーチ',                ...p('ocean/pop-beach.jpg') },
-  { id: 'ocean-6',   category: 'IllustAnime', name: '青い海',                      ...p('ocean/blue-sea.jpg') },
-  { id: 'ocean-7',   category: 'IllustAnime', name: 'ビーチリゾート',              ...p('ocean/summer-resort.jpg') },
-  { id: 'sky-3',     category: 'IllustAnime', name: 'カラフルな空',                ...p('sky/colorful.jpg') },
-  { id: 'sky-7',     category: 'IllustAnime', name: 'ピンクの空',                  ...p('sky/pink.jpg') },
-  { id: 'sky-9',     category: 'IllustAnime', name: '虹の空',                      ...p('sky/rainbow-sky.jpg') },
-  { id: 'nature-5',  category: 'IllustAnime', name: 'パノラマ',                    ...p('nature/panorama.jpg') },
-  { id: 'flower-1',  category: 'IllustAnime', name: '花1',                         ...p('flower/flowers-1.png') },
+
+  // ── IllustScene（風景イラスト）───────────────────────────────────
+  { id: 'illust-29', category: 'IllustScene', name: '村',            ...p('illustration/village.svg') },
+  { id: 'ocean-3',   category: 'IllustScene', name: 'ギリシャ港',    ...p('ocean/greek-port.jpg') },
+  { id: 'ocean-4',   category: 'IllustScene', name: '地中海',        ...p('ocean/mediterranean.jpg') },
+  { id: 'ocean-5',   category: 'IllustScene', name: 'ポップビーチ',  ...p('ocean/pop-beach.jpg') },
+  { id: 'ocean-6',   category: 'IllustScene', name: '青い海',        ...p('ocean/blue-sea.jpg') },
+  { id: 'ocean-7',   category: 'IllustScene', name: 'ビーチリゾート', ...p('ocean/summer-resort.jpg') },
+  { id: 'sky-3',     category: 'IllustScene', name: 'カラフルな空',  ...p('sky/colorful.jpg') },
+  { id: 'sky-7',     category: 'IllustScene', name: 'ピンクの空',    ...p('sky/pink.jpg') },
+  { id: 'sky-9',     category: 'IllustScene', name: '虹の空',        ...p('sky/rainbow-sky.jpg') },
+  { id: 'nature-5',  category: 'IllustScene', name: 'パノラマ',      ...p('nature/panorama.jpg') },
+  { id: 'flower-1',  category: 'IllustScene', name: '花1',           ...p('flower/flowers-1.png') },
 
   // ── IllustFantasy（ファンタジー）────────────────────────────────
   { id: 'illust-7',  category: 'IllustFantasy', name: '魔法陣',             dark: true, ...p('illustration/magic-circle.jpg') },
@@ -148,7 +150,8 @@ export const THEME_CATEGORIES: { key: ThemeCategory; label: string }[] = [
   { key: 'Night',         label: '夜景'           },
   { key: 'Flower',        label: '花・植物'       },
   { key: 'Food',          label: 'フード'         },
-  { key: 'IllustAnime',   label: 'アニメ/風景'   },
+  { key: 'IllustAnime',   label: 'アニメ/キャラ' },
+  { key: 'IllustScene',   label: '風景イラスト'   },
   { key: 'IllustFantasy', label: 'ファンタジー'   },
   { key: 'IllustPop',     label: 'レトロ/ポップ' },
   { key: 'Pastel',        label: 'パステル'       },
@@ -166,14 +169,14 @@ export const THEME_GROUPS: { key: ThemeGroup; label: string }[] = [
 
 export const GROUP_CATEGORIES: Record<ThemeGroup, ThemeCategory[]> = {
   photo:        ['Japan', 'Nature', 'Ocean', 'Sky', 'Night', 'Flower', 'Food'],
-  illustration: ['IllustAnime', 'IllustFantasy', 'IllustPop'],
+  illustration: ['IllustAnime', 'IllustScene', 'IllustFantasy', 'IllustPop'],
   gradient:     ['Pastel', 'Lofi', 'Neon'],
 }
 
 export const CATEGORY_TO_GROUP: Record<ThemeCategory, ThemeGroup> = {
   Japan: 'photo', Nature: 'photo', Ocean: 'photo', Sky: 'photo',
   Night: 'photo', Flower: 'photo', Food: 'photo',
-  IllustAnime: 'illustration', IllustFantasy: 'illustration', IllustPop: 'illustration',
+  IllustAnime: 'illustration', IllustScene: 'illustration', IllustFantasy: 'illustration', IllustPop: 'illustration',
   Pastel: 'gradient', Lofi: 'gradient', Neon: 'gradient',
 }
 
