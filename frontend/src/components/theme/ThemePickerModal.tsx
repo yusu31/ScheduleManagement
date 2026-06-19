@@ -7,12 +7,17 @@ import {
   useTheme,
   THEMES,
   THEME_CATEGORIES,
+  THEME_GROUPS,
+  GROUP_CATEGORIES,
+  CATEGORY_TO_GROUP,
   type ThemeCategory,
+  type ThemeGroup,
   type ThemeItem,
 } from '@/contexts/ThemeContext'
 
 export default function ThemePickerModal() {
   const { currentTheme, setTheme, isPickerOpen, closePicker } = useTheme()
+  const [activeGroup, setActiveGroup] = useState<ThemeGroup>('photo')
   const [activeCategory, setActiveCategory] = useState<ThemeCategory>('Japan')
   const prevThemeRef = useRef<ThemeItem | null>(currentTheme)
 
@@ -20,14 +25,17 @@ export default function ThemePickerModal() {
 
   const filtered = THEMES.filter((th) => th.category === activeCategory)
 
+  const handleGroupChange = (group: ThemeGroup) => {
+    setActiveGroup(group)
+    setActiveCategory(GROUP_CATEGORIES[group][0])
+  }
+
   const handleSelect = (theme: ThemeItem) => {
-    // 同じテーマを再クリックした場合は何もしない
     if (currentTheme?.id === theme.id) return
 
     const prev = currentTheme
     setTheme(theme)
 
-    // Undoトーストを表示（モーダルは閉じない）
     toast.dismiss()
     toast(
       (t) => (
@@ -116,16 +124,15 @@ export default function ThemePickerModal() {
           </p>
         </div>
 
-        {/* カテゴリタブ */}
-        <div className="flex flex-wrap gap-1.5 px-5 pt-3 pb-2">
-          {THEME_CATEGORIES.map(({ key, label }) => (
+        {/* 大分類タブ */}
+        <div className="flex gap-2 px-5 pt-3 pb-2">
+          {THEME_GROUPS.map(({ key, label }) => (
             <button
               key={key}
-              onClick={() => setActiveCategory(key)}
+              onClick={() => handleGroupChange(key)}
               className={`
-                px-3 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap
-                transition-all duration-150
-                ${activeCategory === key
+                px-4 py-2 rounded-xl text-[13px] font-semibold transition-all duration-150
+                ${activeGroup === key
                   ? 'bg-primary text-white shadow-[0_2px_8px_rgba(95,139,139,0.35)]'
                   : 'bg-black/6 text-app-sub hover:bg-black/10 hover:text-app-text'
                 }
@@ -136,7 +143,29 @@ export default function ThemePickerModal() {
           ))}
         </div>
 
-        {/* 画像グリッド */}
+        {/* 小分類タブ */}
+        <div className="flex flex-wrap gap-1.5 px-5 pb-2">
+            {GROUP_CATEGORIES[activeGroup].map((cat) => {
+              const info = THEME_CATEGORIES.find((c) => c.key === cat)!
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`
+                    px-3 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-150
+                    ${activeCategory === cat
+                      ? 'bg-primary/15 text-primary ring-1 ring-primary/40'
+                      : 'bg-black/5 text-app-sub hover:bg-black/8 hover:text-app-text'
+                    }
+                  `}
+                >
+                  {info.label}
+                </button>
+              )
+            })}
+          </div>
+
+        {/* テーマグリッド */}
         <div className="flex-1 overflow-y-auto px-5 py-3">
           <div className="grid grid-cols-5 gap-2.5">
             {filtered.map((theme) => {
@@ -178,6 +207,11 @@ export default function ThemePickerModal() {
           <button onClick={handleReset} className="text-[13px] text-app-sub hover:text-app-text transition-colors underline underline-offset-2">
             デフォルトに戻す
           </button>
+          {currentTheme && (
+            <p className="text-[11px] text-app-sub/60">
+              大分類: {THEME_GROUPS.find(g => g.key === CATEGORY_TO_GROUP[currentTheme.category])?.label}
+            </p>
+          )}
         </div>
       </div>
     </div>
