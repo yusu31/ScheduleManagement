@@ -151,10 +151,10 @@ export const THEME_CATEGORIES: { key: ThemeCategory; label: string }[] = [
   { key: 'Neon',         label: 'ネオン'     },
 ]
 
-// 各テーマの dark フラグで判定する（全67枚を個別に確認済み）
+// gradient は dark フラグ、imageUrl を持つテーマ（写真・イラスト等）は常にダーク
 export function isThemeDark(theme: ThemeItem | null): boolean {
   if (!theme) return false
-  return theme.dark === true
+  return theme.dark === true || !!theme.imageUrl
 }
 
 type ThemeContextType = {
