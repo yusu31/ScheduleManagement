@@ -23,9 +23,7 @@ export default function ThemePickerModal() {
 
   if (!isPickerOpen) return null
 
-  const filtered = activeGroup === 'illustration'
-    ? THEMES.filter((th) => th.category === 'Illustration')
-    : THEMES.filter((th) => th.category === activeCategory)
+  const filtered = THEMES.filter((th) => th.category === activeCategory)
 
   const handleGroupChange = (group: ThemeGroup) => {
     setActiveGroup(group)
@@ -145,9 +143,8 @@ export default function ThemePickerModal() {
           ))}
         </div>
 
-        {/* 小分類タブ（イラスト以外） */}
-        {activeGroup !== 'illustration' && (
-          <div className="flex flex-wrap gap-1.5 px-5 pb-2">
+        {/* 小分類タブ */}
+        <div className="flex flex-wrap gap-1.5 px-5 pb-2">
             {GROUP_CATEGORIES[activeGroup].map((cat) => {
               const info = THEME_CATEGORIES.find((c) => c.key === cat)!
               return (
@@ -167,7 +164,6 @@ export default function ThemePickerModal() {
               )
             })}
           </div>
-        )}
 
         {/* テーマグリッド */}
         <div className="flex-1 overflow-y-auto px-5 py-3">
