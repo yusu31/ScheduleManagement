@@ -21,14 +21,19 @@ MySQL（データベース） :3306（Docker）
 
 すべてのエンドポイントは `/api/v1/` プレフィックスを付ける。
 
-### 認証（Devise）
+### 認証（Devise Token Auth）
+
+認証エンドポイントは `/api/v1/` ネームスペース外にマウントされているため、パスは `/auth/...` となる。
 
 | メソッド | パス | 説明 | 認証 |
 |---------|------|------|------|
-| POST | `/api/v1/auth` | サインアップ（新規ユーザー登録） | 不要 |
-| POST | `/api/v1/auth/sign_in` | ログイン | 不要 |
-| DELETE | `/api/v1/auth/sign_out` | ログアウト | 必要 |
-| GET | `/api/v1/auth/validate_token` | トークン有効性確認 | 必要 |
+| POST | `/auth` | サインアップ（新規ユーザー登録） | 不要 |
+| POST | `/auth/sign_in` | ログイン | 不要 |
+| DELETE | `/auth/sign_out` | ログアウト | 必要 |
+| GET | `/auth/validate_token` | トークン有効性確認 | 必要 |
+| PUT | `/auth` | プロフィール更新 | 必要 |
+| DELETE | `/auth` | アカウント削除 | 必要 |
+| PUT | `/auth/password` | パスワード変更 | 必要 |
 
 ### イベント
 
@@ -149,6 +154,12 @@ Phase 4 機能（F-15）。
 | メソッド | パス | 説明 | 認証 |
 |---------|------|------|------|
 | GET | `/api/v1/weather?lat=xxx&lon=yyy&date=yyyy-mm-dd` | 指定座標・日付の天気予報取得（OpenWeatherMap API） | 不要 |
+
+### ユーザー統計
+
+| メソッド | パス | 説明 | 認証 |
+|---------|------|------|------|
+| GET | `/api/v1/users/stats` | 訪問市町村数・お気に入り数・マイ予定数・制覇地域数を取得 | 必要 |
 
 ---
 

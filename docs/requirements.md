@@ -427,7 +427,7 @@ stateDiagram-v2
 | フロントエンド | Next.js 14.x + TypeScript（App Router） |
 | バックエンド | Ruby on Rails 7.2.x（API モード） |
 | データベース | MySQL 8.0（Docker） |
-| 認証 | Devise |
+| 認証 | Devise Token Auth |
 | カレンダー | FullCalendar |
 | 外部 API | Connpass API v1 / OpenWeatherMap API / HotPepper グルメ API |
 | 地図 | Leaflet.js + OpenStreetMap |
