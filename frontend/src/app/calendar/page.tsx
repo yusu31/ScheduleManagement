@@ -561,12 +561,12 @@ export default function CalendarPage() {
 
       {/* ─── ページヘッダー ──────────────────────────────────────── */}
       <div className="mb-4 flex items-start justify-between">
-        <div>
-          <h1 className="text-[22px] font-bold text-app-text">カレンダー</h1>
+        <div className="theme-page-header">
+          <h1 className="text-[22px] font-bold text-app-text theme-readable">カレンダー</h1>
         </div>
 
         {/* ビュー切替タブ */}
-        <div className="flex items-center bg-white/60 backdrop-blur-sm border border-white/60 rounded-xl p-1 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="theme-filter-bar flex items-center bg-white/60 backdrop-blur-sm border border-white/60 rounded-xl p-1 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
           {VIEW_OPTIONS.map(({ key, label }) => (
             <motion.button
               key={key}
@@ -600,7 +600,7 @@ export default function CalendarPage() {
               value={selectedArea}
               onChange={e => setSelectedArea(e.target.value)}
               className="
-                pl-3 pr-7 py-1.5 rounded-xl text-[12px] font-medium text-app-text
+                theme-filter-item pl-3 pr-7 py-1.5 rounded-xl text-[12px] font-medium text-app-text
                 bg-white/60 border border-white/60 backdrop-blur-sm
                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                 appearance-none cursor-pointer
@@ -637,7 +637,7 @@ export default function CalendarPage() {
                   transition-colors duration-150 outline-none whitespace-nowrap
                   ${selectedCategory === cat
                     ? 'text-white'
-                    : 'bg-white/60 border border-white/60 text-app-sub hover:text-app-text hover:bg-white/80'
+                    : 'theme-filter-item bg-white/60 border border-white/60 text-app-sub hover:text-app-text hover:bg-white/80'
                   }
                 `}
                 whileTap={{ scale: 0.94 }}
@@ -744,7 +744,7 @@ export default function CalendarPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}
-                className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-xl px-4 py-3.5 flex items-start gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
+                className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-xl px-4 py-3.5 flex items-start gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)] theme-card-bg"
               >
                 <div className="w-8 h-8 rounded-xl bg-primary/12 flex items-center justify-center shrink-0 mt-0.5">
                   <Sparkles size={15} className="text-primary" />
@@ -790,7 +790,7 @@ export default function CalendarPage() {
 
           {/* 月次サマリー */}
           {visibleCount !== null && visibleCount > 0 && (
-            <div className="bg-white/60 backdrop-blur-sm border border-white/50 rounded-xl px-5 py-3.5 flex items-center justify-between">
+            <div className="bg-white/60 backdrop-blur-sm border border-white/50 rounded-xl px-5 py-3.5 flex items-center justify-between theme-card-bg">
               <div>
                 <p className="text-[11px] text-app-sub">この期間のイベント</p>
                 <p className="text-[18px] font-bold text-app-text mt-0.5">{visibleCount}件</p>

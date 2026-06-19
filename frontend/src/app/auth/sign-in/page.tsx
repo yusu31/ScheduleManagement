@@ -102,9 +102,17 @@ export default function SignInPage() {
 
             {/* パスワード */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[13px] font-medium text-app-text">
-                パスワード
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[13px] font-medium text-app-text">
+                  パスワード
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  パスワードを忘れた場合
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}

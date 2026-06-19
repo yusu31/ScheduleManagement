@@ -216,8 +216,8 @@ export default function PersonalEventsPage() {
           <span className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
             <CalendarDays size={32} className="text-primary" />
           </span>
-          <h1 className="text-[22px] font-black text-app-text mb-3">マイ予定</h1>
-          <p className="text-[14px] text-app-sub leading-relaxed mb-6">
+          <h1 className="text-[22px] font-black text-app-text mb-3 theme-readable">マイ予定</h1>
+          <p className="text-[14px] text-app-sub leading-relaxed mb-6 theme-readable">
             ログインすると、個人の予定を追加・管理できます。
           </p>
           <Link
@@ -255,10 +255,10 @@ export default function PersonalEventsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-        className="mb-6"
+        className="mb-6 theme-page-header"
       >
-        <h1 className="text-[26px] font-black text-app-text">マイ予定</h1>
-        <p className="text-[13px] text-app-sub mt-1">
+        <h1 className="text-[26px] font-black text-app-text theme-readable">マイ予定</h1>
+        <p className="text-[13px] text-app-sub mt-1 theme-readable">
           {events.length > 0 ? `全${events.length}件` : '予定を追加して始めましょう'}
         </p>
       </motion.div>
@@ -269,7 +269,7 @@ export default function PersonalEventsPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 380, damping: 28, delay: 0.06 }}
-          className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden mb-4"
+          className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden mb-4 theme-card-bg"
         >
           {/* 今日 */}
           {todayGroup.length > 0 && (

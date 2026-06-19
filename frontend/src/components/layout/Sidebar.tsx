@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme, isThemeDark } from '@/contexts/ThemeContext'
 import { useUserPreference } from '@/contexts/UserPreferenceContext'
 import UserProfilePanel from '@/components/user/UserProfilePanel'
 
@@ -31,6 +31,8 @@ export default function Sidebar() {
   const { openPicker, currentTheme } = useTheme()
   const { iconPref } = useUserPreference()
 
+  const isDark = isThemeDark(currentTheme)
+
   if (!mounted) {
     return (
       <aside className="w-[240px] shrink-0 h-screen sticky top-0 bg-white/65 backdrop-blur-xl border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]" />
@@ -41,27 +43,24 @@ export default function Sidebar() {
   const initial = displayName[0].toUpperCase()
 
   return (
-    <aside className="
+    <aside className={`
       w-[240px] shrink-0 h-screen sticky top-0
       flex flex-col
-      bg-white/65 backdrop-blur-xl
-      border-r border-white/50
-      shadow-[1px_0_20px_rgba(0,0,0,0.06)]
+      backdrop-blur-xl
       overflow-visible
-    ">
+      transition-colors duration-300
+      ${isDark
+        ? 'bg-black/30 border-r border-white/15 shadow-[1px_0_20px_rgba(0,0,0,0.2)]'
+        : 'bg-white/65 border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]'
+      }
+    `}>
       {/* ロゴ */}
       <div className="px-5 pt-6 pb-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 group"
-        >
-          <span className="
-            w-8 h-8 rounded-xl flex items-center justify-center
-            bg-primary/15 group-hover:bg-primary/25 transition-colors
-          ">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-primary/15 group-hover:bg-primary/25 transition-colors">
             <Sprout size={17} className="text-primary" />
           </span>
-          <span className="font-bold text-[14px] text-app-text tracking-wide leading-tight">
+          <span className={`font-bold text-[14px] tracking-wide leading-tight ${isDark ? 'text-white' : 'text-app-text'}`}>
             Roami
           </span>
         </Link>
@@ -80,8 +79,12 @@ export default function Sidebar() {
                     relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
                     transition-all duration-150
                     ${isActive
-                      ? 'bg-primary/12 text-primary shadow-[inset_0_1px_3px_rgba(95,139,139,0.1)]'
-                      : 'text-app-sub hover:bg-white/60 hover:text-app-text'
+                      ? isDark
+                        ? 'bg-white/15 text-white'
+                        : 'bg-primary/12 text-primary shadow-[inset_0_1px_3px_rgba(95,139,139,0.1)]'
+                      : isDark
+                        ? 'text-white/60 hover:bg-white/10 hover:text-white'
+                        : 'text-app-sub hover:bg-white/60 hover:text-app-text'
                     }
                   `}
                 >
@@ -99,11 +102,14 @@ export default function Sidebar() {
         <div className="px-3 pb-2">
           <button
             onClick={openPicker}
-            className="
+            className={`
               w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
-              text-[13px] font-medium text-app-sub
-              hover:bg-white/60 hover:text-app-text transition-colors
-            "
+              text-[13px] font-medium transition-colors
+              ${isDark
+                ? 'text-white/60 hover:bg-white/10 hover:text-white'
+                : 'text-app-sub hover:bg-white/60 hover:text-app-text'
+              }
+            `}
           >
             <Palette size={15} />
             <span>テーマ</span>
@@ -117,7 +123,7 @@ export default function Sidebar() {
       )}
 
       {/* 下部：認証エリア */}
-      <div className="px-3 pb-5 pt-3 border-t border-white/50 relative">
+      <div className={`px-3 pb-5 pt-3 relative border-t ${isDark ? 'border-white/10' : 'border-white/50'}`}>
         {!isLoading && (
           <>
             {isLoggedIn ? (
@@ -131,19 +137,33 @@ export default function Sidebar() {
                 <button
                   ref={userButtonRef}
                   onClick={() => setProfileOpen(prev => !prev)}
-                  className="
+                  className={`
                     w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
-                    bg-white/50 border border-white/60
-                    hover:bg-white/70 transition-colors text-left
-                  "
+                    border transition-colors text-left
+                    ${isDark
+                      ? 'bg-white/10 border-white/15 hover:bg-white/20'
+                      : 'bg-white/50 border-white/60 hover:bg-white/70'
+                    }
+                  `}
                 >
-                  <span
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0"
-                    style={{ backgroundColor: iconPref.color }}
-                  >
-                    {iconPref.emoji || initial}
-                  </span>
-                  <span className="text-[12px] text-app-text font-medium truncate flex-1">
+                  {iconPref.imageUrl ? (
+                    <span
+                      className="w-7 h-7 rounded-full shrink-0"
+                      style={{
+                        backgroundImage: `url(${iconPref.imageUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: iconPref.objectPosition || '50% 20%',
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0"
+                      style={{ backgroundColor: iconPref.color }}
+                    >
+                      {iconPref.emoji || initial}
+                    </span>
+                  )}
+                  <span className={`text-[12px] font-medium truncate flex-1 ${isDark ? 'text-white' : 'text-app-text'}`}>
                     {displayName}
                   </span>
                 </button>
@@ -163,11 +183,14 @@ export default function Sidebar() {
                 </Link>
                 <Link
                   href="/auth/sign-up"
-                  className="
+                  className={`
                     w-full text-center text-[13px] font-medium
-                    bg-white/60 hover:bg-white/80 text-app-text
-                    py-2 rounded-xl border border-white/70 transition-colors
-                  "
+                    py-2 rounded-xl border transition-colors
+                    ${isDark
+                      ? 'bg-white/15 hover:bg-white/25 text-white border-white/20'
+                      : 'bg-white/60 hover:bg-white/80 text-app-text border-white/70'
+                    }
+                  `}
                 >
                   新規登録
                 </Link>
@@ -175,7 +198,7 @@ export default function Sidebar() {
             )}
           </>
         )}
-        <p className="text-[10px] text-app-sub/60 text-center mt-4">
+        <p className={`text-[10px] text-center mt-4 ${isDark ? 'text-white/40' : 'text-app-sub/60'}`}>
           © {new Date().getFullYear()} Roami
         </p>
       </div>

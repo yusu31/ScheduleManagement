@@ -372,12 +372,12 @@ export default function TodayPage() {
   if (!authLoading && !isLoggedIn) {
     return (
       <main className="flex-1 p-8 flex flex-col items-center justify-center min-h-[calc(100vh-64px)]">
-        <div className="text-center max-w-md">
-          <span className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
+        <div className="text-center max-w-md theme-page-header">
+          <span className="theme-badge inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
             <Sun size={32} className="text-primary" />
           </span>
-          <h1 className="text-[22px] font-black text-app-text mb-3">今日のダッシュボード</h1>
-          <p className="text-[14px] text-app-sub leading-relaxed mb-6">
+          <h1 className="text-[22px] font-black text-app-text mb-3 theme-readable">今日のダッシュボード</h1>
+          <p className="text-[14px] text-app-sub leading-relaxed mb-6 theme-readable">
             ログインすると、今日の予定や<br />近日のConnpassイベントを確認できます。
           </p>
           <Link
@@ -457,7 +457,7 @@ export default function TodayPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 380, damping: 28, delay: 0.06 }}
-        className="mb-4 bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl px-3 py-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.05)]"
+        className="mb-4 bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl px-3 py-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] theme-card-bg"
       >
         <div className="grid grid-cols-7 gap-0.5">
           {weekDays.map((dateStr, i) => {
@@ -507,7 +507,7 @@ export default function TodayPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 380, damping: 28, delay: 0.12 }}
-        className="mb-4 bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden"
+        className="mb-4 bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden theme-card-bg"
       >
         {/* カードヘッダー */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
@@ -609,7 +609,7 @@ export default function TodayPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28, delay: 0.18 }}
-            className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden"
+            className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden theme-card-bg"
           >
             <div className="flex items-center justify-between px-4 pt-4 pb-3">
               <div>
