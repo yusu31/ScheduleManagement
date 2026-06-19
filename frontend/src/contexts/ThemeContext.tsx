@@ -140,16 +140,37 @@ export const THEMES: ThemeItem[] = [
 export const THEME_CATEGORIES: { key: ThemeCategory; label: string }[] = [
   { key: 'Japan',        label: '和風'       },
   { key: 'Nature',       label: '自然'       },
-  { key: 'Ocean',        label: 'オーシャン' },
-  { key: 'Sky',          label: 'スカイ'     },
-  { key: 'Night',        label: 'ナイト'     },
-  { key: 'Illustration', label: 'イラスト'   },
+  { key: 'Ocean',        label: '海'         },
+  { key: 'Sky',          label: '空'         },
+  { key: 'Night',        label: '夜景'       },
   { key: 'Flower',       label: '花・植物'   },
   { key: 'Food',         label: 'フード'     },
+  { key: 'Illustration', label: 'イラスト'   },
   { key: 'Pastel',       label: 'パステル'   },
   { key: 'Lofi',         label: 'ローファイ' },
   { key: 'Neon',         label: 'ネオン'     },
 ]
+
+export type ThemeGroup = 'photo' | 'illustration' | 'gradient'
+
+export const THEME_GROUPS: { key: ThemeGroup; label: string }[] = [
+  { key: 'photo',        label: '写真'         },
+  { key: 'illustration', label: 'イラスト'     },
+  { key: 'gradient',     label: 'グラデーション' },
+]
+
+export const GROUP_CATEGORIES: Record<ThemeGroup, ThemeCategory[]> = {
+  photo:        ['Japan', 'Nature', 'Ocean', 'Sky', 'Night', 'Flower', 'Food'],
+  illustration: ['Illustration'],
+  gradient:     ['Pastel', 'Lofi', 'Neon'],
+}
+
+export const CATEGORY_TO_GROUP: Record<ThemeCategory, ThemeGroup> = {
+  Japan: 'photo', Nature: 'photo', Ocean: 'photo', Sky: 'photo',
+  Night: 'photo', Flower: 'photo', Food: 'photo',
+  Illustration: 'illustration',
+  Pastel: 'gradient', Lofi: 'gradient', Neon: 'gradient',
+}
 
 // dark フラグが明示されたテーマのみダーク（写真テーマは個別に dark: true で制御）
 export function isThemeDark(theme: ThemeItem | null): boolean {
