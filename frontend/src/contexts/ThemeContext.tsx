@@ -115,17 +115,17 @@ export const THEMES: ThemeItem[] = [
   { id: 'neon-5', category: 'Neon', name: 'シンセウェーブ',   gradient: 'linear-gradient(135deg, #fc466b 0%, #3f5efb 100%)' },
 ]
 
-export const THEME_CATEGORIES: { key: ThemeCategory; label: string; emoji: string }[] = [
-  { key: 'Japan',        label: '和風',       emoji: '⛩️' },
-  { key: 'Nature',       label: '自然',       emoji: '🌿' },
-  { key: 'Ocean',        label: 'オーシャン', emoji: '🌊' },
-  { key: 'Sky',          label: 'スカイ',     emoji: '🌌' },
-  { key: 'Night',        label: 'ナイト',     emoji: '🌙' },
-  { key: 'Illustration', label: 'イラスト',   emoji: '🎨' },
-  { key: 'Flower',       label: '花・植物',   emoji: '🌸' },
-  { key: 'Pastel',       label: 'パステル',   emoji: '🎀' },
-  { key: 'Lofi',         label: 'ローファイ', emoji: '🎵' },
-  { key: 'Neon',         label: 'ネオン',     emoji: '⚡' },
+export const THEME_CATEGORIES: { key: ThemeCategory; label: string }[] = [
+  { key: 'Japan',        label: '和風'       },
+  { key: 'Nature',       label: '自然'       },
+  { key: 'Ocean',        label: 'オーシャン' },
+  { key: 'Sky',          label: 'スカイ'     },
+  { key: 'Night',        label: 'ナイト'     },
+  { key: 'Illustration', label: 'イラスト'   },
+  { key: 'Flower',       label: '花・植物'   },
+  { key: 'Pastel',       label: 'パステル'   },
+  { key: 'Lofi',         label: 'ローファイ' },
+  { key: 'Neon',         label: 'ネオン'     },
 ]
 
 // Night / Neon カテゴリは暗い背景と判定する

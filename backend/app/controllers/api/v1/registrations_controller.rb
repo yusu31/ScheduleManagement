@@ -8,6 +8,10 @@ module Api
       def sign_up_params
         params.permit(:email, :password, :password_confirmation, :name)
       end
+
+      def account_update_params
+        params.permit(:name, :password, :password_confirmation, :current_password)
+      end
     end
   end
 end
