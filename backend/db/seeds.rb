@@ -128,3 +128,18 @@ events_data.each do |attrs|
 end
 
 puts "✅ シードデータ投入完了: #{Event.count}件のイベントが登録されました"
+
+# テストユーザー（ローカル開発用）
+test_user = User.find_or_initialize_by(email: '2.fortschritt@gmail.com')
+if test_user.new_record?
+  test_user.assign_attributes(
+    password: 'password123',
+    password_confirmation: 'password123',
+    name: 'Yusu',
+    uid: '2.fortschritt@gmail.com'
+  )
+  test_user.save!
+  puts "✅ テストユーザー作成: #{test_user.email}"
+else
+  puts "ℹ️  テストユーザーは既に存在します: #{test_user.email}"
+end

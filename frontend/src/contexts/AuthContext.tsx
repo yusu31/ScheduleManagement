@@ -17,6 +17,9 @@ type AuthContextType = {
   signUp: (email: string, password: string, passwordConfirmation: string, name: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
+  updateProfile: (name: string) => Promise<void>
+  updatePassword: (currentPassword: string, password: string, passwordConfirmation: string) => Promise<void>
+  deleteAccount: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -43,11 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userData?.email) {
         localStorage.setItem('uid', userData.email)
       }
-    } catch {
-      localStorage.removeItem('access-token')
-      localStorage.removeItem('client')
-      localStorage.removeItem('uid')
-      setCurrentUser(null)
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      // 401（認証トークン無効）のときだけログアウト。
+      // ネットワークエラーや500はバックエンドの一時停止の可能性があるため維持する。
+      if (status === 401) {
+        localStorage.removeItem('access-token')
+        localStorage.removeItem('client')
+        localStorage.removeItem('uid')
+        setCurrentUser(null)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -106,6 +114,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateProfile = async (name: string) => {
+    const response = await apiClient.put('/auth', { name })
+    const userData = response.data.data
+    setCurrentUser(userData)
+  }
+
+  const updatePassword = async (
+    currentPassword: string,
+    password: string,
+    passwordConfirmation: string
+  ) => {
+    await apiClient.put('/auth/password', {
+      current_password: currentPassword,
+      password,
+      password_confirmation: passwordConfirmation,
+    })
+  }
+
+  const deleteAccount = async () => {
+    await apiClient.delete('/auth')
+    localStorage.removeItem('access-token')
+    localStorage.removeItem('client')
+    localStorage.removeItem('uid')
+    setCurrentUser(null)
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -115,6 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signIn,
         signOut,
+        updateProfile,
+        updatePassword,
+        deleteAccount,
       }}
     >
       {children}

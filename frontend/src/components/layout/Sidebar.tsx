@@ -2,11 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useUserPreference } from '@/contexts/UserPreferenceContext'
+import UserProfilePanel from '@/components/user/UserProfilePanel'
 
 const navItems: { href: string; label: string; Icon: LucideIcon }[] = [
   { href: '/today', label: '今日', Icon: Sun },
@@ -19,11 +21,15 @@ const navItems: { href: string; label: string; Icon: LucideIcon }[] = [
 
 export default function Sidebar() {
   const [mounted, setMounted] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const userButtonRef = useRef<HTMLButtonElement>(null)
+
   useEffect(() => setMounted(true), [])
 
   const pathname = usePathname()
-  const { isLoggedIn, currentUser, signOut, isLoading } = useAuth()
+  const { isLoggedIn, currentUser, isLoading } = useAuth()
   const { openPicker, currentTheme } = useTheme()
+  const { iconPref } = useUserPreference()
 
   if (!mounted) {
     return (
@@ -31,13 +37,8 @@ export default function Sidebar() {
     )
   }
 
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-    } catch {
-      // サインアウト失敗時もUIはリセット済みなので何もしない
-    }
-  }
+  const displayName = currentUser?.name || currentUser?.email || '?'
+  const initial = displayName[0].toUpperCase()
 
   return (
     <aside className="
@@ -46,6 +47,7 @@ export default function Sidebar() {
       bg-white/65 backdrop-blur-xl
       border-r border-white/50
       shadow-[1px_0_20px_rgba(0,0,0,0.06)]
+      overflow-visible
     ">
       {/* ロゴ */}
       <div className="px-5 pt-6 pb-4">
@@ -92,56 +94,60 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      {/* テーマ変更ボタン */}
-      <div className="px-3 pb-2">
-        <button
-          onClick={openPicker}
-          className="
-            w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
-            text-[13px] font-medium text-app-sub
-            hover:bg-white/60 hover:text-app-text transition-colors
-          "
-        >
-          <Palette size={15} />
-          <span>背景テーマ</span>
-          {currentTheme && (
-            <span className="ml-auto text-[11px] text-primary font-semibold truncate max-w-[70px]">
-              {currentTheme.name}
-            </span>
-          )}
-        </button>
-      </div>
+      {/* テーマ変更ボタン（ログイン前のみ表示） */}
+      {!isLoading && !isLoggedIn && (
+        <div className="px-3 pb-2">
+          <button
+            onClick={openPicker}
+            className="
+              w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
+              text-[13px] font-medium text-app-sub
+              hover:bg-white/60 hover:text-app-text transition-colors
+            "
+          >
+            <Palette size={15} />
+            <span>テーマ</span>
+            {currentTheme && (
+              <span className="ml-auto text-[11px] text-primary font-semibold truncate max-w-[70px]">
+                {currentTheme.name}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* 下部：認証エリア */}
-      <div className="px-3 pb-5 pt-3 border-t border-white/50">
+      <div className="px-3 pb-5 pt-3 border-t border-white/50 relative">
         {!isLoading && (
           <>
             {isLoggedIn ? (
-              <div className="flex flex-col gap-2">
-                <div className="
-                  flex items-center gap-2.5 px-3 py-2 rounded-xl
-                  bg-white/50 border border-white/60
-                ">
-                  <span className="
-                    w-7 h-7 rounded-full bg-primary/20
-                    flex items-center justify-center text-[12px] font-bold text-primary
-                  ">
-                    {(currentUser?.name || currentUser?.email || '?')[0].toUpperCase()}
-                  </span>
-                  <span className="text-[12px] text-app-text font-medium truncate">
-                    {currentUser?.name || currentUser?.email}
-                  </span>
-                </div>
+              <>
+                {profileOpen && (
+                  <UserProfilePanel
+                    onClose={() => setProfileOpen(false)}
+                    anchorRef={userButtonRef as React.RefObject<HTMLElement>}
+                  />
+                )}
                 <button
-                  onClick={handleSignOut}
+                  ref={userButtonRef}
+                  onClick={() => setProfileOpen(prev => !prev)}
                   className="
-                    w-full text-[13px] text-app-sub hover:text-app-text
-                    py-1.5 rounded-lg hover:bg-white/50 transition-colors
+                    w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
+                    bg-white/50 border border-white/60
+                    hover:bg-white/70 transition-colors text-left
                   "
                 >
-                  ログアウト
+                  <span
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0"
+                    style={{ backgroundColor: iconPref.color }}
+                  >
+                    {iconPref.emoji || initial}
+                  </span>
+                  <span className="text-[12px] text-app-text font-medium truncate flex-1">
+                    {displayName}
+                  </span>
                 </button>
-              </div>
+              </>
             ) : (
               <div className="flex flex-col gap-1.5">
                 <Link

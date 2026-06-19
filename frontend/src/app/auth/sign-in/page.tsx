@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff, Sprout } from 'lucide-react'
+import { Eye, EyeOff, Sprout, FlaskConical } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function SignInPage() {
@@ -64,6 +64,18 @@ export default function SignInPage() {
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-[13px] text-red-600">
               {error}
             </div>
+          )}
+
+          {/* 開発環境のみ：テストアカウント自動入力 */}
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              type="button"
+              onClick={() => { setEmail('2.fortschritt@gmail.com'); setPassword('password123') }}
+              className="mb-4 w-full py-2 rounded-xl border border-dashed border-primary/40 text-[12px] text-primary/80 hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <FlaskConical size={13} />
+              テストアカウントで入力
+            </button>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

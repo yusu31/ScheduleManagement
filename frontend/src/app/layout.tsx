@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { UserPreferenceProvider } from '@/contexts/UserPreferenceContext'
 import Sidebar from '@/components/layout/Sidebar'
 import ThemePickerModal from '@/components/theme/ThemePickerModal'
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
           <ThemeProvider>
+            <UserPreferenceProvider>
             <FavoritesProvider>
               <div className="flex min-h-screen">
                 <Sidebar />
@@ -44,6 +46,7 @@ export default function RootLayout({
               <ThemePickerModal />
               <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
             </FavoritesProvider>
+            </UserPreferenceProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

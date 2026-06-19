@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         end
       end
       get "weather", to: "weather#show"
+      get "users/stats", to: "users#stats"
     end
   end
 
