@@ -77,16 +77,27 @@ updated_at     datetime        area            string
 
 ### users テーブル
 
-Devise が自動生成するテーブル。手動でカラムを追加しない。
+Devise Token Auth が自動生成するテーブル。手動でカラムを追加しない。
 
 | カラム名 | 型 | NULL | デフォルト | 説明 |
 |---------|-----|------|-----------|------|
 | id | bigint | NOT NULL | AUTO_INCREMENT | 主キー |
-| email | varchar(255) | NOT NULL | - | メールアドレス（ユニーク） |
+| provider | varchar(255) | NOT NULL | 'email' | 認証プロバイダ（email 固定） |
+| uid | varchar(255) | NOT NULL | '' | ユーザー識別子（メールアドレスと同値） |
 | encrypted_password | varchar(255) | NOT NULL | '' | Devise がハッシュ化して保存 |
 | reset_password_token | varchar(255) | NULL | - | パスワードリセット用トークン |
 | reset_password_sent_at | datetime | NULL | - | リセットメール送信日時 |
+| allow_password_change | boolean | NOT NULL | false | パスワード変更許可フラグ |
 | remember_created_at | datetime | NULL | - | ログイン維持の記録 |
+| confirmation_token | varchar(255) | NULL | - | メール確認トークン |
+| confirmed_at | datetime | NULL | - | メール確認日時 |
+| confirmation_sent_at | datetime | NULL | - | 確認メール送信日時 |
+| unconfirmed_email | varchar(255) | NULL | - | 未確認の新メールアドレス |
+| name | varchar(255) | NULL | - | ユーザー名 |
+| nickname | varchar(255) | NULL | - | ニックネーム |
+| image | varchar(255) | NULL | - | プロフィール画像 URL |
+| email | varchar(255) | NULL | - | メールアドレス（ユニーク） |
+| tokens | text | NULL | - | 認証トークン（JSON） |
 | created_at | datetime | NOT NULL | - | 作成日時 |
 | updated_at | datetime | NOT NULL | - | 更新日時 |
 
