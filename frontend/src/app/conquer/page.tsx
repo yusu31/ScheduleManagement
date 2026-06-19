@@ -467,14 +467,14 @@ export default function ConquerPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-app-bg flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-app-bg">
+    <div className="min-h-screen">
       {/* ヘッダー */}
       <div className="px-6 pt-8 pb-4">
         <motion.div
@@ -486,9 +486,9 @@ export default function ConquerPage() {
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-md">
             <MapIcon size={20} className="text-white" />
           </div>
-          <div>
-            <h1 className="text-[22px] font-bold text-app-text leading-tight">マップ制覇</h1>
-            <p className="text-[12px] text-app-sub mt-0.5">
+          <div className="theme-page-header">
+            <h1 className="text-[22px] font-bold text-app-text leading-tight theme-readable">マップ制覇</h1>
+            <p className="text-[12px] text-app-sub mt-0.5 theme-readable">
               {isLoadingRecords ? '読み込み中...' : `${visitedCount} / 59 市町村制覇`}
             </p>
           </div>
@@ -509,7 +509,7 @@ export default function ConquerPage() {
             )}
           </div>
         </motion.div>
-        <p className="text-[13px] text-app-sub mt-3 leading-relaxed">
+        <p className="theme-page-header text-[13px] text-app-sub mt-3 leading-relaxed">
           市町村をクリックして訪問を記録しよう。<br />
           <span className="inline-flex items-center gap-1">
             <span className="inline-block w-3 h-3 rounded-sm bg-primary/80" />
@@ -534,14 +534,14 @@ export default function ConquerPage() {
 
       {/* 地区別 記録 */}
       <div className="px-6 pb-10 space-y-5">
-        <h2 className="text-[15px] font-bold text-app-text">記録</h2>
+        <h2 className="text-[15px] font-bold text-app-text theme-readable">記録</h2>
 
         {regionStats.map((region) => (
           <div key={region.id}>
             {/* 地区ヘッダー */}
-            <div className="flex items-center gap-2 mb-2">
+            <div className="theme-page-header flex items-center gap-2 mb-2">
               <span
-                className="text-[11px] font-bold text-white px-2.5 py-0.5 rounded-full"
+                className="theme-badge text-[11px] font-bold text-white px-2.5 py-0.5 rounded-full"
                 style={{ background: region.color }}
               >
                 {region.name}
@@ -561,12 +561,12 @@ export default function ConquerPage() {
                   </button>
                 )}
                 {region.completed ? (
-                  <span className="flex items-center gap-1 bg-yellow-50 border border-yellow-200 text-yellow-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  <span className="theme-badge flex items-center gap-1 bg-yellow-50 border border-yellow-200 text-yellow-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                     <Trophy size={9} />全制覇！
                   </span>
                 ) : (
                   <span className="text-[11px] text-app-sub">
-                    <span className="font-bold" style={{ color: region.color }}>{region.visitedCount}</span>
+                    <span className="theme-badge font-bold" style={{ color: region.color }}>{region.visitedCount}</span>
                     <span className="text-gray-300 mx-0.5">/</span>
                     <span>{region.totalCount}</span>
                   </span>
@@ -581,7 +581,7 @@ export default function ConquerPage() {
                 <button
                   key={record.id}
                   title={record.municipality}
-                  className="rounded-xl overflow-hidden bg-white shadow-sm hover:scale-105 hover:shadow-md transition-all duration-200 focus:outline-none text-left"
+                  className="rounded-xl overflow-hidden bg-white shadow-sm hover:scale-105 hover:shadow-md transition-all duration-200 focus:outline-none text-left theme-card-bg"
                   onClick={() => record.photo_url ? openLightbox(record) : setSelectedMunicipality(record.municipality)}
                 >
                   {/* 写真エリア */}
@@ -620,7 +620,7 @@ export default function ConquerPage() {
               {Array.from({ length: region.emptyCount }).map((_, i) => (
                 <div
                   key={`empty-${i}`}
-                  className="rounded-xl overflow-hidden"
+                  className="rounded-xl overflow-hidden theme-card-shadow"
                   style={{
                     background: `linear-gradient(145deg, ${region.color}12 0%, ${region.color}05 100%)`,
                     border: `1px solid ${region.color}20`,

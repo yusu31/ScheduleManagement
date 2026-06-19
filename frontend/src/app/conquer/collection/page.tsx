@@ -51,7 +51,7 @@ export default function CollectionPage() {
 
   if (!mounted || authLoading) {
     return (
-      <div className="min-h-screen bg-app-bg flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
       </div>
     )
@@ -59,7 +59,7 @@ export default function CollectionPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-app-bg flex flex-col items-center justify-center gap-4 px-6">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
         <Trophy size={40} className="text-yellow-500" />
         <h2 className="text-[18px] font-bold text-app-text">ログインが必要です</h2>
         <p className="text-[13px] text-app-sub text-center leading-relaxed">
@@ -76,7 +76,7 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-app-bg">
+    <div className="min-h-screen">
       {/* ヘッダー */}
       <div className="px-6 pt-8 pb-6">
         <motion.div
@@ -86,7 +86,7 @@ export default function CollectionPage() {
         >
           <Link
             href="/conquer"
-            className="flex items-center gap-1 text-[12px] text-app-sub hover:text-app-text transition-colors mb-4"
+            className="theme-readable flex items-center gap-1 text-[12px] text-app-sub hover:text-app-text transition-colors mb-4"
           >
             <ArrowLeft size={13} />
             マップ制覇に戻る
@@ -99,9 +99,9 @@ export default function CollectionPage() {
             >
               <Trophy size={20} className="text-white" />
             </div>
-            <div>
-              <h1 className="text-[22px] font-bold text-app-text leading-tight">コレクション</h1>
-              <p className="text-[12px] text-app-sub mt-0.5">
+            <div className="theme-page-header">
+              <h1 className="text-[22px] font-bold text-app-text leading-tight theme-readable">コレクション</h1>
+              <p className="text-[12px] text-app-sub mt-0.5 theme-readable">
                 {isLoading ? '読み込み中...' : `${conquests.length} / 11 アイテム獲得`}
               </p>
             </div>

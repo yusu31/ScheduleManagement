@@ -167,7 +167,7 @@ export default function EventsPage() {
     <div className="min-h-screen">
 
       {/* ─── フィルターバー（新デザイン） ─── */}
-      <div className="bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-40 px-6 pt-3.5 pb-3">
+      <div className="theme-sticky-header bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-40 px-6 pt-3.5 pb-3">
 
         {/* 行1: 検索バー ＋ 絞り込みボタン */}
         <div className="flex items-center gap-2 mb-2.5">

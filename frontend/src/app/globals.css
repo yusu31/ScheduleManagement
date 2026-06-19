@@ -21,12 +21,70 @@ body {
   min-height: 100vh;
 }
 
-/* ─── テーマ背景時の文字視認性向上 ──────────────────────── */
-/* 写真・暗い背景のとき、背景なしで浮いているテキスト専用 */
-html[data-theme-bg="photo"] .theme-readable,
-html[data-theme-bg="dark"] .theme-readable {
+/* ─── テーマ背景時の文字・UI 視認性（全写真テーマ共通） ──── */
+/*
+  写真テーマ = data-theme-bg="photo"（全画像、明暗問わず統一）
+  テキストは「白文字 + 黒ドロップシャドウ」→ YouTube/Instagram 方式
+  グロー効果は使わない（ダサいため）
+*/
+
+/* .theme-readable：個別に白文字にしたい要素に付けるクラス */
+html:is([data-theme-bg="photo"],[data-theme-bg="dark"]) .theme-readable {
   color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75), 0 3px 12px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+/* .theme-card-bg：写真・暗いグラデーション時にカードを白く不透明化 */
+html:is([data-theme-bg="photo"],[data-theme-bg="dark"]) .theme-card-bg {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(200, 210, 210, 0.7) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* .theme-card-shadow：背景は変えず影だけ追加（空スロット等、背景色を保持したいカード用） */
+html:is([data-theme-bg="photo"],[data-theme-bg="dark"]) .theme-card-shadow {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 写真テーマ：サイドバー（bg-white/65）に合わせて白半透明で統一 */
+html[data-theme-bg="photo"] .theme-sticky-header {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.5) !important;
+}
+html[data-theme-bg="photo"] .theme-filter-bar {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+html[data-theme-bg="photo"] .theme-filter-item {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(180, 195, 195, 0.8) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10) !important;
+}
+
+/* 暗いグラデーション（Neon等）：黒半透明 */
+html[data-theme-bg="dark"] .theme-sticky-header {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+html[data-theme-bg="dark"] .theme-filter-bar {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+html[data-theme-bg="dark"] .theme-filter-item {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ─── .theme-page-header：ページヘッダーエリアの一括テキスト対応 ── */
+/* a は除外（バッジ等の色付きリンクを保護）。.theme-badge は除外。   */
+html[data-theme-bg="photo"] .theme-page-header h1,
+html[data-theme-bg="photo"] .theme-page-header h2,
+html[data-theme-bg="photo"] .theme-page-header p,
+html[data-theme-bg="photo"] .theme-page-header span:not(.theme-badge),
+html[data-theme-bg="photo"] .theme-page-header label {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 12px rgba(0, 0, 0, 0.55);
 }
 
 /* ─── FullCalendar カスタムスタイル ─────────────────────────── */

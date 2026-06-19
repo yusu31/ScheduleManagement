@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import Link from 'next/link'
 import {
   X, Palette, RotateCcw, KeyRound, Trash2, LogOut,
-  Check, Pencil, MapPin, CalendarDays, Trophy, ChevronRight,
+  Check, Pencil, MapPin, CalendarDays, Trophy, ChevronRight, Upload,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useUserPreference, ICON_COLORS } from '@/contexts/UserPreferenceContext'
+import { useUserPreference, ICON_COLORS, ICON_PRESETS } from '@/contexts/UserPreferenceContext'
+import type { IconType } from '@/contexts/UserPreferenceContext'
 import ConfirmModal from '@/components/user/ConfirmModal'
 import apiClient from '@/lib/axios'
 
@@ -55,7 +57,11 @@ export default function UserProfilePanel({ onClose, anchorRef }: Props) {
   const [pwDone, setPwDone]         = useState(false)
 
   // アイコン選択（一時）
-  const [tempColor, setTempColor] = useState(iconPref.color)
+  const [iconTab, setIconTab]               = useState<IconType>(iconPref.type || 'color')
+  const [tempColor, setTempColor]           = useState(iconPref.color)
+  const [tempType, setTempType]             = useState<IconType>(iconPref.type || 'color')
+  const [tempImageUrl, setTempImageUrl]     = useState<string | null>(iconPref.imageUrl || null)
+  const [tempObjPos, setTempObjPos]         = useState<string>(iconPref.objectPosition || '50% 20%')
 
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -139,8 +145,38 @@ export default function UserProfilePanel({ onClose, anchorRef }: Props) {
     }
   }
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 200
+        canvas.height = 200
+        const ctx = canvas.getContext('2d')!
+        const size = Math.min(img.width, img.height)
+        const ox = (img.width - size) / 2
+        const oy = (img.height - size) / 2
+        ctx.drawImage(img, ox, oy, size, size, 0, 0, 200, 200)
+        setTempImageUrl(canvas.toDataURL('image/jpeg', 0.85))
+        setTempType('photo')
+        setTempObjPos('center')
+      }
+      img.src = event.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleIconSave = () => {
-    setIconPref({ emoji: '', color: tempColor })
+    setIconPref({
+      emoji: '',
+      color: tempColor,
+      type: tempType,
+      imageUrl: tempType !== 'color' ? (tempImageUrl ?? undefined) : undefined,
+      objectPosition: tempType !== 'color' ? tempObjPos : undefined,
+    })
     setSubModal(null)
   }
 
@@ -228,7 +264,16 @@ export default function UserProfilePanel({ onClose, anchorRef }: Props) {
             />
           ))}
           {pwError && <p className="text-[11px] text-red-500 mb-2">{pwError}</p>}
-          <div className="flex gap-2 mt-3">
+          <div className="text-right mb-3">
+            <Link
+              href="/auth/forgot-password"
+              onClick={closePasswordModal}
+              className="text-[11px] text-primary hover:underline"
+            >
+              パスワードを忘れた場合
+            </Link>
+          </div>
+          <div className="flex gap-2">
             <button
               onClick={closePasswordModal}
               className="flex-1 py-2.5 rounded-xl text-[13px] font-medium bg-black/5 hover:bg-black/8 text-app-text transition-colors"
@@ -248,32 +293,104 @@ export default function UserProfilePanel({ onClose, anchorRef }: Props) {
 
       {/* ── アイコン変更モーダル ── */}
       {subModal === 'icon' && (
-        <CenterModal title="アイコンカラーを変更" icon={Pencil} onClose={() => setSubModal(null)}>
+        <CenterModal title="アイコンを変更" icon={Pencil} onClose={() => setSubModal(null)}>
           {/* プレビュー */}
           <div className="flex justify-center mb-5">
-            <span
-              className="w-20 h-20 rounded-full flex items-center justify-center font-bold text-white text-3xl shadow-lg"
-              style={{ backgroundColor: tempColor }}
-            >
-              {initial}
-            </span>
-          </div>
-          <p className="text-[12px] text-app-sub font-medium mb-3">カラーを選択</p>
-          <div className="grid grid-cols-4 gap-2 mb-5">
-            {ICON_COLORS.map((c) => (
-              <button
-                key={c.value}
-                onClick={() => setTempColor(c.value)}
-                className={`
-                  h-10 rounded-xl transition-all font-medium text-[12px] text-white
-                  ${tempColor === c.value ? 'ring-2 ring-offset-2 ring-primary scale-105 shadow-md' : 'hover:scale-105'}
-                `}
-                style={{ backgroundColor: c.value }}
+            {tempType !== 'color' && tempImageUrl ? (
+              <span
+                className="w-20 h-20 rounded-full block shadow-lg"
+                style={{
+                  backgroundImage: `url(${tempImageUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: tempObjPos,
+                }}
+              />
+            ) : (
+              <span
+                className="w-20 h-20 rounded-full flex items-center justify-center font-bold text-white text-3xl shadow-lg"
+                style={{ backgroundColor: tempColor }}
               >
-                {tempColor === c.value && <Check size={14} className="mx-auto" />}
+                {initial}
+              </span>
+            )}
+          </div>
+
+          {/* タブ */}
+          <div className="flex rounded-xl bg-black/5 p-1 mb-4 gap-1">
+            {(['color', 'preset', 'photo'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setIconTab(tab)}
+                className={`flex-1 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+                  iconTab === tab ? 'bg-white shadow-sm text-app-text' : 'text-app-sub hover:text-app-text'
+                }`}
+              >
+                {tab === 'color' ? 'カラー' : tab === 'preset' ? 'プリセット' : '写真'}
               </button>
             ))}
           </div>
+
+          {/* カラータブ */}
+          {iconTab === 'color' && (
+            <div className="grid grid-cols-4 gap-2 mb-5">
+              {ICON_COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  onClick={() => { setTempColor(c.value); setTempType('color'); setTempImageUrl(null) }}
+                  className={`
+                    h-10 rounded-xl transition-all font-medium text-[12px] text-white
+                    ${tempType === 'color' && tempColor === c.value ? 'ring-2 ring-offset-2 ring-primary scale-105 shadow-md' : 'hover:scale-105'}
+                  `}
+                  style={{ backgroundColor: c.value }}
+                >
+                  {tempType === 'color' && tempColor === c.value && <Check size={14} className="mx-auto" />}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* プリセットタブ */}
+          {iconTab === 'preset' && (
+            <div className="grid grid-cols-3 gap-2 mb-5">
+              {ICON_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  onClick={() => { setTempImageUrl(preset.url); setTempType('preset'); setTempObjPos(preset.objectPosition) }}
+                  className={`relative aspect-square rounded-xl overflow-hidden transition-all ${
+                    tempType === 'preset' && tempImageUrl === preset.url
+                      ? 'ring-2 ring-offset-2 ring-primary scale-105'
+                      : 'hover:scale-105'
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" style={{ objectPosition: preset.objectPosition }} />
+                  {tempType === 'preset' && tempImageUrl === preset.url && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <Check size={16} className="text-white" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* 写真タブ */}
+          {iconTab === 'photo' && (
+            <div className="mb-5">
+              <label className="
+                flex flex-col items-center gap-2 py-6 rounded-xl border-2 border-dashed border-black/15
+                cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors
+              ">
+                <Upload size={20} className="text-app-sub" />
+                <span className="text-[12px] text-app-sub">クリックして写真を選択</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+              </label>
+              {tempType === 'photo' && tempImageUrl && (
+                <p className="text-[11px] text-primary text-center mt-2">プレビューに反映しました</p>
+              )}
+            </div>
+          )}
+
           <button
             onClick={handleIconSave}
             className="w-full py-2.5 rounded-xl bg-primary text-white text-[13px] font-semibold hover:bg-primary-dark transition-colors"
@@ -294,12 +411,23 @@ export default function UserProfilePanel({ onClose, anchorRef }: Props) {
               className="relative group"
               title="アイコンを変更"
             >
-              <span
-                className="w-[60px] h-[60px] rounded-full flex items-center justify-center font-bold text-white text-2xl shadow-md transition-transform group-hover:scale-105"
-                style={{ backgroundColor: iconPref.color }}
-              >
-                {initial}
-              </span>
+              {iconPref.imageUrl ? (
+                <span
+                  className="w-[60px] h-[60px] rounded-full block shadow-md transition-transform group-hover:scale-105"
+                  style={{
+                    backgroundImage: `url(${iconPref.imageUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: iconPref.objectPosition || '50% 20%',
+                  }}
+                />
+              ) : (
+                <span
+                  className="w-[60px] h-[60px] rounded-full flex items-center justify-center font-bold text-white text-2xl shadow-md transition-transform group-hover:scale-105"
+                  style={{ backgroundColor: iconPref.color }}
+                >
+                  {initial}
+                </span>
+              )}
               <span className="absolute inset-0 rounded-full bg-black/25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Pencil size={14} className="text-white" />
               </span>
