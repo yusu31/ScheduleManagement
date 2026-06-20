@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, SlidersHorizontal, X } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -95,7 +95,7 @@ const cardVariants = {
 // ─── メインページ ─────────────────────────────────────────────────
 const PER_PAGE = 12
 
-export default function EventsPage() {
+function EventsInner() {
   const [events,     setEvents]     = useState<Event[]>([])
   const [isLoading,  setIsLoading]  = useState(true)
   const [search,     setSearch]     = useState('')
@@ -380,5 +380,13 @@ export default function EventsPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function EventsPage() {
+  return (
+    <Suspense>
+      <EventsInner />
+    </Suspense>
   )
 }
