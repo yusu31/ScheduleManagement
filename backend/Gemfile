@@ -39,6 +39,9 @@ gem "dotenv-rails"
 # HTTP client for external API requests
 gem "faraday"
 
+# PDF text extraction
+gem "pdf-reader"
+
 # Cron job scheduling (for production)
 gem "whenever", require: false
 
