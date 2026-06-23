@@ -10,6 +10,7 @@ import RandomIllustration from '@/components/RandomIllustration'
 import FilterDrawer from '@/components/events/FilterDrawer'
 import { Event } from '@/types/event'
 import { useFavorites } from '@/contexts/FavoritesContext'
+import toast from 'react-hot-toast'
 
 const NO_RESULT_IMAGES = [
   '/images/undraw_not-found_6bgl.svg',
@@ -124,6 +125,7 @@ function EventsInner() {
   useEffect(() => {
     apiClient.get('/api/v1/events')
       .then(res => setEvents(res.data))
+      .catch(() => toast.error('イベントの読み込みに失敗しました'))
       .finally(() => setIsLoading(false))
   }, [])
 

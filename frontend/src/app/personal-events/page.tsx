@@ -149,7 +149,7 @@ export default function PersonalEventsPage() {
 
     apiClient.get('/api/v1/personal_events')
       .then(res => setEvents(res.data as PersonalEvent[]))
-      .catch(() => {})
+      .catch(() => toast.error('予定の読み込みに失敗しました'))
       .finally(() => setIsLoading(false))
   }, [isLoggedIn, authLoading])
 

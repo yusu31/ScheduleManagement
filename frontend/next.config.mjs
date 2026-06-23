@@ -8,6 +8,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'fastly.picsum.photos' },
       { protocol: 'https', hostname: 'openweathermap.org' },
+      { protocol: 'https', hostname: 'www.gurutto-koriyama.com' },
     ],
   },
   async rewrites() {
