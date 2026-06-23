@@ -220,6 +220,8 @@ export default function TodayPage() {
 
         if (peRes.status === 'fulfilled') {
           setPersonalEvents(peRes.value.data as PersonalEvent[])
+        } else {
+          toast.error('今日の予定の読み込みに失敗しました')
         }
         if (schRes.status === 'fulfilled') {
           const sch = schRes.value.data as ScheduledEvent[]

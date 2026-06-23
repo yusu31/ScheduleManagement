@@ -23,20 +23,31 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-// レスポンス受信時：新しい認証ヘッダーをlocalStorageに保存
-apiClient.interceptors.response.use((response) => {
-  if (typeof window !== 'undefined') {
-    const accessToken = response.headers['access-token']
-    const client = response.headers['client']
-    const uid = response.headers['uid']
+// レスポンス受信時：新しい認証ヘッダーをlocalStorageに保存 / 401なら認証クリア＋リダイレクト
+apiClient.interceptors.response.use(
+  (response) => {
+    if (typeof window !== 'undefined') {
+      const accessToken = response.headers['access-token']
+      const client = response.headers['client']
+      const uid = response.headers['uid']
 
-    if (accessToken) {
-      localStorage.setItem('access-token', accessToken)
-      if (client) localStorage.setItem('client', client)
-      if (uid) localStorage.setItem('uid', uid)
+      if (accessToken) {
+        localStorage.setItem('access-token', accessToken)
+        if (client) localStorage.setItem('client', client)
+        if (uid) localStorage.setItem('uid', uid)
+      }
     }
+    return response
+  },
+  (error) => {
+    if (typeof window !== 'undefined' && error.response?.status === 401) {
+      localStorage.removeItem('access-token')
+      localStorage.removeItem('client')
+      localStorage.removeItem('uid')
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
   }
-  return response
-})
+)
 
 export default apiClient
