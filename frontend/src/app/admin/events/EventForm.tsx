@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import apiClient from '@/lib/axios'
 import { Event } from '@/types/event'
-import { FUKUSHIMA_MUNICIPALITIES } from '@/constants/municipalities'
-
-const AREAS = [...FUKUSHIMA_MUNICIPALITIES, 'その他']
+import AreaSelect from '@/components/ui/AreaSelect'
+import { AREA_SELECT_OPTIONS } from '@/constants/municipalities'
 const CATEGORIES = [
   'スポーツ', '音楽', 'アート', '食・グルメ', '自然・アウトドア',
   '文化・伝統', 'ファミリー', 'テクノロジー', '教育', '祭り・イベント', 'その他',
@@ -31,7 +30,7 @@ export default function EventForm({ event }: Props) {
     title: event?.title ?? '',
     description: event?.description ?? '',
     location: event?.location ?? '',
-    area: event?.area ?? AREAS[0],
+    area: event?.area ?? AREA_SELECT_OPTIONS[0].options[0].value,
     category: event?.category ?? CATEGORIES[0],
     start_at: toDatetimeLocal(event?.start_at),
     end_at: toDatetimeLocal(event?.end_at),
@@ -92,9 +91,7 @@ export default function EventForm({ event }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>エリア <span className="text-red-500">*</span></label>
-          <select name="area" value={form.area} onChange={handleChange} required className={inputClass}>
-            {AREAS.map(a => <option key={a}>{a}</option>)}
-          </select>
+          <AreaSelect value={form.area} onChange={v => setForm(prev => ({ ...prev, area: v }))} />
         </div>
         <div>
           <label className={labelClass}>カテゴリ <span className="text-red-500">*</span></label>

@@ -7,9 +7,10 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient from '@/lib/axios'
 import AdminNav from '@/components/admin/AdminNav'
-import { FUKUSHIMA_MUNICIPALITIES } from '@/constants/municipalities'
+import AreaSelect from '@/components/ui/AreaSelect'
+import { AREA_SELECT_OPTIONS } from '@/constants/municipalities'
 
-const AREAS = [...FUKUSHIMA_MUNICIPALITIES, 'その他']
+const ALL_AREAS = AREA_SELECT_OPTIONS.flatMap(g => g.options).map(o => o.value)
 const CATEGORIES = [
   'スポーツ', '音楽', 'アート', '食・グルメ', '自然・アウトドア',
   '文化・伝統', 'ファミリー', 'テクノロジー', '教育', '祭り・イベント', 'その他',
@@ -50,7 +51,7 @@ function rawToEventDraft(raw: Record<string, string | null>): EventDraft {
     title: raw.title ?? '',
     description: raw.description ?? '',
     location: raw.location ?? '',
-    area: AREAS.includes(raw.area ?? '') ? (raw.area ?? AREAS[0]) : AREAS[0],
+    area: ALL_AREAS.includes(raw.area ?? '') ? (raw.area ?? ALL_AREAS[0]) : ALL_AREAS[0],
     category: CATEGORIES.includes(raw.category ?? '') ? (raw.category ?? CATEGORIES[0]) : CATEGORIES[0],
     start_at: toDatetimeLocal(raw.start_at),
     end_at: toDatetimeLocal(raw.end_at),
@@ -425,9 +426,7 @@ export default function AiImportPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className={labelClass}>エリア</label>
-                          <select value={draft.area} onChange={e => updateDraft(index, 'area', e.target.value)} className={inputClass}>
-                            {AREAS.map(a => <option key={a}>{a}</option>)}
-                          </select>
+                          <AreaSelect value={draft.area} onChange={v => updateDraft(index, 'area', v)} />
                         </div>
                         <div>
                           <label className={labelClass}>カテゴリ</label>
