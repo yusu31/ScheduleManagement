@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import apiClient from '@/lib/axios'
 import { Event } from '@/types/event'
+import { FUKUSHIMA_MUNICIPALITIES } from '@/constants/municipalities'
 
-const AREAS = [
-  '郡山市', '福島市', 'いわき市', '白河市', '須賀川市', '喜多方市',
-  '相馬市', '二本松市', '田村市', '南相馬市', '伊達市', '本宮市', 'その他',
-]
+const AREAS = [...FUKUSHIMA_MUNICIPALITIES, 'その他']
 const CATEGORIES = [
   'スポーツ', '音楽', 'アート', '食・グルメ', '自然・アウトドア',
   '文化・伝統', 'ファミリー', 'テクノロジー', '教育', '祭り・イベント', 'その他',
