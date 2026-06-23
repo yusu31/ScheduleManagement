@@ -6,21 +6,21 @@ module Api
       class AiImportController < BaseController
         def extract
           results = case params[:input_type]
-                    when "url"
+          when "url"
                       raise "URLを入力してください" if params[:url].blank?
                       AiEventExtractorService.from_url(params[:url].strip)
-                    when "text"
+          when "text"
                       raise "テキストを入力してください" if params[:text].blank?
                       AiEventExtractorService.from_text(params[:text])
-                    when "image"
+          when "image"
                       raise "画像データがありません" if params[:image_data].blank?
                       AiEventExtractorService.from_image(params[:image_data], params[:mime_type] || "image/jpeg")
-                    when "pdf"
+          when "pdf"
                       raise "PDFデータがありません" if params[:pdf_data].blank?
                       AiEventExtractorService.from_pdf(params[:pdf_data])
-                    else
+          else
                       raise "入力タイプが不正です（url / text / image / pdf のいずれかを指定してください）"
-                    end
+          end
 
           render json: { events: results }
         rescue => e

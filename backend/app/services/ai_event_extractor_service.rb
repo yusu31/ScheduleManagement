@@ -10,7 +10,7 @@ class AiEventExtractorService
   GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
   AREAS = %w[郡山市 福島市 いわき市 白河市 須賀川市 喜多方市 相馬市 二本松市 田村市 南相馬市 伊達市 本宮市 その他].freeze
-  CATEGORIES = ["スポーツ", "音楽", "アート", "食・グルメ", "自然・アウトドア", "文化・伝統", "ファミリー", "テクノロジー", "教育", "祭り・イベント", "その他"].freeze
+  CATEGORIES = [ "スポーツ", "音楽", "アート", "食・グルメ", "自然・アウトドア", "文化・伝統", "ファミリー", "テクノロジー", "教育", "祭り・イベント", "その他" ].freeze
 
   def self.from_url(url)
     html = fetch_html(url)
@@ -70,9 +70,9 @@ class AiEventExtractorService
   def self.call_gemini(text:)
     prompt = build_prompt(text)
     body = {
-      contents: [{
-        parts: [{ text: prompt }]
-      }],
+      contents: [ {
+        parts: [ { text: prompt } ]
+      } ],
       generationConfig: {
         temperature: 0.1,
         responseMimeType: "application/json"
@@ -85,7 +85,7 @@ class AiEventExtractorService
   def self.call_gemini_with_image(base64_data:, mime_type:)
     prompt = build_prompt("この画像に含まれるイベント情報を全て抽出してください。")
     body = {
-      contents: [{
+      contents: [ {
         parts: [
           { text: prompt },
           {
@@ -95,7 +95,7 @@ class AiEventExtractorService
             }
           }
         ]
-      }],
+      } ],
       generationConfig: {
         temperature: 0.1,
         responseMimeType: "application/json"
@@ -159,7 +159,7 @@ class AiEventExtractorService
     raise "Gemini API からのレスポンスが不正です: #{response.inspect}" if text.nil?
 
     data = JSON.parse(text)
-    events = data.is_a?(Array) ? data : [data]
+    events = data.is_a?(Array) ? data : [ data ]
 
     events.map do |event|
       {
