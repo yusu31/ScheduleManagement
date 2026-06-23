@@ -8,6 +8,7 @@ type User = {
   email: string
   name: string | null
   nickname: string | null
+  role: string
 }
 
 type AuthContextType = {

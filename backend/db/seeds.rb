@@ -143,3 +143,20 @@ if test_user.new_record?
 else
   puts "ℹ️  テストユーザーは既に存在します: #{test_user.email}"
 end
+
+# Adminユーザー（ローカル開発用）
+admin_user = User.find_or_initialize_by(email: '3.fortschritt@gmail.com')
+if admin_user.new_record?
+  admin_user.assign_attributes(
+    password: 'adminpass123',
+    password_confirmation: 'adminpass123',
+    name: 'Admin',
+    uid: '3.fortschritt@gmail.com',
+    role: 'admin'
+  )
+  admin_user.save!
+  puts "✅ Adminユーザー作成: #{admin_user.email}"
+else
+  admin_user.update!(role: 'admin')
+  puts "ℹ️  Adminユーザーは既に存在します（role更新済み）: #{admin_user.email}"
+end
