@@ -29,6 +29,9 @@ Rails.application.routes.draw do
             patch :approve
             delete :reject
           end
+          collection do
+            post :bulk_approve
+          end
         end
       end
     end

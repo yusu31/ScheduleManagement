@@ -169,9 +169,22 @@ export default function EventDetailPage() {
 
             {/* 説明文 */}
             {event.description && (
-              <p className="text-[14px] leading-[1.85] text-app-text mb-6 whitespace-pre-wrap">
-                {event.description.replace(/<[^>]*>/g, '')}
-              </p>
+              <div className="mb-6">
+                <p className="text-[14px] leading-[1.85] text-app-text whitespace-pre-wrap">
+                  {event.description.replace(/<[^>]*>/g, '')}
+                </p>
+                {event.event_url && (
+                  <a
+                    href={event.event_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-3 text-[13px] text-primary font-medium hover:underline"
+                  >
+                    <Globe size={13} />
+                    続きを元記事で読む →
+                  </a>
+                )}
+              </div>
             )}
 
             {/* 地図（一番下） */}
