@@ -33,6 +33,7 @@ Rails.application.routes.draw do
             post :bulk_approve
           end
         end
+        post "ai_import/extract", to: "ai_import#extract"
       end
     end
   end

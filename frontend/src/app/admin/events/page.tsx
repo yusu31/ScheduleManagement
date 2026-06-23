@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient from '@/lib/axios'
 import { Event } from '@/types/event'
+import AdminNav from '@/components/admin/AdminNav'
 
 const SOURCE_LABELS: Record<string, string> = {
   connpass: 'Connpass',
@@ -134,10 +135,13 @@ export default function AdminEventsPage() {
   return (
     <div className="flex-1 overflow-y-auto p-6 bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin</h1>
+        <AdminNav />
+
         {/* ヘッダー */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">イベント管理</h1>
+            <h2 className="text-lg font-semibold text-gray-900">イベント管理</h2>
             {pendingCount > 0 && (
               <p className="text-sm text-amber-600 mt-1 font-medium">
                 ⏳ 承認待ち: {pendingCount}件
