@@ -22,6 +22,15 @@ Rails.application.routes.draw do
       end
       get "weather", to: "weather#show"
       get "users/stats", to: "users#stats"
+
+      namespace :admin do
+        resources :events do
+          member do
+            patch :approve
+            delete :reject
+          end
+        end
+      end
     end
   end
 

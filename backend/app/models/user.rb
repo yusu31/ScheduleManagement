@@ -25,4 +25,8 @@ class User < ApplicationRecord
   has_many :personal_events, dependent: :destroy
   has_many :favorite_events, through: :favorites, source: :event
   has_many :scheduled_events, through: :schedules, source: :event
+
+  def admin?
+    role == "admin"
+  end
 end

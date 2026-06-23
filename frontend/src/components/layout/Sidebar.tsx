@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette } from 'lucide-react'
+import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette, Shield } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme, isThemeDark } from '@/contexts/ThemeContext'
@@ -96,6 +96,26 @@ export default function Sidebar() {
           })}
         </ul>
       </nav>
+
+      {/* Admin リンク（adminユーザーのみ） */}
+      {!isLoading && isLoggedIn && currentUser?.role === 'admin' && (
+        <div className="px-3 pb-1">
+          <Link
+            href="/admin/events"
+            className={`
+              w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
+              text-[13px] font-medium transition-colors
+              ${pathname.startsWith('/admin')
+                ? isDark ? 'bg-white/15 text-white' : 'bg-amber-50 text-amber-700'
+                : isDark ? 'text-white/60 hover:bg-white/10 hover:text-white' : 'text-app-sub hover:bg-white/60 hover:text-app-text'
+              }
+            `}
+          >
+            <Shield size={15} />
+            <span>管理画面</span>
+          </Link>
+        </div>
+      )}
 
       {/* テーマ変更ボタン（ログイン前のみ表示） */}
       {!isLoading && !isLoggedIn && (
