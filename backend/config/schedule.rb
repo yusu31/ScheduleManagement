@@ -10,3 +10,8 @@ set :environment, :production
 every 1.day, at: "3:00 am" do
   rake "connpass:fetch"
 end
+
+# 毎日午前4時にRSSフィードからイベントを取得
+every 1.day, at: "4:00 am" do
+  rake "rss:fetch"
+end
