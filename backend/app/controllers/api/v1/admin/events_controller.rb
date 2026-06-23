@@ -47,6 +47,14 @@ module Api
           render json: event_json(event)
         end
 
+        def bulk_approve
+          ids = params[:event_ids]
+          return render json: { error: "event_idsが必要です" }, status: :bad_request if ids.blank?
+
+          count = Event.where(id: ids, status: "pending").update_all(status: "published")
+          render json: { approved_count: count }
+        end
+
         def reject
           event = Event.find(params[:id])
           event.destroy

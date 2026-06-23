@@ -67,24 +67,29 @@ class RssFetcherService
       pub_date = item[:pub_date]
       next if pub_date && pub_date < 60.days.ago
 
-      start_at = extract_date_from_text(item[:title].to_s + " " + item[:description].to_s) ||
+      full_text = item[:title].to_s + " " + item[:description].to_s
+
+      start_at = extract_date_from_text(full_text) ||
                  pub_date ||
                  Time.current
+      end_at   = extract_end_date_from_text(full_text)
+      location = extract_location_from_text(item[:description].to_s)
 
       title = item[:title].to_s.strip
       next if title.blank?
 
-      text = "#{title} #{item[:description]}"
       event = Event.new(
         title:       title,
         description: item[:description].presence,
         event_url:   url,
         area:        feed[:area],
-        category:    category_from(text),
+        location:    location,
+        category:    category_from(full_text),
         start_at:    start_at,
+        end_at:      end_at,
         status:      "pending",
         source:      "rss",
-        tags:        tags_from(text)
+        tags:        tags_from(full_text)
       )
 
       if event.save
@@ -148,6 +153,20 @@ class RssFetcherService
     Time.parse(str) rescue nil
   end
 
+  # タイトル・説明文から開催場所を抽出する
+  # 「場所：○○公園」「会場：△△ホール」などのパターンに対応
+  def extract_location_from_text(text)
+    return nil if text.blank?
+
+    if text =~ /(?:場所|会場|開催場所|開催地|開催会場)[：:]\s*([^\s、。\n<]{2,30})/
+      return $1.strip
+    end
+
+    nil
+  end
+
+  # タイトル・説明文から開始日を抽出する
+  # 対応形式: 「YYYY年M月D日」「M月D日」「M/D」「M/D(曜)」
   def extract_date_from_text(text)
     year = Time.current.year
 
@@ -162,6 +181,39 @@ class RssFetcherService
       date  = Date.new(year, month, day) rescue nil
       date  = Date.new(year + 1, month, day) rescue nil if date.nil? || date < Date.today - 1
       return date.to_time if date && date >= Date.today - 1
+    end
+
+    # M/D または M/D(曜) 形式（例: 6/26(金)〜7/31(金) の最初の日付）
+    if text =~ /(\d{1,2})\/(\d{1,2})(?:\([月火水木金土日]\))?/
+      month = $1.to_i
+      day   = $2.to_i
+      date  = Date.new(year, month, day) rescue nil
+      date  = Date.new(year + 1, month, day) rescue nil if date.nil? || date < Date.today - 1
+      return date.to_time if date && date >= Date.today - 1
+    end
+
+    nil
+  end
+
+  # タイトル・説明文から終了日を抽出する
+  # 対応形式: 「〜M月D日」「〜M/D」「～M/D(曜)」
+  def extract_end_date_from_text(text)
+    year = Time.current.year
+
+    if text =~ /[〜~～](\d{1,2})月(\d{1,2})日/
+      month = $1.to_i
+      day   = $2.to_i
+      date  = Date.new(year, month, day) rescue nil
+      date  = Date.new(year + 1, month, day) rescue nil if date.nil? || date < Date.today - 1
+      return date.to_time if date
+    end
+
+    if text =~ /[〜~～](\d{1,2})\/(\d{1,2})(?:\([月火水木金土日]\))?/
+      month = $1.to_i
+      day   = $2.to_i
+      date  = Date.new(year, month, day) rescue nil
+      date  = Date.new(year + 1, month, day) rescue nil if date.nil? || date < Date.today - 1
+      return date.to_time if date
     end
 
     nil

@@ -28,6 +28,8 @@ export default function AdminEventsPage() {
   const [fetching, setFetching] = useState(true)
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'published'>('all')
   const [pendingCount, setPendingCount] = useState(0)
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [bulkApproving, setBulkApproving] = useState(false)
 
   useEffect(() => {
     if (isLoading) return
@@ -38,12 +40,12 @@ export default function AdminEventsPage() {
 
   const fetchEvents = useCallback(async () => {
     setFetching(true)
+    setSelectedIds(new Set())
     try {
       const params = statusFilter !== 'all' ? { status: statusFilter } : {}
       const res = await apiClient.get('/api/v1/admin/events', { params })
       setEvents(res.data)
 
-      // pending件数を別途カウント（フィルター問わず）
       if (statusFilter !== 'pending') {
         const pendingRes = await apiClient.get('/api/v1/admin/events', { params: { status: 'pending' } })
         setPendingCount(pendingRes.data.length)
@@ -81,6 +83,49 @@ export default function AdminEventsPage() {
       fetchEvents()
     } catch {
       toast.error('削除に失敗しました')
+    }
+  }
+
+  // チェックボックスの切り替え（1件）
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  // 承認待ちを全選択 / 全解除
+  const pendingEvents = events.filter(e => e.status === 'pending')
+  const allPendingSelected = pendingEvents.length > 0 && pendingEvents.every(e => selectedIds.has(e.id))
+
+  const toggleSelectAll = () => {
+    if (allPendingSelected) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(pendingEvents.map(e => e.id)))
+    }
+  }
+
+  // 選択した件数を一括承認
+  const handleBulkApprove = async () => {
+    if (selectedIds.size === 0) return
+    if (!confirm(`選択した ${selectedIds.size} 件を承認して公開しますか？`)) return
+    setBulkApproving(true)
+    try {
+      const res = await apiClient.post('/api/v1/admin/events/bulk_approve', {
+        event_ids: Array.from(selectedIds),
+      })
+      toast.success(`${res.data.approved_count} 件を公開しました`)
+      fetchEvents()
+    } catch {
+      toast.error('一括承認に失敗しました')
+    } finally {
+      setBulkApproving(false)
     }
   }
 
@@ -130,6 +175,31 @@ export default function AdminEventsPage() {
           ))}
         </div>
 
+        {/* 一括承認バー（承認待ちが1件以上あるとき表示） */}
+        {pendingEvents.length > 0 && (
+          <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-4">
+            <label className="flex items-center gap-2 text-sm text-amber-800 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={allPendingSelected}
+                onChange={toggleSelectAll}
+                className="w-4 h-4 accent-amber-500"
+              />
+              承認待ち {pendingEvents.length} 件を全選択
+            </label>
+            {selectedIds.size > 0 && (
+              <button
+                onClick={handleBulkApprove}
+                disabled={bulkApproving}
+                className="flex items-center gap-1.5 bg-emerald-600 text-white text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+              >
+                <CheckCircle size={14} />
+                {bulkApproving ? '処理中...' : `選択した ${selectedIds.size} 件を承認`}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* イベント一覧 */}
         {fetching ? (
           <div className="text-center py-12 text-gray-400">読み込み中...</div>
@@ -140,6 +210,7 @@ export default function AdminEventsPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+                  <th className="px-4 py-3 w-8" />
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">タイトル</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">日付</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">エリア</th>
@@ -150,7 +221,20 @@ export default function AdminEventsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {events.map((event) => (
-                  <tr key={event.id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={event.id}
+                    className={`hover:bg-gray-50 transition-colors ${selectedIds.has(event.id) ? 'bg-amber-50' : ''}`}
+                  >
+                    <td className="px-4 py-3">
+                      {event.status === 'pending' && (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(event.id)}
+                          onChange={() => toggleSelect(event.id)}
+                          className="w-4 h-4 accent-amber-500"
+                        />
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-gray-900 line-clamp-1 max-w-xs">
                         {event.title}
@@ -219,4 +303,3 @@ export default function AdminEventsPage() {
     </div>
   )
 }
-
