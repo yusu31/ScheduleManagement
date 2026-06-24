@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_22_031446) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_24_052055) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -78,6 +78,32 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_22_031446) do
     t.index ["event_id"], name: "index_schedules_on_event_id"
     t.index ["user_id", "event_id"], name: "index_schedules_on_user_id_and_event_id", unique: true
     t.index ["user_id"], name: "index_schedules_on_user_id"
+  end
+
+  create_table "spots", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "area", null: false
+    t.string "municipality"
+    t.string "address"
+    t.string "category", null: false
+    t.string "season", default: "all"
+    t.decimal "latitude", precision: 10, scale: 7
+    t.decimal "longitude", precision: 10, scale: 7
+    t.string "image_url", limit: 500
+    t.string "official_url", limit: 500
+    t.string "phone"
+    t.string "opening_hours"
+    t.string "access"
+    t.string "admission_fee"
+    t.string "source", default: "manual"
+    t.string "status", default: "published"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["area"], name: "index_spots_on_area"
+    t.index ["category"], name: "index_spots_on_category"
+    t.index ["season"], name: "index_spots_on_season"
+    t.index ["status"], name: "index_spots_on_status"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

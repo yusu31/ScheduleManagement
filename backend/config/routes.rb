@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :events, only: %i[index show]
+      resources :spots,  only: %i[index show]
       resources :favorites, only: %i[index create destroy]
       resources :schedules, only: %i[index create destroy]
       resources :personal_events, only: %i[index create update destroy]
@@ -24,6 +25,7 @@ Rails.application.routes.draw do
       get "users/stats", to: "users#stats"
 
       namespace :admin do
+        resources :spots
         resources :events do
           member do
             patch :approve
