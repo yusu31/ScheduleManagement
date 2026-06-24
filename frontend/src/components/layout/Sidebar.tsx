@@ -3,19 +3,22 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { Sun, CalendarDays, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette, Shield } from 'lucide-react'
+import { Sun, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette, Shield, Landmark, Utensils } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme, isThemeDark } from '@/contexts/ThemeContext'
 import { useUserPreference } from '@/contexts/UserPreferenceContext'
 import UserProfilePanel from '@/components/user/UserProfilePanel'
 
-const navItems: { href: string; label: string; Icon: LucideIcon }[] = [
-  { href: '/today', label: '今日', Icon: Sun },
-  { href: '/personal-events', label: '予定', Icon: CalendarDays },
-  { href: '/calendar', label: 'カレンダー', Icon: CalendarRange },
-  { href: '/events', label: 'イベント', Icon: Ticket },
-  { href: '/conquer', label: 'マップ制覇', Icon: MapPin },
+type NavItem = { href: string; label: string; Icon: LucideIcon; comingSoon?: boolean }
+
+const navItems: NavItem[] = [
+  { href: '/today',       label: '今日',       Icon: Sun },
+  { href: '/calendar',   label: 'カレンダー',  Icon: CalendarRange },
+  { href: '/events',     label: 'イベント',    Icon: Ticket },
+  { href: '/spots',      label: 'スポット',    Icon: Landmark,  comingSoon: true },
+  { href: '/restaurants',label: 'グルメ',      Icon: Utensils,  comingSoon: true },
+  { href: '/conquer',    label: 'マップ制覇',  Icon: MapPin },
   { href: '/conquer/collection', label: 'コレクション', Icon: Trophy },
 ]
 
@@ -69,8 +72,30 @@ export default function Sidebar() {
       {/* ナビゲーション */}
       <nav className="flex-1 px-3 py-2">
         <ul className="flex flex-col gap-0.5">
-          {navItems.map(({ href, label, Icon }) => {
-            const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
+          {navItems.map(({ href, label, Icon, comingSoon }) => {
+            const isActive = !comingSoon && (pathname === href || (href !== '/' && pathname.startsWith(href)))
+
+            if (comingSoon) {
+              return (
+                <li key={href}>
+                  <div className={`
+                    relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
+                    cursor-not-allowed select-none
+                    ${isDark ? 'text-white/30' : 'text-app-sub/40'}
+                  `}>
+                    <Icon size={16} />
+                    {label}
+                    <span className={`
+                      ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full
+                      ${isDark ? 'bg-white/10 text-white/40' : 'bg-gray-100 text-gray-400'}
+                    `}>
+                      準備中
+                    </span>
+                  </div>
+                </li>
+              )
+            }
+
             return (
               <li key={href}>
                 <Link
