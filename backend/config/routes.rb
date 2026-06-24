@@ -5,8 +5,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :events, only: %i[index show]
-      resources :spots,  only: %i[index show]
+      resources :events,      only: %i[index show]
+      resources :spots,       only: %i[index show]
+      resources :restaurants, only: %i[index show]
       resources :favorites, only: %i[index create destroy]
       resources :schedules, only: %i[index create destroy]
       resources :personal_events, only: %i[index create update destroy]
@@ -26,6 +27,7 @@ Rails.application.routes.draw do
 
       namespace :admin do
         resources :spots
+        resources :restaurants
         resources :events do
           member do
             patch :approve
