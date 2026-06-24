@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_24_052055) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_24_131232) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -68,6 +68,32 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_052055) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "region_id"], name: "index_region_conquests_on_user_id_and_region_id", unique: true
     t.index ["user_id"], name: "index_region_conquests_on_user_id"
+  end
+
+  create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "area", null: false
+    t.string "municipality"
+    t.string "address"
+    t.string "category", null: false
+    t.string "genre"
+    t.decimal "latitude", precision: 10, scale: 7
+    t.decimal "longitude", precision: 10, scale: 7
+    t.string "image_url", limit: 500
+    t.string "official_url", limit: 500
+    t.string "phone"
+    t.string "opening_hours"
+    t.string "budget"
+    t.string "hotpepper_id"
+    t.string "source", default: "manual"
+    t.string "status", default: "published", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["area"], name: "index_restaurants_on_area"
+    t.index ["category"], name: "index_restaurants_on_category"
+    t.index ["hotpepper_id"], name: "index_restaurants_on_hotpepper_id", unique: true
+    t.index ["status"], name: "index_restaurants_on_status"
   end
 
   create_table "schedules", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
