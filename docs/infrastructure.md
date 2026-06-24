@@ -109,6 +109,8 @@ Rails の環境変数は `/var/www/event-finder/backend/.env` に設定する（
 | `RAILS_MASTER_KEY` | credentials の復号キー |
 | `SECRET_KEY_BASE` | セッション暗号化キー |
 | `OPENWEATHER_API_KEY` | OpenWeatherMap API キー |
+| `CONNPASS_API_KEY` | Connpass API キー（v2 対応） |
+| `GEMINI_API_KEY` | Google Gemini API キー（AI インポート機能） |
 
 ---
 
@@ -190,3 +192,4 @@ sudo swapon /swapfile
 | バージョン | 日付 | 変更者 | 変更内容 |
 |-----------|------|--------|---------|
 | 1.0 | 2026-06-21 | yusu | 初版作成（フェーズ 16 デプロイ完了時） |
+| 1.1 | 2026-06-24 | yusu | 環境変数リストに CONNPASS_API_KEY・GEMINI_API_KEY を追加 |
