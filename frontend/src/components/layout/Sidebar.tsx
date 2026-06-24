@@ -16,7 +16,7 @@ const navItems: NavItem[] = [
   { href: '/today',       label: '今日',       Icon: Sun },
   { href: '/calendar',   label: 'カレンダー',  Icon: CalendarRange },
   { href: '/events',     label: 'イベント',    Icon: Ticket },
-  { href: '/spots',      label: 'スポット',    Icon: Landmark,  comingSoon: true },
+  { href: '/spots',      label: 'スポット',    Icon: Landmark },
   { href: '/restaurants',label: 'グルメ',      Icon: Utensils,  comingSoon: true },
   { href: '/conquer',    label: 'マップ制覇',  Icon: MapPin },
   { href: '/conquer/collection', label: 'コレクション', Icon: Trophy },
