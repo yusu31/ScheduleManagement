@@ -35,6 +35,8 @@ export default function Sidebar() {
   const { iconPref } = useUserPreference()
 
   const isDark = isThemeDark(currentTheme)
+  const isPhoto = Boolean(currentTheme?.imageUrl)
+  const usesDarkOverlay = isPhoto || isDark
 
   if (!mounted) {
     return (
@@ -52,9 +54,9 @@ export default function Sidebar() {
       backdrop-blur-xl
       overflow-visible
       transition-colors duration-300
-      ${isDark
-        ? 'bg-black/30 border-r border-white/15 shadow-[1px_0_20px_rgba(0,0,0,0.2)]'
-        : 'bg-white/65 border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]'
+      ${usesDarkOverlay
+        ? 'bg-black/35 border-r border-white/15 shadow-[1px_0_20px_rgba(0,0,0,0.2)]'
+        : 'bg-white/70 border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]'
       }
     `}>
       {/* ロゴ */}
@@ -63,7 +65,7 @@ export default function Sidebar() {
           <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-primary/15 group-hover:bg-primary/25 transition-colors">
             <Sprout size={17} className="text-primary" />
           </span>
-          <span className={`font-bold text-[14px] tracking-wide leading-tight ${isDark ? 'text-white' : 'text-app-text'}`}>
+          <span className={`font-bold text-[14px] tracking-wide leading-tight ${usesDarkOverlay ? 'text-white' : 'text-app-text'}`}>
             Roami
           </span>
         </Link>
@@ -81,13 +83,13 @@ export default function Sidebar() {
                   <div className={`
                     relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
                     cursor-not-allowed select-none
-                    ${isDark ? 'text-white/30' : 'text-app-sub/40'}
+                    ${usesDarkOverlay ? 'text-white/30' : 'text-app-sub/40'}
                   `}>
                     <Icon size={16} />
                     {label}
                     <span className={`
                       ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full
-                      ${isDark ? 'bg-white/10 text-white/40' : 'bg-gray-100 text-gray-400'}
+                      ${usesDarkOverlay ? 'bg-white/10 text-white/40' : 'bg-gray-100 text-gray-400'}
                     `}>
                       準備中
                     </span>
@@ -104,11 +106,11 @@ export default function Sidebar() {
                     relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
                     transition-all duration-150
                     ${isActive
-                      ? isDark
+                      ? usesDarkOverlay
                         ? 'bg-white/15 text-white'
                         : 'bg-primary/12 text-primary shadow-[inset_0_1px_3px_rgba(95,139,139,0.1)]'
-                      : isDark
-                        ? 'text-white/60 hover:bg-white/10 hover:text-white'
+                      : usesDarkOverlay
+                        ? 'text-white/70 hover:bg-white/10 hover:text-white'
                         : 'text-app-sub hover:bg-white/60 hover:text-app-text'
                     }
                   `}
@@ -131,8 +133,8 @@ export default function Sidebar() {
               w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
               text-[13px] font-medium transition-colors
               ${pathname.startsWith('/admin')
-                ? isDark ? 'bg-white/15 text-white' : 'bg-amber-50 text-amber-700'
-                : isDark ? 'text-white/60 hover:bg-white/10 hover:text-white' : 'text-app-sub hover:bg-white/60 hover:text-app-text'
+                ? usesDarkOverlay ? 'bg-white/15 text-white' : 'bg-amber-50 text-amber-700'
+                : usesDarkOverlay ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-app-sub hover:bg-white/60 hover:text-app-text'
               }
             `}
           >
@@ -150,8 +152,8 @@ export default function Sidebar() {
             className={`
               w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
               text-[13px] font-medium transition-colors
-              ${isDark
-                ? 'text-white/60 hover:bg-white/10 hover:text-white'
+              ${usesDarkOverlay
+                ? 'text-white/70 hover:bg-white/10 hover:text-white'
                 : 'text-app-sub hover:bg-white/60 hover:text-app-text'
               }
             `}
@@ -168,7 +170,7 @@ export default function Sidebar() {
       )}
 
       {/* 下部：認証エリア */}
-      <div className={`px-3 pb-5 pt-3 relative border-t ${isDark ? 'border-white/10' : 'border-white/50'}`}>
+      <div className={`px-3 pb-5 pt-3 relative border-t ${usesDarkOverlay ? 'border-white/10' : 'border-white/50'}`}>
         {!isLoading && (
           <>
             {isLoggedIn ? (
@@ -185,7 +187,7 @@ export default function Sidebar() {
                   className={`
                     w-full flex items-center gap-2.5 px-3 py-2 rounded-xl
                     border transition-colors text-left
-                    ${isDark
+                    ${usesDarkOverlay
                       ? 'bg-white/10 border-white/15 hover:bg-white/20'
                       : 'bg-white/50 border-white/60 hover:bg-white/70'
                     }
@@ -208,7 +210,7 @@ export default function Sidebar() {
                       {iconPref.emoji || initial}
                     </span>
                   )}
-                  <span className={`text-[12px] font-medium truncate flex-1 ${isDark ? 'text-white' : 'text-app-text'}`}>
+                  <span className={`text-[12px] font-medium truncate flex-1 ${usesDarkOverlay ? 'text-white' : 'text-app-text'}`}>
                     {displayName}
                   </span>
                 </button>
@@ -231,7 +233,7 @@ export default function Sidebar() {
                   className={`
                     w-full text-center text-[13px] font-medium
                     py-2 rounded-xl border transition-colors
-                    ${isDark
+                    ${usesDarkOverlay
                       ? 'bg-white/15 hover:bg-white/25 text-white border-white/20'
                       : 'bg-white/60 hover:bg-white/80 text-app-text border-white/70'
                     }
@@ -243,7 +245,7 @@ export default function Sidebar() {
             )}
           </>
         )}
-        <p className={`text-[10px] text-center mt-4 ${isDark ? 'text-white/40' : 'text-app-sub/60'}`}>
+        <p className={`text-[10px] text-center mt-4 ${usesDarkOverlay ? 'text-white/40' : 'text-app-sub/60'}`}>
           © {new Date().getFullYear()} Roami
         </p>
       </div>
