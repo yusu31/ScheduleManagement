@@ -41,6 +41,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+*.code-workspace
 
 # ==========================================
 # Claude Code

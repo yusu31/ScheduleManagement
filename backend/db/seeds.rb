@@ -602,7 +602,7 @@ restaurants_data = [
     opening_hours: "11:00〜14:00 / 17:00〜22:00（火曜定休）",
     budget: "3000〜4000円",
     latitude: 37.7604, longitude: 140.4737,
-    situation_tags: ["デートに", "個室あり"],
+    situation_tags: [ "デートに", "個室あり" ],
     source: "manual", status: "published"
   },
   {
@@ -614,7 +614,7 @@ restaurants_data = [
     opening_hours: "11:00〜15:00（水曜定休）",
     budget: "800〜1500円",
     latitude: 37.8081, longitude: 140.4478,
-    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    situation_tags: [ "ランチ向け", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -626,7 +626,7 @@ restaurants_data = [
     opening_hours: "10:00〜17:00（水・木曜定休）",
     budget: "500〜1000円",
     latitude: 37.7338, longitude: 140.4891,
-    situation_tags: ["子連れOK", "ランチ向け", "デートに"],
+    situation_tags: [ "子連れOK", "ランチ向け", "デートに" ],
     source: "manual", status: "published"
   },
   {
@@ -638,7 +638,7 @@ restaurants_data = [
     opening_hours: "11:30〜14:30 / 17:30〜21:00（水曜定休）",
     budget: "1500〜4000円",
     latitude: 37.7590, longitude: 140.4720,
-    situation_tags: ["デートに", "ランチ向け"],
+    situation_tags: [ "デートに", "ランチ向け" ],
     source: "manual", status: "published"
   },
 
@@ -652,7 +652,7 @@ restaurants_data = [
     opening_hours: "11:30〜14:00 / 18:00〜21:00（月曜定休）",
     budget: "5000〜10000円",
     latitude: 37.3980, longitude: 140.3860,
-    situation_tags: ["デートに", "個室あり"],
+    situation_tags: [ "デートに", "個室あり" ],
     source: "manual", status: "published"
   },
   {
@@ -664,7 +664,7 @@ restaurants_data = [
     opening_hours: "11:00〜21:00（火曜定休）",
     budget: "700〜1200円",
     latitude: 37.4000, longitude: 140.3800,
-    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    situation_tags: [ "ランチ向け", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -676,7 +676,7 @@ restaurants_data = [
     opening_hours: "11:00〜15:00",
     budget: "1000〜2000円",
     latitude: 37.4380, longitude: 140.4797,
-    situation_tags: ["ランチ向け", "子連れOK"],
+    situation_tags: [ "ランチ向け", "子連れOK" ],
     source: "manual", status: "published"
   },
   {
@@ -688,7 +688,7 @@ restaurants_data = [
     opening_hours: "17:00〜23:00",
     budget: "3000〜5000円",
     latitude: 37.3900, longitude: 140.3750,
-    situation_tags: ["子連れOK", "デートに"],
+    situation_tags: [ "子連れOK", "デートに" ],
     source: "manual", status: "published"
   },
   {
@@ -700,7 +700,7 @@ restaurants_data = [
     opening_hours: "11:00〜22:00",
     budget: "1500〜3000円",
     latitude: 37.3960, longitude: 140.3820,
-    situation_tags: ["ランチ向け", "デートに", "子連れOK"],
+    situation_tags: [ "ランチ向け", "デートに", "子連れOK" ],
     source: "manual", status: "published"
   },
 
@@ -714,7 +714,7 @@ restaurants_data = [
     opening_hours: "11:00〜16:00",
     budget: "1500〜3000円",
     latitude: 37.4944, longitude: 139.9301,
-    situation_tags: ["ランチ向け", "子連れOK"],
+    situation_tags: [ "ランチ向け", "子連れOK" ],
     source: "manual", status: "published"
   },
   {
@@ -726,7 +726,7 @@ restaurants_data = [
     opening_hours: "7:30〜18:00（木曜定休）",
     budget: "700〜1000円",
     latitude: 37.6499, longitude: 139.8678,
-    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    situation_tags: [ "ランチ向け", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -738,7 +738,7 @@ restaurants_data = [
     opening_hours: "10:30〜15:00（不定休）",
     budget: "1200〜2000円",
     latitude: 37.3030, longitude: 139.8519,
-    situation_tags: ["ランチ向け", "子連れOK"],
+    situation_tags: [ "ランチ向け", "子連れOK" ],
     source: "manual", status: "published"
   },
   {
@@ -750,7 +750,7 @@ restaurants_data = [
     opening_hours: "11:00〜15:00",
     budget: "2000〜4000円",
     latitude: 37.4800, longitude: 139.9100,
-    situation_tags: ["デートに"],
+    situation_tags: [ "デートに" ],
     source: "manual", status: "published"
   },
   {
@@ -762,7 +762,7 @@ restaurants_data = [
     opening_hours: "11:30〜14:30 / 17:00〜21:00（火曜定休）",
     budget: "1000〜2500円",
     latitude: 37.4900, longitude: 139.9350,
-    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    situation_tags: [ "ランチ向け", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -774,7 +774,7 @@ restaurants_data = [
     opening_hours: "10:00〜17:00（不定休）",
     budget: "500〜1000円",
     latitude: 37.4800, longitude: 140.1000,
-    situation_tags: ["子連れOK", "デートに"],
+    situation_tags: [ "子連れOK", "デートに" ],
     source: "manual", status: "published"
   },
   {
@@ -786,7 +786,7 @@ restaurants_data = [
     opening_hours: "17:00〜23:00（日曜定休）",
     budget: "3000〜5000円",
     latitude: 37.4950, longitude: 139.9280,
-    situation_tags: ["デートに", "個室あり"],
+    situation_tags: [ "デートに", "個室あり" ],
     source: "manual", status: "published"
   },
 
@@ -800,7 +800,7 @@ restaurants_data = [
     opening_hours: "11:00〜21:00",
     budget: "1500〜3000円",
     latitude: 37.0600, longitude: 140.8900,
-    situation_tags: ["子連れOK", "ランチ向け", "ひとり飯OK"],
+    situation_tags: [ "子連れOK", "ランチ向け", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -812,7 +812,7 @@ restaurants_data = [
     opening_hours: "12:00〜14:00 / 18:00〜21:00（要予約）",
     budget: "5000〜10000円",
     latitude: 37.0492, longitude: 140.9436,
-    situation_tags: ["デートに", "個室あり"],
+    situation_tags: [ "デートに", "個室あり" ],
     source: "manual", status: "published"
   },
   {
@@ -824,7 +824,7 @@ restaurants_data = [
     opening_hours: "11:00〜21:00",
     budget: "2000〜3500円",
     latitude: 37.0383, longitude: 140.9397,
-    situation_tags: ["子連れOK"],
+    situation_tags: [ "子連れOK" ],
     source: "manual", status: "published"
   },
 
@@ -838,7 +838,7 @@ restaurants_data = [
     opening_hours: "17:00〜23:30（月曜定休）",
     budget: "2500〜4000円",
     latitude: 37.7600, longitude: 140.4740,
-    situation_tags: ["デートに", "ひとり飯OK"],
+    situation_tags: [ "デートに", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -850,7 +850,7 @@ restaurants_data = [
     opening_hours: "17:00〜24:00（不定休）",
     budget: "3000〜4500円",
     latitude: 37.4970, longitude: 139.9310,
-    situation_tags: ["デートに", "個室あり"],
+    situation_tags: [ "デートに", "個室あり" ],
     source: "manual", status: "published"
   },
 
@@ -864,7 +864,7 @@ restaurants_data = [
     opening_hours: "8:00〜19:00（火曜定休）",
     budget: "400〜1500円",
     latitude: 37.4010, longitude: 140.3860,
-    situation_tags: ["ランチ向け", "子連れOK"],
+    situation_tags: [ "ランチ向け", "子連れOK" ],
     source: "manual", status: "published"
   },
   {
@@ -876,7 +876,7 @@ restaurants_data = [
     opening_hours: "9:00〜売り切れ次第終了（水・木曜定休）",
     budget: "300〜1200円",
     latitude: 37.6910, longitude: 140.3330,
-    situation_tags: ["ランチ向け", "子連れOK"],
+    situation_tags: [ "ランチ向け", "子連れOK" ],
     source: "manual", status: "published"
   },
 
@@ -890,7 +890,7 @@ restaurants_data = [
     opening_hours: "11:30〜14:30 / 17:30〜21:00（月曜定休）",
     budget: "800〜1800円",
     latitude: 37.7580, longitude: 140.4700,
-    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    situation_tags: [ "ランチ向け", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -902,7 +902,7 @@ restaurants_data = [
     opening_hours: "11:00〜16:00（木曜定休）",
     budget: "900〜1500円",
     latitude: 37.4920, longitude: 139.9280,
-    situation_tags: ["ランチ向け", "子連れOK", "デートに"],
+    situation_tags: [ "ランチ向け", "子連れOK", "デートに" ],
     source: "manual", status: "published"
   },
 
@@ -916,7 +916,7 @@ restaurants_data = [
     opening_hours: "10:00〜15:00（月曜定休）",
     budget: "1000〜2500円",
     latitude: 37.8400, longitude: 140.9700,
-    situation_tags: ["ランチ向け", "子連れOK", "ひとり飯OK"],
+    situation_tags: [ "ランチ向け", "子連れOK", "ひとり飯OK" ],
     source: "manual", status: "published"
   },
   {
@@ -928,7 +928,7 @@ restaurants_data = [
     opening_hours: "11:30〜14:00 / 17:00〜20:00（水曜定休）",
     budget: "3000〜5000円",
     latitude: 37.7999, longitude: 140.9246,
-    situation_tags: ["デートに", "ランチ向け"],
+    situation_tags: [ "デートに", "ランチ向け" ],
     source: "manual", status: "published"
   }
 ]
