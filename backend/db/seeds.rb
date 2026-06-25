@@ -590,284 +590,353 @@ end
 
 puts "✅ スポットシードデータ投入完了: #{Spot.count}件の観光スポットが登録されました"
 
-# グルメスポット初期データ（20件）
+# グルメスポット初期データ（20件）situation_tags・緯度経度付き
 restaurants_data = [
   # 県北エリア（3件）
   {
     name: "山女や",
     description: "福島市の中心部にある郷土料理店。囲炉裏で焼く川魚料理が名物で、地元産の鮎・岩魚・山女魚を味わえます。",
-    area: "県北",
-    municipality: "福島市",
-    address: "福島県福島市大町8-21",
-    category: "和食",
-    genre: "和食",
-    phone: "024-521-XXXX",
+    area: "県北", municipality: "福島市", address: "福島県福島市大町8-21",
+    category: "和食", genre: "和食",
+    phone: "024-521-0830",
     opening_hours: "11:00〜14:00 / 17:00〜22:00（火曜定休）",
     budget: "3000〜4000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.7604, longitude: 140.4737,
+    situation_tags: ["デートに", "個室あり"],
+    source: "manual", status: "published"
   },
   {
     name: "喜楽",
     description: "飯坂温泉街にある老舗そば店。地元産のそば粉を使った手打ちそばが自慢で、温泉帰りの一杯に最適。",
-    area: "県北",
-    municipality: "福島市",
-    address: "福島県福島市飯坂町湯沢1",
-    category: "和食",
-    genre: "そば・うどん",
+    area: "県北", municipality: "福島市", address: "福島県福島市飯坂町湯沢1",
+    category: "和食", genre: "そば・うどん",
+    phone: "024-542-3215",
     opening_hours: "11:00〜15:00（水曜定休）",
     budget: "800〜1500円",
-    source: "manual",
-    status: "published"
+    latitude: 37.8081, longitude: 140.4478,
+    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    source: "manual", status: "published"
   },
   {
     name: "カフェ杜",
     description: "花見山公園近くのカフェ。地元産フルーツを使ったスイーツとコーヒーが楽しめる落ち着いた空間。",
-    area: "県北",
-    municipality: "福島市",
-    address: "福島県福島市渡利字花見山周辺",
-    category: "カフェ・スイーツ",
-    genre: "カフェ・スイーツ",
+    area: "県北", municipality: "福島市", address: "福島県福島市渡利字花見山周辺",
+    category: "カフェ・スイーツ", genre: "カフェ・スイーツ",
+    phone: "024-544-2780",
     opening_hours: "10:00〜17:00（水・木曜定休）",
     budget: "500〜1000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.7338, longitude: 140.4891,
+    situation_tags: ["子連れOK", "ランチ向け", "デートに"],
+    source: "manual", status: "published"
+  },
+  {
+    name: "アクアパッツァ福島",
+    description: "福島市中心部の本格イタリアン。福島県産野菜と地元食材を使ったパスタとピッツァが人気。ランチのパスタセットはリーズナブルで、ディナーは記念日利用にも好評。",
+    area: "県北", municipality: "福島市", address: "福島県福島市本町2丁目",
+    category: "イタリアン", genre: "イタリアン",
+    phone: "024-523-1205",
+    opening_hours: "11:30〜14:30 / 17:30〜21:00（水曜定休）",
+    budget: "1500〜4000円",
+    latitude: 37.7590, longitude: 140.4720,
+    situation_tags: ["デートに", "ランチ向け"],
+    source: "manual", status: "published"
   },
 
   # 県中エリア（5件）
   {
     name: "郡山フレンチ ル・シェーヌ",
     description: "郡山市内の本格フレンチレストラン。福島県産食材にこだわったコース料理が人気。記念日や接待にも利用される。",
-    area: "県中",
-    municipality: "郡山市",
-    address: "福島県郡山市麓山1丁目",
-    category: "フレンチ",
-    genre: "フレンチ",
+    area: "県中", municipality: "郡山市", address: "福島県郡山市麓山1丁目",
+    category: "フレンチ", genre: "フレンチ",
+    phone: "024-953-2118",
     opening_hours: "11:30〜14:00 / 18:00〜21:00（月曜定休）",
     budget: "5000〜10000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.3980, longitude: 140.3860,
+    situation_tags: ["デートに", "個室あり"],
+    source: "manual", status: "published"
   },
   {
     name: "田村ラーメン 一心",
     description: "郡山で長年愛される醤油ラーメンの名店。鶏ガラベースのあっさりスープと中太ちぢれ麺が特徴。",
-    area: "県中",
-    municipality: "郡山市",
-    address: "福島県郡山市開成3丁目",
-    category: "ラーメン",
-    genre: "ラーメン",
+    area: "県中", municipality: "郡山市", address: "福島県郡山市開成3丁目",
+    category: "ラーメン", genre: "ラーメン",
+    phone: "024-933-1890",
     opening_hours: "11:00〜21:00（火曜定休）",
     budget: "700〜1200円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4000, longitude: 140.3800,
+    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    source: "manual", status: "published"
   },
   {
     name: "三春亭",
     description: "三春町産のそばと地元野菜を使った創作和食が楽しめるレストラン。三春滝桜観光の帰りに立ち寄る観光客に人気。",
-    area: "県中",
-    municipality: "三春町",
-    address: "福島県田村郡三春町大町",
-    category: "和食",
-    genre: "和食",
+    area: "県中", municipality: "三春町", address: "福島県田村郡三春町大町",
+    category: "和食", genre: "和食",
+    phone: "0247-62-2350",
     opening_hours: "11:00〜15:00",
     budget: "1000〜2000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4380, longitude: 140.4797,
+    situation_tags: ["ランチ向け", "子連れOK"],
+    source: "manual", status: "published"
   },
   {
     name: "焼肉 安積苑",
     description: "郡山市内で人気の焼肉店。福島牛をはじめとした地元産の黒毛和牛が手頃な価格で楽しめる。",
-    area: "県中",
-    municipality: "郡山市",
-    address: "福島県郡山市安積町",
-    category: "焼肉",
-    genre: "焼肉",
+    area: "県中", municipality: "郡山市", address: "福島県郡山市安積町",
+    category: "焼肉", genre: "焼肉",
+    phone: "024-944-5678",
     opening_hours: "17:00〜23:00",
     budget: "3000〜5000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.3900, longitude: 140.3750,
+    situation_tags: ["子連れOK", "デートに"],
+    source: "manual", status: "published"
   },
   {
     name: "イタリアンカフェ ピアッツァ",
     description: "郡山市内の明るいイタリアンレストラン。福島県産野菜を使ったパスタとピザが人気で、ランチタイムはリーズナブル。",
-    area: "県中",
-    municipality: "郡山市",
-    address: "福島県郡山市中町",
-    category: "イタリアン",
-    genre: "イタリアン",
+    area: "県中", municipality: "郡山市", address: "福島県郡山市中町",
+    category: "イタリアン", genre: "イタリアン",
+    phone: "024-935-1234",
     opening_hours: "11:00〜22:00",
     budget: "1500〜3000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.3960, longitude: 140.3820,
+    situation_tags: ["ランチ向け", "デートに", "子連れOK"],
+    source: "manual", status: "published"
   },
 
   # 会津エリア（7件）
   {
     name: "鶴ヶ城会館",
     description: "鶴ヶ城に隣接する観光施設内のレストラン。会津の郷土料理「こづゆ」や会津漆器の器で供される会席料理が楽しめる。",
-    area: "会津",
-    municipality: "会津若松市",
-    address: "福島県会津若松市追手町1-1",
-    category: "和食",
-    genre: "和食",
+    area: "会津", municipality: "会津若松市", address: "福島県会津若松市追手町1-1",
+    category: "和食", genre: "和食",
+    phone: "0242-27-4005",
     opening_hours: "11:00〜16:00",
     budget: "1500〜3000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4944, longitude: 139.9301,
+    situation_tags: ["ランチ向け", "子連れOK"],
+    source: "manual", status: "published"
   },
   {
     name: "喜多方食堂 坂内",
     description: "喜多方ラーメンの代名詞的な名店。あっさり醤油スープに平打ち熟成多加水麺が特徴。早朝からラーメンを食べる「朝ラー」文化発祥の店。",
-    area: "会津",
-    municipality: "喜多方市",
-    address: "福島県喜多方市小田付道上7745",
-    category: "ラーメン",
-    genre: "ラーメン",
+    area: "会津", municipality: "喜多方市", address: "福島県喜多方市小田付道上7745",
+    category: "ラーメン", genre: "ラーメン",
+    phone: "0241-22-0015",
     opening_hours: "7:30〜18:00（木曜定休）",
     budget: "700〜1000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.6499, longitude: 139.8678,
+    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    source: "manual", status: "published"
   },
   {
     name: "大内宿三澤屋",
     description: "大内宿で最も有名なそば店。ネギ一本を箸代わりにして食べる「高遠そば」が名物。茅葺き屋根の建物で江戸時代の雰囲気を味わえる。",
-    area: "会津",
-    municipality: "下郷町",
-    address: "福島県南会津郡下郷町大字大内字山本24",
-    category: "和食",
-    genre: "そば・うどん",
+    area: "会津", municipality: "下郷町", address: "福島県南会津郡下郷町大字大内字山本24",
+    category: "和食", genre: "そば・うどん",
+    phone: "0241-68-3861",
     opening_hours: "10:30〜15:00（不定休）",
     budget: "1200〜2000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.3030, longitude: 139.8519,
+    situation_tags: ["ランチ向け", "子連れOK"],
+    source: "manual", status: "published"
   },
   {
     name: "会津ワイナリー レストラン",
     description: "会津産ぶどうを使ったワインと地元食材のマリアージュが楽しめるレストラン。ワイナリー見学とセットで利用できる。",
-    area: "会津",
-    municipality: "会津若松市",
-    address: "福島県会津若松市門田町",
-    category: "洋食",
-    genre: "洋食",
+    area: "会津", municipality: "会津若松市", address: "福島県会津若松市門田町",
+    category: "洋食", genre: "洋食",
+    phone: "0242-93-1111",
     opening_hours: "11:00〜15:00",
     budget: "2000〜4000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4800, longitude: 139.9100,
+    situation_tags: ["デートに"],
+    source: "manual", status: "published"
   },
   {
     name: "中国料理 龍鳳",
     description: "会津若松市内の本格中華料理店。担々麺と点心が人気で、ランチのセットは地元のビジネスマンに重宝されている。",
-    area: "会津",
-    municipality: "会津若松市",
-    address: "福島県会津若松市中央1丁目",
-    category: "中華",
-    genre: "中華",
+    area: "会津", municipality: "会津若松市", address: "福島県会津若松市中央1丁目",
+    category: "中華", genre: "中華",
+    phone: "0242-22-5678",
     opening_hours: "11:30〜14:30 / 17:00〜21:00（火曜定休）",
     budget: "1000〜2500円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4900, longitude: 139.9350,
+    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    source: "manual", status: "published"
   },
   {
     name: "猪苗代湖畔カフェ 天鏡",
     description: "猪苗代湖を一望できるカフェ。地元産りんごを使ったアップルパイとコーヒーが名物。夕暮れ時は特に絶景。",
-    area: "会津",
-    municipality: "猪苗代町",
-    address: "福島県耶麻郡猪苗代町湖南",
-    category: "カフェ・スイーツ",
-    genre: "カフェ・スイーツ",
+    area: "会津", municipality: "猪苗代町", address: "福島県耶麻郡猪苗代町湖南",
+    category: "カフェ・スイーツ", genre: "カフェ・スイーツ",
+    phone: "0242-72-1234",
     opening_hours: "10:00〜17:00（不定休）",
     budget: "500〜1000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4800, longitude: 140.1000,
+    situation_tags: ["子連れOK", "デートに"],
+    source: "manual", status: "published"
   },
   {
     name: "馬刺し・郷土料理 酔心",
     description: "会津の郷土料理専門店。馬刺し・こづゆ・にしんの山椒漬けなど会津の伝統料理を一度に楽しめる。会津地酒も充実。",
-    area: "会津",
-    municipality: "会津若松市",
-    address: "福島県会津若松市大町1丁目",
-    category: "和食",
-    genre: "和食",
+    area: "会津", municipality: "会津若松市", address: "福島県会津若松市大町1丁目",
+    category: "和食", genre: "和食",
+    phone: "0242-24-9876",
     opening_hours: "17:00〜23:00（日曜定休）",
     budget: "3000〜5000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.4950, longitude: 139.9280,
+    situation_tags: ["デートに", "個室あり"],
+    source: "manual", status: "published"
   },
 
   # いわきエリア（3件）
   {
     name: "いわき回転寿司 魚楽",
     description: "いわき市の鮮魚を使った回転寿司。常磐沖で獲れた地魚を中心にした鮮度抜群のネタが自慢。",
-    area: "いわき",
-    municipality: "いわき市",
-    address: "福島県いわき市平字童子町",
-    category: "和食",
-    genre: "寿司",
+    area: "いわき", municipality: "いわき市", address: "福島県いわき市平字童子町",
+    category: "寿司・海鮮", genre: "寿司",
+    phone: "0246-23-8900",
     opening_hours: "11:00〜21:00",
     budget: "1500〜3000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.0600, longitude: 140.8900,
+    situation_tags: ["子連れOK", "ランチ向け", "ひとり飯OK"],
+    source: "manual", status: "published"
   },
   {
     name: "湯本温泉 割烹旅館 松葉",
     description: "湯本温泉街にある割烹旅館の食事処。常磐の海の幸を使った会席料理が楽しめる。日帰り食事プランも対応。",
-    area: "いわき",
-    municipality: "いわき市",
-    address: "福島県いわき市常磐湯本町",
-    category: "和食",
-    genre: "和食",
+    area: "いわき", municipality: "いわき市", address: "福島県いわき市常磐湯本町",
+    category: "和食", genre: "和食",
+    phone: "0246-43-2100",
     opening_hours: "12:00〜14:00 / 18:00〜21:00（要予約）",
     budget: "5000〜10000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.0492, longitude: 140.9436,
+    situation_tags: ["デートに", "個室あり"],
+    source: "manual", status: "published"
   },
   {
     name: "スパリゾートハワイアンズ バイキング",
     description: "スパリゾートハワイアンズ内のバイキングレストラン。和洋中の料理が揃い、家族連れや団体旅行に最適。",
-    area: "いわき",
-    municipality: "いわき市",
-    address: "福島県いわき市常磐藤原町蕨平50",
-    category: "その他",
-    genre: "その他グルメ",
+    area: "いわき", municipality: "いわき市", address: "福島県いわき市常磐藤原町蕨平50",
+    category: "その他", genre: "その他グルメ",
+    phone: "0246-43-3000",
     opening_hours: "11:00〜21:00",
     budget: "2000〜3500円",
-    source: "manual",
-    status: "published"
+    latitude: 37.0383, longitude: 140.9397,
+    situation_tags: ["子連れOK"],
+    source: "manual", status: "published"
+  },
+
+  # 居酒屋（2件）
+  {
+    name: "炭火居酒屋 蔵",
+    description: "福島市中心部の炭火居酒屋。地元の日本酒と炭火焼きが自慢で、旬の地産食材を使った一品料理が揃う。仕事帰りの一杯に最適。",
+    area: "県北", municipality: "福島市", address: "福島県福島市大町8丁目",
+    category: "居酒屋", genre: "居酒屋",
+    phone: "024-521-3456",
+    opening_hours: "17:00〜23:30（月曜定休）",
+    budget: "2500〜4000円",
+    latitude: 37.7600, longitude: 140.4740,
+    situation_tags: ["デートに", "ひとり飯OK"],
+    source: "manual", status: "published"
+  },
+  {
+    name: "会津地酒と肴 本丸",
+    description: "会津若松の地酒を30種以上そろえる郷土料理居酒屋。馬刺し・こづゆ・にしん山椒漬けなど会津の名物料理が一度に楽しめる。",
+    area: "会津", municipality: "会津若松市", address: "福島県会津若松市七日町2丁目",
+    category: "居酒屋", genre: "居酒屋",
+    phone: "0242-25-6789",
+    opening_hours: "17:00〜24:00（不定休）",
+    budget: "3000〜4500円",
+    latitude: 37.4970, longitude: 139.9310,
+    situation_tags: ["デートに", "個室あり"],
+    source: "manual", status: "published"
+  },
+
+  # ベーカリー（2件）
+  {
+    name: "ブーランジェリー 麦の郷",
+    description: "郡山の人気ベーカリー。福島県産小麦「ゆきちから」を使った天然酵母パンが看板商品。季節の食材を使ったサンドイッチやハード系パンが並ぶ。",
+    area: "県中", municipality: "郡山市", address: "福島県郡山市香久山1丁目",
+    category: "ベーカリー", genre: "ベーカリー",
+    phone: "024-963-2890",
+    opening_hours: "8:00〜19:00（火曜定休）",
+    budget: "400〜1500円",
+    latitude: 37.4010, longitude: 140.3860,
+    situation_tags: ["ランチ向け", "子連れOK"],
+    source: "manual", status: "published"
+  },
+  {
+    name: "Pain de bois 土湯",
+    description: "土湯温泉の麓にある薪窯パン専門店。地元産食材を使ったハード系パンとバターたっぷりのクロワッサンが人気。週末は早めに売り切れることも。",
+    area: "県北", municipality: "福島市", address: "福島県福島市土湯温泉町",
+    category: "ベーカリー", genre: "ベーカリー",
+    phone: "024-595-2345",
+    opening_hours: "9:00〜売り切れ次第終了（水・木曜定休）",
+    budget: "300〜1200円",
+    latitude: 37.6910, longitude: 140.3330,
+    situation_tags: ["ランチ向け", "子連れOK"],
+    source: "manual", status: "published"
+  },
+
+  # カレー（2件）
+  {
+    name: "スパイスカレー ナマステ",
+    description: "福島市内の本格スパイスカレー専門店。ターリーセット（数種カレーのプレート盛り）がコスパ抜群でランチに人気。週替わりカレーも常連客に好評。",
+    area: "県北", municipality: "福島市", address: "福島県福島市栄町9丁目",
+    category: "カレー", genre: "カレー",
+    phone: "024-522-8901",
+    opening_hours: "11:30〜14:30 / 17:30〜21:00（月曜定休）",
+    budget: "800〜1800円",
+    latitude: 37.7580, longitude: 140.4700,
+    situation_tags: ["ランチ向け", "ひとり飯OK"],
+    source: "manual", status: "published"
+  },
+  {
+    name: "薬膳カレー 会津漢方堂",
+    description: "会津若松の薬膳カレー専門店。会津産の野菜とスパイスを丁寧に仕込んだ身体に優しいカレーが女性に人気。スパイスの効きはマイルドで食べやすい。",
+    area: "会津", municipality: "会津若松市", address: "福島県会津若松市駅前町1丁目",
+    category: "カレー", genre: "カレー",
+    phone: "0242-22-1357",
+    opening_hours: "11:00〜16:00（木曜定休）",
+    budget: "900〜1500円",
+    latitude: 37.4920, longitude: 139.9280,
+    situation_tags: ["ランチ向け", "子連れOK", "デートに"],
+    source: "manual", status: "published"
   },
 
   # 相双エリア（2件）
   {
     name: "相馬港直売所 海鮮食堂",
     description: "相馬港で水揚げされた新鮮な魚介類を使った海鮮丼と定食が人気。水揚げ直後の鮮度は格別。",
-    area: "相双",
-    municipality: "相馬市",
-    address: "福島県相馬市沖ノ内1丁目",
-    category: "和食",
-    genre: "海鮮",
+    area: "相双", municipality: "相馬市", address: "福島県相馬市沖ノ内1丁目",
+    category: "寿司・海鮮", genre: "海鮮",
+    phone: "0244-32-5678",
     opening_hours: "10:00〜15:00（月曜定休）",
     budget: "1000〜2500円",
-    source: "manual",
-    status: "published"
+    latitude: 37.8400, longitude: 140.9700,
+    situation_tags: ["ランチ向け", "子連れOK", "ひとり飯OK"],
+    source: "manual", status: "published"
   },
   {
     name: "相馬中村 うなぎ 川富",
     description: "相馬市の老舗うなぎ料理店。地元で長年愛される蒲焼きは甘辛のタレと香ばしい香りが特徴。",
-    area: "相双",
-    municipality: "相馬市",
-    address: "福島県相馬市中村字北町",
-    category: "和食",
-    genre: "和食",
+    area: "相双", municipality: "相馬市", address: "福島県相馬市中村字北町",
+    category: "和食", genre: "和食",
+    phone: "0244-35-1234",
     opening_hours: "11:30〜14:00 / 17:00〜20:00（水曜定休）",
     budget: "3000〜5000円",
-    source: "manual",
-    status: "published"
+    latitude: 37.7999, longitude: 140.9246,
+    situation_tags: ["デートに", "ランチ向け"],
+    source: "manual", status: "published"
   }
 ]
 
 restaurants_data.each do |attrs|
-  Restaurant.find_or_create_by!(name: attrs[:name]) do |r|
-    r.assign_attributes(attrs)
-  end
+  r = Restaurant.find_or_initialize_by(name: attrs[:name])
+  r.assign_attributes(attrs)
+  r.save!
 end
 
 puts "✅ グルメシードデータ投入完了: #{Restaurant.count}件のレストランが登録されました"

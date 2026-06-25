@@ -52,7 +52,8 @@ module Api
             :name, :description, :area, :municipality, :address,
             :category, :genre, :latitude, :longitude,
             :image_url, :official_url, :phone, :opening_hours,
-            :budget, :hotpepper_id, :source, :status
+            :budget, :hotpepper_id, :source, :status,
+            situation_tags: []
           )
         end
       end

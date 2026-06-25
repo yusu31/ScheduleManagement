@@ -11,11 +11,14 @@
 html[data-theme-bg="photo"] .text-app-text   { color: rgba(235, 248, 248, 0.95) !important; }
 html[data-theme-bg="photo"] .text-app-sub    { color: rgba(175, 210, 210, 0.82) !important; }
 html[data-theme-bg="photo"] .bg-app-bg       { background-color: rgba(255, 255, 255, 0.55) !important; }
-html[data-theme-bg="photo"] .bg-app-surface  { background-color: rgba(255, 255, 255, 0.55) !important; }
+html[data-theme-bg="photo"] .bg-app-surface  { background-color: rgba(255, 255, 255, 0.90) !important; }
 html[data-theme-bg="photo"] .border-app-border { border-color: rgba(200, 215, 210, 0.65) !important; }
 /* 白透明カード内はダーク系テキストに（specificity で上書き） */
 html[data-theme-bg="photo"] .theme-card-bg .text-app-text { color: #2c3333 !important; }
 html[data-theme-bg="photo"] .theme-card-bg .text-app-sub  { color: #7a8a8a !important; }
+/* 詳細ページ（bg-app-surface）内も同様にダーク系テキストに */
+html[data-theme-bg="photo"] .bg-app-surface .text-app-text { color: #2c3333 !important; }
+html[data-theme-bg="photo"] .bg-app-surface .text-app-sub  { color: #7a8a8a !important; }
 
 /* ダークテーマ時：Tailwindクラスを直接上書きして色を切り替え */
 html[data-theme-bg="dark"] .text-app-text   { color: #ddeaea !important; }
@@ -65,7 +68,7 @@ html:is([data-theme-bg="photo"],[data-theme-bg="dark"]) .theme-readable {
 
 /* .theme-card-bg：写真テーマは白系半透明、ダークテーマは黒系半透明 */
 html[data-theme-bg="photo"] .theme-card-bg {
-  background: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
   border-color: rgba(210, 225, 220, 0.60) !important;
   backdrop-filter: blur(12px);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06) !important;
@@ -105,9 +108,64 @@ html[data-theme-bg="photo"] .theme-sticky-header input {
 html[data-theme-bg="photo"] .theme-sticky-header input::placeholder {
   color: rgba(175, 210, 210, 0.60) !important;
 }
-html[data-theme-bg="photo"] .theme-sticky-header button:not([class*="bg-primary"]) {
+html[data-theme-bg="photo"] .theme-sticky-header button.filter-chip:not([class*="bg-primary"]) {
   background-color: rgba(255, 255, 255, 0.12) !important;
   border-color: rgba(255, 255, 255, 0.20) !important;
+  color: rgba(235, 248, 248, 0.95) !important;
+}
+html[data-theme-bg="photo"] .sort-dropdown-btn {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.20) !important;
+  color: rgba(235, 248, 248, 0.95) !important;
+}
+
+/* 距離スライダー（カスタムスタイル） */
+.distance-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.distance-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5f8b8b;
+  margin-top: -8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.distance-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.distance-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+}
+.distance-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5f8b8b;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}
+.distance-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #e2e8f0;
+}
+.distance-slider::-moz-range-progress {
+  background: #5f8b8b;
+  height: 4px;
+  border-radius: 2px;
 }
 
 /* 暗いグラデーション（Neon等）：黒半透明 */

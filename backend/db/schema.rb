@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_24_131232) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_25_004952) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -90,6 +90,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_131232) do
     t.string "status", default: "published", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "situation_tags"
     t.index ["area"], name: "index_restaurants_on_area"
     t.index ["category"], name: "index_restaurants_on_category"
     t.index ["hotpepper_id"], name: "index_restaurants_on_hotpepper_id", unique: true
