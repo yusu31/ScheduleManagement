@@ -88,7 +88,7 @@ export default function EventCard({ event }: Props) {
         className="
           relative rounded-[20px] overflow-hidden cursor-pointer
           flex flex-col h-full
-          bg-white/85 backdrop-blur-sm
+          theme-card-bg bg-white/85 backdrop-blur-sm
           border border-white/60
           shadow-[0_2px_12px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]
         "
