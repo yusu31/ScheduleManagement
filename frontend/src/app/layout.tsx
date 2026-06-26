@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 import { UserPreferenceProvider } from '@/contexts/UserPreferenceContext'
 import Sidebar from '@/components/layout/Sidebar'
 import ThemePickerModal from '@/components/theme/ThemePickerModal'
+import ChatWidget from '@/components/chat/ChatWidget'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -44,6 +45,7 @@ export default function RootLayout({
                 </main>
               </div>
               <ThemePickerModal />
+              <ChatWidget />
               <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
             </FavoritesProvider>
             </UserPreferenceProvider>
