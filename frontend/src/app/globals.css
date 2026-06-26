@@ -448,53 +448,32 @@ html[data-theme-bg="photo"] .theme-page-header label {
   }
 }
 
-/* ろーみー アイドルアニメーション
-   0-45%: ゆっくり浮遊しながら小さく揺れる
-   45-83%: 予備動作→ジャンプ→着地（スカッシュ＆ストレッチ）
-   83-100%: 静止に戻る */
-@keyframes roami-idle {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scaleX(1) scaleY(1);
-  }
-  15% {
-    transform: translateY(-5px) rotate(-1.5deg) scaleX(1) scaleY(1.03);
-  }
-  30% {
-    transform: translateY(0px) rotate(1deg) scaleX(1) scaleY(1);
-  }
-  45% {
-    transform: translateY(-3px) rotate(0deg) scaleX(1) scaleY(1.01);
-  }
-  /* 予備動作：軽くしゃがむ */
-  52% {
-    transform: translateY(3px) rotate(0deg) scaleX(1.06) scaleY(0.94);
-  }
-  /* ジャンプ：縦に伸びながら上昇 */
-  62% {
-    transform: translateY(-16px) rotate(-1deg) scaleX(0.9) scaleY(1.1);
-  }
-  /* 着地：横に潰れる */
-  69% {
-    transform: translateY(3px) rotate(0deg) scaleX(1.12) scaleY(0.86);
-  }
-  /* 跳ね返り */
-  76% {
-    transform: translateY(-5px) rotate(0.5deg) scaleX(0.97) scaleY(1.04);
-  }
-  83% {
-    transform: translateY(0px) rotate(0deg) scaleX(1) scaleY(1);
-  }
+/* ろーみー ホバー時：浮遊しながら左右に揺れる */
+@keyframes roami-hover {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scaleX(1) scaleY(1); }
+  25% { transform: translateY(-7px) rotate(-2.5deg) scaleX(0.97) scaleY(1.04); }
+  60% { transform: translateY(-5px) rotate(2deg) scaleX(1) scaleY(1.02); }
+  80% { transform: translateY(-2px) rotate(-1deg) scaleX(1) scaleY(1); }
 }
 
-/* ボタンのラベンダーグロー（ジャンプと連動） */
-@keyframes roami-glow {
-  0%, 45%, 100% {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 0 0 0px rgba(200,190,240,0);
-  }
-  62% {
-    box-shadow: 0 16px 32px rgba(0,0,0,0.16), 0 0 18px 6px rgba(200,190,240,0.45);
-  }
-  69% {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 0 8px 2px rgba(200,190,240,0.2);
-  }
+/* ろーみー クリック時：予備動作→ジャンプ（スカッシュ＆ストレッチ） */
+@keyframes roami-click {
+  0% { transform: translateY(0px) scaleX(1) scaleY(1); }
+  15% { transform: translateY(4px) scaleX(1.1) scaleY(0.88); }
+  45% { transform: translateY(-18px) scaleX(0.88) scaleY(1.12); }
+  68% { transform: translateY(3px) scaleX(1.1) scaleY(0.87); }
+  82% { transform: translateY(-5px) scaleX(0.97) scaleY(1.04); }
+  100% { transform: translateY(0px) scaleX(1) scaleY(1); }
+}
+
+/* ろーみーボタン：ホバー・クリック時にアニメーション発火 */
+.roami-float-btn .roami-mascot {
+  transition: filter 0.2s ease;
+}
+.roami-float-btn:hover .roami-mascot {
+  animation: roami-hover 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 6px 16px rgba(180,160,230,0.5));
+}
+.roami-float-btn:active .roami-mascot {
+  animation: roami-click 0.45s ease-out forwards !important;
 }

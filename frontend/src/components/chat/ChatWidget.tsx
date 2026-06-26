@@ -87,7 +87,7 @@ export default function ChatWidget() {
         {isOpen ? (
           <button
             onClick={() => setIsOpen(false)}
-            className="relative flex items-center justify-center w-[66px] h-[66px] rounded-[20px] bg-white ring-2 ring-[#c8bef0]/50 shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+            className="relative flex items-center justify-center w-[66px] h-[66px] rounded-[20px] bg-white/80 backdrop-blur-sm ring-2 ring-[#c8bef0]/50 shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
             aria-label="チャットを閉じる"
           >
             <X size={20} className="text-[#6a5a9a]" />
@@ -95,17 +95,17 @@ export default function ChatWidget() {
         ) : (
           <button
             onClick={() => setIsOpen(true)}
-            className="relative w-[66px] h-[66px] rounded-[20px] bg-gradient-to-br from-white to-[#ede8f8] ring-2 ring-[#d8d0ee]/60 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+            className="roami-float-btn relative w-[66px] h-[66px] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
             aria-label="AIチャットを開く"
-            style={{ animation: 'roami-glow 5s ease-in-out infinite' }}
           >
             <Image
               src="/roamichan.png"
               alt="ろーみー"
-              width={56}
-              height={56}
+              width={60}
+              height={60}
+              className="roami-mascot"
               style={{
-                animation: 'roami-idle 5s ease-in-out infinite',
+                filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.18))',
                 transformOrigin: '50% 85%',
               }}
             />
