@@ -4,6 +4,7 @@ interface Props {
 }
 
 export default function RoamiMascot({ size = 80, className = '' }: Props) {
+  const id = `bodyGrad_${size}`
   return (
     <svg
       width={size}
@@ -13,36 +14,41 @@ export default function RoamiMascot({ size = 80, className = '' }: Props) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* 本体（ミント色の丸い体） */}
-      <circle cx="50" cy="54" r="42" fill="#d5ece7"/>
+      <defs>
+        {/* 体：下からラベンダーが滲む */}
+        <radialGradient id={id} cx="50%" cy="75%" r="65%">
+          <stop offset="0%" stopColor="#d8d0ee"/>
+          <stop offset="55%" stopColor="#edeaf8"/>
+          <stop offset="100%" stopColor="#f9f8ff"/>
+        </radialGradient>
+      </defs>
 
-      {/* 左耳 */}
-      <circle cx="13" cy="44" r="13" fill="#c2e0da"/>
-      {/* 右耳 */}
-      <circle cx="87" cy="44" r="13" fill="#c2e0da"/>
+      {/* スプラウト（アプリロゴと連動） */}
+      <line x1="50" y1="10" x2="50" y2="22" stroke="#6aaa6a" strokeWidth="2.2" strokeLinecap="round"/>
+      <path d="M50,18 C42,15 36,7 40,2 C44,-2 50,10 50,18Z" fill="#7ec47e"/>
+      <path d="M50,18 C58,15 64,7 60,2 C56,-2 50,10 50,18Z" fill="#5f9a5f"/>
 
-      {/* 頭の上のスプラウト（アプリと同じ芽マーク） */}
-      <line x1="50" y1="12" x2="50" y2="20" stroke="#5f8b8b" strokeWidth="3" strokeLinecap="round"/>
-      {/* 左の葉 */}
-      <path d="M50,18 C43,16 37,9 41,4 C45,0 50,8 50,18Z" fill="#5f8b8b"/>
-      {/* 右の葉 */}
-      <path d="M50,18 C57,16 63,9 59,4 C55,0 50,8 50,18Z" fill="#4a7070"/>
+      {/* 体（たまご型・ラベンダーグラデ） */}
+      <ellipse cx="50" cy="57" rx="36" ry="40" fill={`url(#${id})`}/>
 
-      {/* 左目（黒丸＋白ハイライト：LINEキャラ方式） */}
-      <circle cx="36" cy="50" r="10" fill="#1a2e2e"/>
-      <circle cx="39.5" cy="46.5" r="3" fill="white"/>
+      {/* 体の光沢ハイライト */}
+      <ellipse cx="37" cy="37" rx="11" ry="7" fill="white" fillOpacity="0.55" transform="rotate(-20 37 37)"/>
+
+      {/* 左目 */}
+      <circle cx="38" cy="53" r="7.5" fill="#2a2050"/>
+      <circle cx="41" cy="49" r="2.5" fill="white"/>
 
       {/* 右目 */}
-      <circle cx="64" cy="50" r="10" fill="#1a2e2e"/>
-      <circle cx="67.5" cy="46.5" r="3" fill="white"/>
+      <circle cx="62" cy="53" r="7.5" fill="#2a2050"/>
+      <circle cx="65" cy="49" r="2.5" fill="white"/>
 
-      {/* 笑顔 */}
-      <path d="M41,64 Q50,73 59,64" stroke="#4a7070" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      {/* 笑顔（紫みがかった線） */}
+      <path d="M43,64 Q50,72 57,64" stroke="#9986c0" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
 
       {/* 左ほほ */}
-      <circle cx="24" cy="62" r="9" fill="#f4aaaa" fillOpacity="0.45"/>
+      <circle cx="27" cy="62" r="7.5" fill="#f4b0cc" fillOpacity="0.38"/>
       {/* 右ほほ */}
-      <circle cx="76" cy="62" r="9" fill="#f4aaaa" fillOpacity="0.45"/>
+      <circle cx="73" cy="62" r="7.5" fill="#f4b0cc" fillOpacity="0.38"/>
     </svg>
   )
 }

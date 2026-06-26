@@ -79,10 +79,10 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* フローティングボタン：マスコットキャラクター「ロミ」 */}
+      {/* フローティングボタン：ミシロ */}
       <div className="fixed bottom-5 right-5 z-50">
         {!isOpen && (
-          <span className="absolute inset-0 rounded-2xl bg-primary/25 animate-ping" />
+          <span className="absolute inset-0 rounded-2xl bg-[#c8bef0]/40 animate-ping" />
         )}
         <button
           onClick={() => setIsOpen(prev => !prev)}
@@ -91,14 +91,14 @@ export default function ChatWidget() {
             shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95
             overflow-hidden
             ${isOpen
-              ? 'w-12 h-12 bg-white/90 ring-2 ring-primary/25'
-              : 'w-[62px] h-[62px] bg-gradient-to-br from-[#dff0ed] to-[#c0e0d8] ring-2 ring-white/70'
+              ? 'w-12 h-12 bg-white ring-2 ring-[#c8bef0]/50'
+              : 'w-[62px] h-[62px] bg-gradient-to-br from-white to-[#ede8f8] ring-2 ring-[#d8d0ee]/60'
             }
           `}
           aria-label={isOpen ? 'チャットを閉じる' : 'AIチャットを開く'}
         >
           {isOpen
-            ? <X size={20} className="text-primary-dark" />
+            ? <X size={20} className="text-[#6a5a9a]" />
             : <RoamiMascot size={68} />
           }
         </button>
@@ -145,15 +145,15 @@ export default function ChatWidget() {
                 {/* 空の状態：AI生成マスコット画像を表示 */}
                 <div className={`rounded-2xl p-2 mb-3 ${usesDarkPanel ? 'bg-white/10' : 'bg-primary-light'}`}>
                   <Image
-                    src="/romi.png"
-                    alt="Roami AIマスコット ロミ"
+                    src="/mishiro.png"
+                    alt="Roami AIマスコット ミシロ"
                     width={80}
                     height={80}
                     className="rounded-xl"
                   />
                 </div>
                 <p className={`text-[15px] font-bold mb-1 ${usesDarkPanel ? 'text-white' : 'text-app-text'}`}>
-                  こんにちは、ロミです！
+                  こんにちは、ミシロです！
                 </p>
                 <p className={`text-[12px] leading-relaxed mb-5 ${usesDarkPanel ? 'text-white/60' : 'text-app-sub'}`}>
                   福島のイベント・観光・グルメ
