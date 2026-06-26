@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Sun, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette, Shield, Landmark, Utensils } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useTheme, isThemeDark } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import { useUserPreference } from '@/contexts/UserPreferenceContext'
 import UserProfilePanel from '@/components/user/UserProfilePanel'
 
@@ -25,18 +25,29 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const [mounted, setMounted] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [themeBg, setThemeBg] = useState<string | null>(null)
   const userButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    const update = () =>
+      setThemeBg(document.documentElement.getAttribute('data-theme-bg'))
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme-bg'],
+    })
+    return () => observer.disconnect()
+  }, [])
 
   const pathname = usePathname()
   const { isLoggedIn, currentUser, isLoading } = useAuth()
   const { openPicker, currentTheme } = useTheme()
   const { iconPref } = useUserPreference()
 
-  const isDark = isThemeDark(currentTheme)
-  const isPhoto = Boolean(currentTheme?.imageUrl)
-  const usesDarkOverlay = isPhoto || isDark
+  const usesDarkOverlay = themeBg === 'photo' || themeBg === 'dark'
 
   if (!mounted) {
     return (
