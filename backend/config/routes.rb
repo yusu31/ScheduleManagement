@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       end
       get "weather", to: "weather#show"
       get "users/stats", to: "users#stats"
+      post "ai/chat", to: "ai#chat"
 
       namespace :admin do
         resources :spots
