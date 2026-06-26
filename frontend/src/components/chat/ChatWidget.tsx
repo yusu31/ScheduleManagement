@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { X, Send } from 'lucide-react'
+import Image from 'next/image'
 import RoamiMascot from './RoamiMascot'
 
 type Message = {
@@ -141,9 +142,15 @@ export default function ChatWidget() {
           <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-4 text-center">
-                {/* 空の状態：マスコットを大きく表示 */}
-                <div className={`rounded-2xl p-3 mb-3 ${usesDarkPanel ? 'bg-white/10' : 'bg-primary-light'}`}>
-                  <RoamiMascot size={80} />
+                {/* 空の状態：AI生成マスコット画像を表示 */}
+                <div className={`rounded-2xl p-2 mb-3 ${usesDarkPanel ? 'bg-white/10' : 'bg-primary-light'}`}>
+                  <Image
+                    src="/romi.png"
+                    alt="Roami AIマスコット ロミ"
+                    width={80}
+                    height={80}
+                    className="rounded-xl"
+                  />
                 </div>
                 <p className={`text-[15px] font-bold mb-1 ${usesDarkPanel ? 'text-white' : 'text-app-text'}`}>
                   こんにちは、ロミです！
