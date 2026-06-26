@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Send } from 'lucide-react'
+import { X, Send, Sprout } from 'lucide-react'
 import Image from 'next/image'
-import RoamiMascot from './RoamiMascot'
 
 type Message = {
   role: 'user' | 'assistant'
@@ -79,29 +78,49 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* フローティングボタン：ミシロ */}
+      {/* フローティングボタン */}
       <div className="fixed bottom-5 right-5 z-50">
         {!isOpen && (
-          <span className="absolute inset-0 rounded-2xl bg-[#c8bef0]/40 animate-ping" />
+          <span className="absolute -inset-1 rounded-3xl bg-[#c8bef0]/30 animate-ping" />
         )}
-        <button
-          onClick={() => setIsOpen(prev => !prev)}
-          className={`
-            relative flex items-center justify-center rounded-2xl
-            shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95
-            overflow-hidden
-            ${isOpen
-              ? 'w-12 h-12 bg-white ring-2 ring-[#c8bef0]/50'
-              : 'w-[62px] h-[62px] bg-gradient-to-br from-white to-[#ede8f8] ring-2 ring-[#d8d0ee]/60'
-            }
-          `}
-          aria-label={isOpen ? 'チャットを閉じる' : 'AIチャットを開く'}
-        >
-          {isOpen
-            ? <X size={20} className="text-[#6a5a9a]" />
-            : <RoamiMascot size={68} />
-          }
-        </button>
+
+        {isOpen ? (
+          <button
+            onClick={() => setIsOpen(false)}
+            className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-white ring-2 ring-[#c8bef0]/50 shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+            aria-label="チャットを閉じる"
+          >
+            <X size={20} className="text-[#6a5a9a]" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="relative transition-all duration-200 hover:scale-105 active:scale-95"
+            aria-label="AIチャットを開く"
+            style={{ filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.18))' }}
+          >
+            {/* 吹き出しボディ */}
+            <div className="relative bg-gradient-to-br from-white via-white to-[#f0ecfc] rounded-3xl p-2">
+              <Image
+                src="/roamichan.png"
+                alt="ろーみー"
+                width={60}
+                height={60}
+                className="rounded-2xl"
+              />
+            </div>
+            {/* 吹き出しテール（底面中央の下向き三角） */}
+            <svg
+              className="absolute -bottom-[9px] left-1/2 -translate-x-1/2"
+              width="20"
+              height="10"
+              viewBox="0 0 20 10"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M0 0 L20 0 L10 10 Z" fill="white" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* チャットパネル */}
@@ -118,9 +137,9 @@ export default function ChatWidget() {
         >
           {/* グラデーションヘッダー */}
           <div className="bg-gradient-to-r from-[#5f8b8b] to-[#3a7272] px-4 py-2.5 flex items-center gap-3 shrink-0">
-            {/* ヘッダー内のミニマスコット */}
-            <div className="w-10 h-10 rounded-xl bg-white/20 ring-2 ring-white/30 flex items-center justify-center shrink-0 overflow-hidden">
-              <RoamiMascot size={44} />
+            {/* Roami ブランドアイコン */}
+            <div className="w-10 h-10 rounded-xl bg-white/20 ring-2 ring-white/30 flex items-center justify-center shrink-0">
+              <Sprout size={20} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white font-bold text-[14px] leading-tight">Roami AI</p>
@@ -142,18 +161,17 @@ export default function ChatWidget() {
           <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-4 text-center">
-                {/* 空の状態：AI生成マスコット画像を表示 */}
-                <div className={`rounded-2xl p-2 mb-3 ${usesDarkPanel ? 'bg-white/10' : 'bg-primary-light'}`}>
-                  <Image
-                    src="/mishiro.png"
-                    alt="Roami AIマスコット ミシロ"
-                    width={80}
-                    height={80}
-                    className="rounded-xl"
-                  />
-                </div>
+                {/* 枠なし・ラベンダーのドロップシャドウで存在感を演出 */}
+                <Image
+                  src="/roamichan.png"
+                  alt="Roami AIマスコット ろーみー"
+                  width={90}
+                  height={90}
+                  className="mb-3"
+                  style={{ filter: 'drop-shadow(0 8px 24px rgba(180,160,230,0.55))' }}
+                />
                 <p className={`text-[15px] font-bold mb-1 ${usesDarkPanel ? 'text-white' : 'text-app-text'}`}>
-                  こんにちは、ミシロです！
+                  こんにちは、ろーみーです！
                 </p>
                 <p className={`text-[12px] leading-relaxed mb-5 ${usesDarkPanel ? 'text-white/60' : 'text-app-sub'}`}>
                   福島のイベント・観光・グルメ
@@ -186,8 +204,13 @@ export default function ChatWidget() {
                 className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'assistant' && (
-                  <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-1 overflow-hidden ${usesDarkPanel ? 'bg-white/15' : 'bg-primary-light'}`}>
-                    <RoamiMascot size={30} />
+                  <div className="relative w-7 h-7 rounded-xl shrink-0 mt-1 overflow-hidden">
+                    <Image
+                      src="/roamichan.png"
+                      alt="ろーみー"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 )}
                 <div
@@ -208,8 +231,13 @@ export default function ChatWidget() {
 
             {loading && (
               <div className="flex gap-2 justify-start">
-                <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${usesDarkPanel ? 'bg-white/15' : 'bg-primary-light'}`}>
-                  <RoamiMascot size={30} />
+                <div className="relative w-7 h-7 rounded-xl shrink-0 mt-1 overflow-hidden">
+                  <Image
+                    src="/roamichan.png"
+                    alt="ろーみー"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <div className={`px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5 ${usesDarkPanel ? 'bg-white/15' : 'bg-primary-light'}`}>
                   {[0, 1, 2].map(i => (
