@@ -81,13 +81,13 @@ export default function ChatWidget() {
       {/* フローティングボタン */}
       <div className="fixed bottom-5 right-5 z-50">
         {!isOpen && (
-          <span className="absolute -inset-1 rounded-3xl bg-[#c8bef0]/30 animate-ping" />
+          <span className="absolute -inset-1 rounded-[24px] bg-[#c8bef0]/30 animate-ping" />
         )}
 
         {isOpen ? (
           <button
             onClick={() => setIsOpen(false)}
-            className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-white ring-2 ring-[#c8bef0]/50 shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+            className="relative flex items-center justify-center w-[66px] h-[66px] rounded-[20px] bg-white ring-2 ring-[#c8bef0]/50 shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
             aria-label="チャットを閉じる"
           >
             <X size={20} className="text-[#6a5a9a]" />
@@ -95,30 +95,20 @@ export default function ChatWidget() {
         ) : (
           <button
             onClick={() => setIsOpen(true)}
-            className="relative transition-all duration-200 hover:scale-105 active:scale-95"
+            className="relative w-[66px] h-[66px] rounded-[20px] bg-gradient-to-br from-white to-[#ede8f8] ring-2 ring-[#d8d0ee]/60 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
             aria-label="AIチャットを開く"
-            style={{ filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.18))' }}
+            style={{ animation: 'roami-glow 5s ease-in-out infinite' }}
           >
-            {/* 吹き出しボディ */}
-            <div className="relative bg-gradient-to-br from-white via-white to-[#f0ecfc] rounded-3xl p-2">
-              <Image
-                src="/roamichan.png"
-                alt="ろーみー"
-                width={60}
-                height={60}
-                className="rounded-2xl"
-              />
-            </div>
-            {/* 吹き出しテール（底面中央の下向き三角） */}
-            <svg
-              className="absolute -bottom-[9px] left-1/2 -translate-x-1/2"
-              width="20"
-              height="10"
-              viewBox="0 0 20 10"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M0 0 L20 0 L10 10 Z" fill="white" />
-            </svg>
+            <Image
+              src="/roamichan.png"
+              alt="ろーみー"
+              width={56}
+              height={56}
+              style={{
+                animation: 'roami-idle 5s ease-in-out infinite',
+                transformOrigin: '50% 85%',
+              }}
+            />
           </button>
         )}
       </div>
