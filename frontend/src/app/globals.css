@@ -447,3 +447,33 @@ html[data-theme-bg="photo"] .theme-page-header label {
     display: none;
   }
 }
+
+/* ろーみー ホバー時：浮遊しながら左右に揺れる */
+@keyframes roami-hover {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scaleX(1) scaleY(1); }
+  25% { transform: translateY(-7px) rotate(-2.5deg) scaleX(0.97) scaleY(1.04); }
+  60% { transform: translateY(-5px) rotate(2deg) scaleX(1) scaleY(1.02); }
+  80% { transform: translateY(-2px) rotate(-1deg) scaleX(1) scaleY(1); }
+}
+
+/* ろーみー クリック時：予備動作→ジャンプ（スカッシュ＆ストレッチ） */
+@keyframes roami-click {
+  0% { transform: translateY(0px) scaleX(1) scaleY(1); }
+  15% { transform: translateY(4px) scaleX(1.1) scaleY(0.88); }
+  45% { transform: translateY(-18px) scaleX(0.88) scaleY(1.12); }
+  68% { transform: translateY(3px) scaleX(1.1) scaleY(0.87); }
+  82% { transform: translateY(-5px) scaleX(0.97) scaleY(1.04); }
+  100% { transform: translateY(0px) scaleX(1) scaleY(1); }
+}
+
+/* ろーみーボタン：ホバー・クリック時にアニメーション発火 */
+.roami-float-btn .roami-mascot {
+  transition: filter 0.2s ease;
+}
+.roami-float-btn:hover .roami-mascot {
+  animation: roami-hover 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 6px 16px rgba(180,160,230,0.5));
+}
+.roami-float-btn:active .roami-mascot {
+  animation: roami-click 0.45s ease-out forwards !important;
+}
