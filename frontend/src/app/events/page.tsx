@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, Suspense } from 'react'
+import { useEffect, useState, useMemo, useRef, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, SlidersHorizontal, X } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -19,7 +19,16 @@ const NO_RESULT_IMAGES = [
   '/images/undraw_no-data_ig65.svg',
 ]
 
-// ─── スケルトンカード（Spotify・Vercel 方式）─────────────────────────
+type Meta = {
+  total_count: number
+  total_pages: number
+  current_page: number
+  per_page: number
+}
+
+const PER_PAGE = 12
+
+// ─── スケルトンカード ──────────────────────────────────────────────
 function SkeletonCard() {
   return (
     <div className="rounded-2xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.05)] animate-pulse">
@@ -82,7 +91,6 @@ function Pagination({ page, totalPages, onChange }: { page: number; totalPages: 
 }
 
 // ─── グリッドアニメーション設定 ────────────────────────────────────
-// staggerChildren: 各カードを 0.05 秒ずつ時間差で出現させる
 const gridVariants = {
   hidden: {},
   show:   { transition: { staggerChildren: 0.05 } },
@@ -94,12 +102,12 @@ const cardVariants = {
 }
 
 // ─── メインページ ─────────────────────────────────────────────────
-const PER_PAGE = 12
-
 function EventsInner() {
   const [events,     setEvents]     = useState<Event[]>([])
+  const [meta,       setMeta]       = useState<Meta>({ total_count: 0, total_pages: 1, current_page: 1, per_page: PER_PAGE })
   const [isLoading,  setIsLoading]  = useState(true)
   const [search,     setSearch]     = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [areas,      setAreas]      = useState<string[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [tags,       setTags]       = useState<string[]>([])
@@ -111,7 +119,7 @@ function EventsInner() {
   )
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const { isFavorited } = useFavorites()
+  const { favorites } = useFavorites()
 
   const activeFilterCount = categories.length + areas.length + tags.length + (showPast ? 1 : 0)
 
@@ -122,31 +130,61 @@ function EventsInner() {
     setShowPast(false)
   }
 
+  // ─── キーワードデバウンス（400ms） ───────────────────────────────
   useEffect(() => {
-    apiClient.get('/api/v1/events')
-      .then(res => setEvents(res.data))
+    const timer = setTimeout(() => setDebouncedSearch(search), 400)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  // ─── フィルター変更時にページを1に戻す ──────────────────────────
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return }
+    setPage(1)
+  }, [debouncedSearch, areas, categories, tags, showPast, tab])
+
+  // ─── サーバーサイド取得（all タブのみ） ──────────────────────────
+  useEffect(() => {
+    if (tab === 'favorites') return
+
+    setIsLoading(true)
+    const params = new URLSearchParams()
+    if (debouncedSearch) params.set('q', debouncedSearch)
+    areas.forEach(a => params.append('areas[]', a))
+    categories.forEach(c => params.append('categories[]', c))
+    tags.forEach(t => params.append('tags[]', t))
+    if (showPast) params.set('show_past', 'true')
+    params.set('page', String(page))
+    params.set('per_page', String(PER_PAGE))
+
+    apiClient.get(`/api/v1/events?${params.toString()}`)
+      .then(res => {
+        setEvents(res.data.events)
+        setMeta(res.data.meta)
+      })
       .catch(() => toast.error('イベントの読み込みに失敗しました'))
       .finally(() => setIsLoading(false))
-  }, [])
+  }, [tab, debouncedSearch, areas, categories, tags, showPast, page])
 
-  const filtered = useMemo(() => {
+  // ─── favorites タブ：コンテキストのデータをクライアント側で絞り込む ─
+  const favoritesFiltered = useMemo(() => {
+    if (tab !== 'favorites') return []
     const now = new Date()
-    let result = events
-    if (tab === 'favorites')    result = result.filter(e => isFavorited(e.id))
-    if (areas.length > 0)       result = result.filter(e => areas.includes(e.area))
-    if (categories.length > 0)  result = result.filter(e => categories.includes(e.category))
-    if (tags.length > 0)        result = result.filter(e => tags.some(t => (e.tags ?? []).includes(t)))
-    if (search.trim()) {
-      const q = search.trim().toLowerCase()
+    const oneYearAgo = new Date(now)
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+
+    let result = favorites.map(f => f.event)
+    if (areas.length > 0)      result = result.filter(e => areas.includes(e.area))
+    if (categories.length > 0) result = result.filter(e => categories.includes(e.category))
+    if (tags.length > 0)       result = result.filter(e => tags.some(t => (e.tags ?? []).includes(t)))
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase()
       result = result.filter(e =>
         e.title.toLowerCase().includes(q) ||
         e.location?.toLowerCase().includes(q) ||
         e.area.toLowerCase().includes(q)
       )
     }
-    const oneYearAgo = new Date(now)
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-
     const upcoming = result
       .filter(e => new Date(e.start_at) >= now)
       .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
@@ -155,20 +193,23 @@ function EventsInner() {
       .filter(e => { const d = new Date(e.start_at); return d < now && d >= oneYearAgo })
       .sort((a, b) => new Date(b.start_at).getTime() - new Date(a.start_at).getTime())
     return [...upcoming, ...past]
-  }, [events, areas, categories, tags, search, showPast, tab, isFavorited])
+  }, [tab, favorites, areas, categories, tags, debouncedSearch, showPast])
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE)
-  const paginated  = useMemo(() => {
-    const start = (page - 1) * PER_PAGE
-    return filtered.slice(start, start + PER_PAGE)
-  }, [filtered, page])
+  // ─── 表示するリストとページネーション情報 ────────────────────────
+  const displayEvents  = tab === 'favorites' ? favoritesFiltered.slice((page - 1) * PER_PAGE, page * PER_PAGE) : events
+  const displayTotal   = tab === 'favorites' ? favoritesFiltered.length : meta.total_count
+  const displayPages   = tab === 'favorites' ? Math.max(1, Math.ceil(favoritesFiltered.length / PER_PAGE)) : meta.total_pages
+  const displayLoading = tab === 'favorites' ? false : isLoading
 
-  useEffect(() => { setPage(1) }, [areas, categories, tags, search, showPast, tab])
+  // favorites タブに切り替えた直後はローディング不要
+  useEffect(() => {
+    if (tab === 'favorites') setIsLoading(false)
+  }, [tab])
 
   return (
     <div className="min-h-screen">
 
-      {/* ─── フィルターバー（新デザイン） ─── */}
+      {/* ─── フィルターバー ─── */}
       <div className="theme-sticky-header bg-white/70 backdrop-blur-xl border-b border-white/50 sticky top-0 z-40 px-6 pt-3.5 pb-3">
 
         {/* 行1: 検索バー ＋ 絞り込みボタン */}
@@ -220,7 +261,6 @@ function EventsInner() {
 
         {/* 行2: タブ ＋ アクティブフィルターチップ */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* タブ */}
           {(['all', 'favorites'] as const).map(t => (
             <motion.button
               key={t}
@@ -236,7 +276,7 @@ function EventsInner() {
             </motion.button>
           ))}
 
-          {/* アクティブフィルターチップ（選択中のみ表示・複数） */}
+          {/* アクティブフィルターチップ */}
           <AnimatePresence>
             {categories.map(cat => (
               <motion.button key={`cat-${cat}`}
@@ -295,8 +335,7 @@ function EventsInner() {
 
       {/* ─── メインコンテンツ ─── */}
       <main className="max-w-[1160px] mx-auto px-8 py-8 pb-28">
-        {isLoading ? (
-          // スケルトンローディング（10枚のシルエット）
+        {displayLoading ? (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-x-[28px] gap-y-[24px] py-6">
             {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
@@ -304,7 +343,7 @@ function EventsInner() {
           <>
             <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
               <p className="text-[13px] text-app-sub font-medium theme-readable">
-                {filtered.length}件のイベントが見つかりました
+                {displayTotal}件のイベントが見つかりました
               </p>
               <div className="flex items-center gap-3">
                 {/* 終了済みトグル */}
@@ -316,15 +355,15 @@ function EventsInner() {
                   <span className="text-[12px] text-app-sub font-medium whitespace-nowrap theme-readable">終了済みを表示</span>
                 </label>
                 {/* ページドロップダウン */}
-                {totalPages > 1 && (
+                {displayPages > 1 && (
                   <div className="relative">
                     <select
                       value={page}
                       onChange={e => setPage(Number(e.target.value))}
                       className="appearance-none text-[12px] font-semibold text-app-text bg-white border border-app-border rounded-full pl-3 pr-7 py-1.5 outline-none cursor-pointer hover:bg-app-bg transition-colors"
                     >
-                      {Array.from({ length: totalPages }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>{i + 1} / {totalPages} ページ</option>
+                      {Array.from({ length: displayPages }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>{i + 1} / {displayPages} ページ</option>
                       ))}
                     </select>
                     <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-app-sub" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -335,7 +374,7 @@ function EventsInner() {
               </div>
             </div>
 
-            {filtered.length === 0 ? (
+            {displayEvents.length === 0 ? (
               <motion.div
                 className="flex flex-col items-center py-20 text-app-sub"
                 initial={{ opacity: 0 }}
@@ -353,29 +392,31 @@ function EventsInner() {
               </motion.div>
             ) : (
               <>
-              <motion.div
-                key={`${areas.join(',')}-${categories.join(',')}-${tags.join(',')}-${search}-${page}`}
-                className="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-x-[28px] gap-y-[24px] py-6"
-                variants={gridVariants}
-                initial="hidden"
-                animate="show"
-              >
-                <AnimatePresence mode="popLayout">
-                  {paginated.map(event => (
-                    <motion.div
-                      key={event.id}
-                      variants={cardVariants}
-                      layout
-                      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18 } }}
-                      className="h-full"
-                    >
-                      <EventCard event={event} />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
+                <motion.div
+                  key={`${tab}-${areas.join(',')}-${categories.join(',')}-${tags.join(',')}-${debouncedSearch}-${page}`}
+                  className="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-x-[28px] gap-y-[24px] py-6"
+                  variants={gridVariants}
+                  initial="hidden"
+                  animate="show"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {displayEvents.map(event => (
+                      <motion.div
+                        key={event.id}
+                        variants={cardVariants}
+                        layout
+                        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18 } }}
+                        className="h-full"
+                      >
+                        <EventCard event={event} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
 
-              {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onChange={setPage} />}
+                {displayPages > 1 && (
+                  <Pagination page={page} totalPages={displayPages} onChange={setPage} />
+                )}
               </>
             )}
           </>
