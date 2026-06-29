@@ -103,19 +103,21 @@ export default function ChatWidget() {
   // theme-card-bg は photo→白背景・dark→黒背景のためパネル内色はdarkのみ暗くする
   const usesDarkPanel = themeBg === 'dark'
 
-  // ボタン位置に応じてパネルを上下どちらに表示するか判定
-  // position.y が負 = 上に移動。上のスペースが510px未満なら下に表示する
-  const spaceAboveBtn = typeof window !== 'undefined'
-    ? window.innerHeight - (20 - position.y) - 66
-    : 999
-  const panelAbove = spaceAboveBtn >= 522
+  // パネルの表示方向と高さをビューポートに収まるよう動的計算
+  // ボタンは fixed bottom:20px + translateY(y) → visual_bottom = viewH - 20 + y（px from top）
+  const viewH = typeof window !== 'undefined' ? window.innerHeight : 800
+  const viewW = typeof window !== 'undefined' ? window.innerWidth : 1440
+  // 上向き表示の利用可能高さ：パネル底辺から16px上マージンを確保
+  const aboveAvail = viewH - 118 + position.y
+  // 下向き表示の利用可能高さ：パネル上辺から16px下マージンを確保
+  const belowAvail = -12 - position.y
+  // スペースが多い方向にパネルを表示
+  const panelAbove = aboveAvail >= belowAvail
+  // パネル高さ = 実際のスペースに収める（最小120px・最大510px）
+  const panelMaxHeight = Math.max(120, Math.min(510, panelAbove ? aboveAvail : belowAvail))
 
-  // ボタン位置に応じてパネルを左右どちらに揃えるか判定
-  // 左側に340px以上のスペースがあれば右揃え、なければ左揃え
-  const spaceLeftOfBtn = typeof window !== 'undefined'
-    ? window.innerWidth - (20 - position.x)
-    : 999
-  const panelAlignRight = spaceLeftOfBtn >= 340
+  // 左右：340px分の左スペースがあれば右揃え、なければ左揃え
+  const panelAlignRight = (viewW - 20 + position.x) >= 340
 
   const handleSend = async (text = input) => {
     const userMessage = text.trim()
@@ -175,7 +177,7 @@ export default function ChatWidget() {
             ${panelAlignRight ? 'right-0' : 'left-0'}
             ${usesDarkOverlay ? 'ring-1 ring-white/15' : 'ring-1 ring-black/8'}
           `}
-          style={{ height: `min(510px, calc(100vh - 120px))` }}
+          style={{ height: `${panelMaxHeight}px` }}
         >
           {/* グラデーションヘッダー */}
           <div className="bg-gradient-to-r from-[#5f8b8b] to-[#3a7272] px-4 py-2.5 flex items-center gap-3 shrink-0">
