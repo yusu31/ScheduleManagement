@@ -20,6 +20,14 @@ export default function ChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  // ドラッグ移動
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const isDraggingRef = useRef(false)
+  const basePosRef = useRef({ x: 0, y: 0 })
+  const dragStartRef = useRef({ mouseX: 0, mouseY: 0 })
+  const hasDraggedRef = useRef(false)
+
   useEffect(() => {
     const update = () =>
       setThemeBg(document.documentElement.getAttribute('data-theme-bg'))
@@ -36,6 +44,61 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // マウス・タッチのドラッグイベントをwindowに登録（マウント时1回）
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return
+      const dx = e.clientX - dragStartRef.current.mouseX
+      const dy = e.clientY - dragStartRef.current.mouseY
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasDraggedRef.current = true
+      setPosition({ x: basePosRef.current.x + dx, y: basePosRef.current.y + dy })
+    }
+    const onMouseUp = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return
+      basePosRef.current = {
+        x: basePosRef.current.x + (e.clientX - dragStartRef.current.mouseX),
+        y: basePosRef.current.y + (e.clientY - dragStartRef.current.mouseY),
+      }
+      isDraggingRef.current = false
+      setIsDragging(false)
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDraggingRef.current) return
+      const t = e.touches[0]
+      const dx = t.clientX - dragStartRef.current.mouseX
+      const dy = t.clientY - dragStartRef.current.mouseY
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasDraggedRef.current = true
+      setPosition({ x: basePosRef.current.x + dx, y: basePosRef.current.y + dy })
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!isDraggingRef.current) return
+      const t = e.changedTouches[0]
+      basePosRef.current = {
+        x: basePosRef.current.x + (t.clientX - dragStartRef.current.mouseX),
+        y: basePosRef.current.y + (t.clientY - dragStartRef.current.mouseY),
+      }
+      isDraggingRef.current = false
+      setIsDragging(false)
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchend', onTouchEnd)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [])
+
+  const startDrag = (clientX: number, clientY: number) => {
+    isDraggingRef.current = true
+    setIsDragging(true)
+    hasDraggedRef.current = false
+    dragStartRef.current = { mouseX: clientX, mouseY: clientY }
+  }
+
   const usesDarkOverlay = themeBg === 'photo' || themeBg === 'dark'
   // theme-card-bg は photo→白背景・dark→黒背景のためパネル内色はdarkのみ暗くする
   const usesDarkPanel = themeBg === 'dark'
@@ -43,11 +106,9 @@ export default function ChatWidget() {
   const handleSend = async (text = input) => {
     const userMessage = text.trim()
     if (!userMessage || loading) return
-
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
-
     try {
       const res = await fetch('/api/v1/ai/chat', {
         method: 'POST',
@@ -77,47 +138,21 @@ export default function ChatWidget() {
   }
 
   return (
-    <>
-      {/* フローティングボタン */}
-      <div className="fixed bottom-5 right-5 z-50">
-        {!isOpen && (
-          <span className="absolute -inset-1 rounded-[24px] bg-[#c8bef0]/30 animate-ping" />
-        )}
+    <div
+      className="fixed bottom-5 right-5 z-50"
+      style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+    >
+      {/* ping */}
+      {!isOpen && (
+        <span className="absolute -inset-1 rounded-[24px] bg-[#c8bef0]/30 animate-ping" />
+      )}
 
-        {isOpen ? (
-          <button
-            onClick={() => setIsOpen(false)}
-            className="relative flex items-center justify-center w-[66px] h-[66px] rounded-[20px] bg-white/80 backdrop-blur-sm ring-2 ring-[#c8bef0]/50 shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
-            aria-label="チャットを閉じる"
-          >
-            <X size={20} className="text-[#6a5a9a]" />
-          </button>
-        ) : (
-          <button
-            onClick={() => setIsOpen(true)}
-            className="roami-float-btn relative w-[66px] h-[66px] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
-            aria-label="AIチャットを開く"
-          >
-            <Image
-              src="/roamichan.png"
-              alt="ろーみー"
-              width={60}
-              height={60}
-              className="roami-mascot"
-              style={{
-                filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.18))',
-                transformOrigin: '50% 85%',
-              }}
-            />
-          </button>
-        )}
-      </div>
-
-      {/* チャットパネル */}
+      {/* チャットパネル（ボタンの上に absolute 配置・ドラッグで追従） */}
       {isOpen && (
         <div
+          onMouseDown={e => e.stopPropagation()}
           className={`
-            fixed bottom-[84px] right-5 z-50
+            absolute bottom-[82px] right-0 z-10
             w-[340px] h-[510px]
             rounded-2xl shadow-2xl
             flex flex-col overflow-hidden
@@ -127,7 +162,6 @@ export default function ChatWidget() {
         >
           {/* グラデーションヘッダー */}
           <div className="bg-gradient-to-r from-[#5f8b8b] to-[#3a7272] px-4 py-2.5 flex items-center gap-3 shrink-0">
-            {/* Roami ブランドアイコン */}
             <div className="w-10 h-10 rounded-xl bg-white/20 ring-2 ring-white/30 flex items-center justify-center shrink-0">
               <Sprout size={20} className="text-white" />
             </div>
@@ -151,7 +185,6 @@ export default function ChatWidget() {
           <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-4 text-center">
-                {/* 枠なし・ラベンダーのドロップシャドウで存在感を演出 */}
                 <Image
                   src="/roamichan.png"
                   alt="Roami AIマスコット ろーみー"
@@ -195,12 +228,7 @@ export default function ChatWidget() {
               >
                 {msg.role === 'assistant' && (
                   <div className="relative w-7 h-7 rounded-xl shrink-0 mt-1 overflow-hidden">
-                    <Image
-                      src="/roamichan.png"
-                      alt="ろーみー"
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src="/roamichan.png" alt="ろーみー" fill className="object-cover" />
                   </div>
                 )}
                 <div
@@ -222,12 +250,7 @@ export default function ChatWidget() {
             {loading && (
               <div className="flex gap-2 justify-start">
                 <div className="relative w-7 h-7 rounded-xl shrink-0 mt-1 overflow-hidden">
-                  <Image
-                    src="/roamichan.png"
-                    alt="ろーみー"
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src="/roamichan.png" alt="ろーみー" fill className="object-cover" />
                 </div>
                 <div className={`px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5 ${usesDarkPanel ? 'bg-white/15' : 'bg-primary-light'}`}>
                   {[0, 1, 2].map(i => (
@@ -278,6 +301,38 @@ export default function ChatWidget() {
           </div>
         </div>
       )}
-    </>
+
+      {/* フローティングボタン */}
+      {isOpen ? (
+        <button
+          onClick={() => setIsOpen(false)}
+          className="relative flex items-center justify-center w-[66px] h-[66px] rounded-[20px] bg-white/80 backdrop-blur-sm ring-2 ring-[#c8bef0]/50 shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+          aria-label="チャットを閉じる"
+        >
+          <X size={20} className="text-[#6a5a9a]" />
+        </button>
+      ) : (
+        <button
+          onMouseDown={e => { startDrag(e.clientX, e.clientY); e.preventDefault() }}
+          onTouchStart={e => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+          onClick={() => { if (!hasDraggedRef.current) setIsOpen(true) }}
+          className="roami-float-btn relative w-[66px] h-[66px] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+          aria-label="AIチャットを開く"
+          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        >
+          <Image
+            src="/roamichan.png"
+            alt="ろーみー"
+            width={60}
+            height={60}
+            className="roami-mascot"
+            style={{
+              filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.18))',
+              transformOrigin: '50% 85%',
+            }}
+          />
+        </button>
+      )}
+    </div>
   )
 }
