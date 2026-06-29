@@ -37,7 +37,7 @@ module Api
 
         raw_per = params[:per_page].to_i
         per_page    = raw_per.between?(1, PER_PAGE_MAX) ? raw_per : PER_PAGE_DEFAULT
-        page        = [params[:page].to_i, 1].max
+        page        = [ params[:page].to_i, 1 ].max
         total_count = events.count
         total_pages = total_count.zero? ? 1 : (total_count.to_f / per_page).ceil
 
