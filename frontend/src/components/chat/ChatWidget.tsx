@@ -103,6 +103,20 @@ export default function ChatWidget() {
   // theme-card-bg は photo→白背景・dark→黒背景のためパネル内色はdarkのみ暗くする
   const usesDarkPanel = themeBg === 'dark'
 
+  // ボタン位置に応じてパネルを上下どちらに表示するか判定
+  // position.y が負 = 上に移動。上のスペースが510px未満なら下に表示する
+  const spaceAboveBtn = typeof window !== 'undefined'
+    ? window.innerHeight - (20 - position.y) - 66
+    : 999
+  const panelAbove = spaceAboveBtn >= 522
+
+  // ボタン位置に応じてパネルを左右どちらに揃えるか判定
+  // 左側に340px以上のスペースがあれば右揃え、なければ左揃え
+  const spaceLeftOfBtn = typeof window !== 'undefined'
+    ? window.innerWidth - (20 - position.x)
+    : 999
+  const panelAlignRight = spaceLeftOfBtn >= 340
+
   const handleSend = async (text = input) => {
     const userMessage = text.trim()
     if (!userMessage || loading) return
@@ -152,13 +166,16 @@ export default function ChatWidget() {
         <div
           onMouseDown={e => e.stopPropagation()}
           className={`
-            absolute bottom-[82px] right-0 z-10
-            w-[340px] h-[510px]
+            absolute z-10
+            w-[340px]
             rounded-2xl shadow-2xl
             flex flex-col overflow-hidden
             theme-card-bg
+            ${panelAbove ? 'bottom-[82px]' : 'top-[82px]'}
+            ${panelAlignRight ? 'right-0' : 'left-0'}
             ${usesDarkOverlay ? 'ring-1 ring-white/15' : 'ring-1 ring-black/8'}
           `}
+          style={{ height: `min(510px, calc(100vh - 120px))` }}
         >
           {/* グラデーションヘッダー */}
           <div className="bg-gradient-to-r from-[#5f8b8b] to-[#3a7272] px-4 py-2.5 flex items-center gap-3 shrink-0">
