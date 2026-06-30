@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import WeekendEventsSection from '@/components/home/WeekendEventsSection'
+import FeaturedSpotsSection from '@/components/home/FeaturedSpotsSection'
+import FeaturesSection from '@/components/home/FeaturesSection'
 
 export default function Home() {
   const { isLoggedIn, isLoading } = useAuth()
@@ -19,6 +22,7 @@ export default function Home() {
   if (isLoading || isLoggedIn) return null
 
   return (
+    <>
     <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden px-6">
 
       {/* 背景グラデーション */}
@@ -74,5 +78,10 @@ export default function Home() {
         <ChevronDown size={22} />
       </div>
     </section>
+
+    <WeekendEventsSection />
+    <FeaturedSpotsSection />
+    <FeaturesSection />
+    </>
   )
 }
