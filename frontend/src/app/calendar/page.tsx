@@ -233,11 +233,11 @@ export default function CalendarPage() {
     const fetchAll = async () => {
       try {
         const [evRes, schRes, peRes] = await Promise.allSettled([
-          apiClient.get('/api/v1/events'),
+          apiClient.get('/api/v1/events', { params: { per_page: 200 } }),
           apiClient.get('/api/v1/schedules').catch(() => ({ data: [] })),
           apiClient.get('/api/v1/personal_events').catch(() => ({ data: [] })),
         ])
-        const events: Event[] = evRes.status === 'fulfilled' ? evRes.value.data : []
+        const events: Event[] = evRes.status === 'fulfilled' ? (evRes.value.data.events ?? []) : []
         setAllEvents(events)
         if (schRes.status === 'fulfilled') {
           const sch = schRes.value.data as (Event & { schedule_id: number })[]

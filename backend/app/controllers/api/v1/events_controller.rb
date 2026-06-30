@@ -4,7 +4,7 @@ module Api
   module V1
     class EventsController < ApplicationController
       PER_PAGE_DEFAULT = 12
-      PER_PAGE_MAX     = 48
+      PER_PAGE_MAX     = 200
 
       def index
         events = Event.published
