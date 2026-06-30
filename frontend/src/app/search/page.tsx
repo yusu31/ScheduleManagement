@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import { SlidersHorizontal, ChevronDown } from 'lucide-react'
 import apiClient from '@/lib/axios'
 import { Event } from '@/types/event'
@@ -89,14 +90,30 @@ function SearchInner() {
               {municipalities.length}
             </span>
           )}
-          <ChevronDown size={14} className={`transition-transform ${areaFilterOpen ? 'rotate-180' : ''}`} />
+          <motion.span
+            animate={{ rotate: areaFilterOpen ? 180 : 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="flex"
+          >
+            <ChevronDown size={14} />
+          </motion.span>
         </button>
 
-        {areaFilterOpen && (
-          <div className="theme-card-bg mt-3 p-4 rounded-2xl border border-app-border">
-            <AreaChipFilter selected={municipalities} onToggle={toggleMunicipality} />
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {areaFilterOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+              className="overflow-hidden"
+            >
+              <div className="theme-card-bg mt-3 p-4 rounded-2xl border border-app-border">
+                <AreaChipFilter selected={municipalities} onToggle={toggleMunicipality} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {isLoading ? (
