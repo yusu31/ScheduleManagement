@@ -22,8 +22,8 @@ class ReclassifyMiscEventAreas < ActiveRecord::Migration[7.2]
   end
 
   def down
-    TITLE_TO_AREA.each_key do |title|
-      Event.where(title: title).update_all(area: "その他")
+    TITLE_TO_AREA.each do |title, area|
+      Event.where(title: title, area: area).update_all(area: "その他")
     end
   end
 end
