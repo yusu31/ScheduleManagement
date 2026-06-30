@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('access-token')
       localStorage.removeItem('client')
       localStorage.removeItem('uid')
-      window.location.href = '/login'
+      window.location.href = '/auth/sign-in'
     }
     return Promise.reject(error)
   }
