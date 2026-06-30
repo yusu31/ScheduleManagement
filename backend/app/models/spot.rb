@@ -19,5 +19,5 @@ class Spot < ApplicationRecord
   validates :category,     presence: true, inclusion: { in: CATEGORIES }
   validates :season,       inclusion: { in: SEASONS }, allow_nil: true
   validates :status,       inclusion: { in: STATUSES }
-  validates :source,   inclusion: { in: SOURCES }
+  validates :source,       inclusion: { in: SOURCES }
 end
