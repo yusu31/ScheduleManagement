@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { SlidersHorizontal, ChevronDown } from 'lucide-react'
 import apiClient from '@/lib/axios'
 import { Event } from '@/types/event'
 import { Spot } from '@/types/spot'
@@ -19,6 +20,7 @@ function SearchInner() {
   const searchParams = useSearchParams()
   const [q] = useState(searchParams.get('q') ?? '')
   const [municipalities, setMunicipalities] = useState<string[]>(searchParams.getAll('municipalities[]'))
+  const [areaFilterOpen, setAreaFilterOpen] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
   const [spots, setSpots] = useState<Spot[]>([])
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
@@ -70,8 +72,31 @@ function SearchInner() {
       <h1 className="text-[20px] font-bold text-app-text mb-1">「{q || '全件'}」の検索結果</h1>
       <p className="text-[13px] text-app-sub mb-5">イベント・スポット・グルメをまとめて検索します</p>
 
-      <div className="mb-8 p-4 rounded-2xl bg-white/70 border border-app-border">
-        <AreaChipFilter selected={municipalities} onToggle={toggleMunicipality} />
+      <div className="mb-8">
+        <button
+          type="button"
+          onClick={() => setAreaFilterOpen(prev => !prev)}
+          className={`theme-card-bg relative flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold transition-colors border ${
+            municipalities.length > 0
+              ? 'border-primary text-primary'
+              : 'border-app-border text-app-sub hover:border-primary hover:text-primary'
+          }`}
+        >
+          <SlidersHorizontal size={14} />
+          エリアで絞り込む
+          {municipalities.length > 0 && (
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold">
+              {municipalities.length}
+            </span>
+          )}
+          <ChevronDown size={14} className={`transition-transform ${areaFilterOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {areaFilterOpen && (
+          <div className="theme-card-bg mt-3 p-4 rounded-2xl border border-app-border">
+            <AreaChipFilter selected={municipalities} onToggle={toggleMunicipality} />
+          </div>
+        )}
       </div>
 
       {isLoading ? (
