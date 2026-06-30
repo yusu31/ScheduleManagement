@@ -189,7 +189,7 @@ export default function UserProfilePanel({ onClose, anchorRef }: Props) {
   }
 
   const panelClass =
-    "bg-white/95 backdrop-blur-2xl border border-black/8 rounded-2xl " +
+    "theme-card-bg bg-white/95 backdrop-blur-2xl border border-black/8 rounded-2xl " +
     "shadow-[0_8px_40px_rgba(0,0,0,0.18)] overflow-hidden"
 
   // ─── 中央モーダル共通ラッパー ────────────────────────────────
