@@ -25,31 +25,36 @@ export const FUKUSHIMA_MUNICIPALITIES = [
 // react-select 用グループオプション
 const toOptions = (areas: string[]) => areas.map(v => ({ value: v, label: v }))
 
-export const AREA_SELECT_OPTIONS = [
+// チップ一覧UI用のグループ分け（FilterDrawer・横断検索ページで使用）
+export const AREA_GROUPS = [
   {
     label: '中通り',
-    options: toOptions([
+    areas: [
       '福島市', '二本松市', '伊達市', '本宮市', '桑折町', '国見町', '川俣町', '大玉村',
       '郡山市', '田村市', '三春町', '小野町', '平田村',
       '須賀川市', '鏡石町', '天栄村', '石川町', '玉川村', '浅川町', '古殿町',
       '白河市', '西郷村', '泉崎村', '中島村', '矢吹町', '棚倉町', '矢祭町', '塙町', '鮫川村',
-    ]),
+    ],
   },
   {
     label: '浜通り',
-    options: toOptions([
+    areas: [
       'いわき市', '相馬市', '南相馬市', '新地町', '飯舘村',
       '広野町', '楢葉町', '富岡町', '川内村', '大熊町', '双葉町', '浪江町', '葛尾村',
-    ]),
+    ],
   },
   {
     label: '会津',
-    options: toOptions([
+    areas: [
       '会津若松市', '喜多方市', '北塩原村', '磐梯町', '猪苗代町', '会津坂下町', '湯川村', '会津美里町',
       '西会津町', '柳津町', '三島町', '金山町', '昭和村',
       '下郷町', '檜枝岐村', '只見町', '南会津町',
-    ]),
+    ],
   },
+]
+
+export const AREA_SELECT_OPTIONS = [
+  ...AREA_GROUPS.map(group => ({ label: group.label, options: toOptions(group.areas) })),
   {
     label: 'その他',
     options: toOptions(['その他']),

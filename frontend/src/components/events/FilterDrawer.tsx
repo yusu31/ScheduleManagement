@@ -3,7 +3,7 @@
 import { type Dispatch, type SetStateAction } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, RotateCcw } from 'lucide-react'
-import { AREA_GROUPS } from '@/constants/areas'
+import { AREA_GROUPS } from '@/constants/municipalities'
 
 const CATEGORIES = [
   'テクノロジー', '音楽', 'スポーツ', '自然・アウトドア',
