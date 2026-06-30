@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SlidersHorizontal, X } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import apiClient from '@/lib/axios'
 import { Spot } from '@/types/spot'
 import SpotCard from '@/components/spots/SpotCard'
@@ -39,12 +40,13 @@ const SEASON_LABEL: Record<string, string> = {
   spring: '🌸 春', summer: '🌿 夏', autumn: '🍂 秋', winter: '❄️ 冬',
 }
 
-export default function SpotsPage() {
+function SpotsInner() {
+  const searchParams = useSearchParams()
   const [spots, setSpots] = useState<Spot[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(searchParams.get('q') ?? '')
   const [selectedRegion, setSelectedRegion] = useState('')
-  const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>([])
+  const [selectedMunicipalities, setSelectedMunicipalities] = useState<string[]>(searchParams.getAll('municipalities[]'))
   const [categories, setCategories] = useState<string[]>([])
   const [season, setSeason] = useState('')
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -261,5 +263,13 @@ export default function SpotsPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function SpotsPage() {
+  return (
+    <Suspense>
+      <SpotsInner />
+    </Suspense>
   )
 }
