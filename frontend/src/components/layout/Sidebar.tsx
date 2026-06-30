@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { Sun, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette, Shield, Landmark, Utensils } from 'lucide-react'
+import { Sun, CalendarRange, Ticket, Sprout, MapPin, Trophy, Palette, Shield, Landmark, Utensils, Search } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -26,7 +26,9 @@ export default function Sidebar() {
   const [mounted, setMounted] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [themeBg, setThemeBg] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const userButtonRef = useRef<HTMLButtonElement>(null)
+  const router = useRouter()
 
   useEffect(() => setMounted(true), [])
 
@@ -80,6 +82,32 @@ export default function Sidebar() {
             Roami
           </span>
         </Link>
+      </div>
+
+      {/* 検索ボックス */}
+      <div className="px-5 pb-3">
+        <form
+          onSubmit={e => {
+            e.preventDefault()
+            if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+          }}
+          className="relative"
+        >
+          <Search size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${usesDarkOverlay ? 'text-white/50' : 'text-app-sub'}`} />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="イベント・スポット・グルメを検索"
+            className={`
+              w-full pl-9 pr-3 py-2 rounded-xl text-[12px] outline-none transition-colors
+              ${usesDarkOverlay
+                ? 'bg-white/10 text-white placeholder:text-white/40 focus:bg-white/15'
+                : 'bg-white/60 text-app-text placeholder:text-app-sub/60 focus:bg-white'
+              }
+            `}
+          />
+        </form>
       </div>
 
       {/* ナビゲーション */}
