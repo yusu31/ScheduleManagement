@@ -230,7 +230,7 @@ export default function TodayPage() {
           setScheduledEventIds(localScheduledIds)
         }
         if (evRes.status === 'fulfilled') {
-          const all = evRes.value.data as Event[]
+          const all = (evRes.value.data.events ?? []) as Event[]
           setSuggestEvents(all.filter(ev => !localScheduledIds.has(ev.id)).slice(0, 2))
         }
       } finally {
