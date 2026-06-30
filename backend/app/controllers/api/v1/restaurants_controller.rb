@@ -5,8 +5,9 @@ module Api
     class RestaurantsController < ApplicationController
       def index
         restaurants = Restaurant.published
-        restaurants = restaurants.by_area(params[:area])         if params[:area].present?
-        restaurants = restaurants.by_category(params[:category]) if params[:category].present?
+        restaurants = restaurants.by_area(params[:area])                       if params[:area].present?
+        restaurants = restaurants.where(municipality: params[:municipalities]) if params[:municipalities].present?
+        restaurants = restaurants.by_category(params[:category])               if params[:category].present?
         if params[:q].present?
           keyword = "%#{params[:q]}%"
           restaurants = restaurants.where("name LIKE ? OR description LIKE ? OR address LIKE ?", keyword, keyword, keyword)
