@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SlidersHorizontal, X, ChevronDown,
   UtensilsCrossed, Beef, Soup, Coffee, ChefHat, Tag, Wheat, Flame, Wine,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import apiClient from '@/lib/axios'
 import { Restaurant } from '@/types/restaurant'
 import RestaurantCard from '@/components/gourmet/RestaurantCard'
@@ -69,14 +70,15 @@ function SkeletonCard() {
   )
 }
 
-export default function RestaurantsPage() {
+function RestaurantsInner() {
+  const searchParams = useSearchParams()
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(searchParams.get('q') ?? '')
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [categories, setCategories] = useState<string[]>([])
-  const [municipalities, setMunicipalities] = useState<string[]>([])
+  const [municipalities, setMunicipalities] = useState<string[]>(searchParams.getAll('municipalities[]'))
   const [maxDistance, setMaxDistance] = useState<number | null>(null)
   const [situations, setSituations] = useState<string[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -444,5 +446,13 @@ export default function RestaurantsPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function RestaurantsPage() {
+  return (
+    <Suspense>
+      <RestaurantsInner />
+    </Suspense>
   )
 }

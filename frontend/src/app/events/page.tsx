@@ -103,17 +103,17 @@ const cardVariants = {
 
 // ─── メインページ ─────────────────────────────────────────────────
 function EventsInner() {
+  const searchParams = useSearchParams()
   const [events,     setEvents]     = useState<Event[]>([])
   const [meta,       setMeta]       = useState<Meta>({ total_count: 0, total_pages: 1, current_page: 1, per_page: PER_PAGE })
   const [isLoading,  setIsLoading]  = useState(true)
-  const [search,     setSearch]     = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [areas,      setAreas]      = useState<string[]>([])
+  const [search,     setSearch]     = useState(searchParams.get('q') ?? '')
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get('q') ?? '')
+  const [areas,      setAreas]      = useState<string[]>(searchParams.getAll('areas[]'))
   const [categories, setCategories] = useState<string[]>([])
   const [tags,       setTags]       = useState<string[]>([])
   const [page,       setPage]       = useState(1)
   const [showPast,   setShowPast]   = useState(false)
-  const searchParams = useSearchParams()
   const [tab,        setTab]        = useState<'all' | 'favorites'>(
     searchParams.get('tab') === 'favorites' ? 'favorites' : 'all'
   )
