@@ -13,10 +13,11 @@ class Spot < ApplicationRecord
 
   scope :published, -> { where(status: "published") }
 
-  validates :name,     presence: true
-  validates :area,     presence: true, inclusion: { in: AREAS }
-  validates :category, presence: true, inclusion: { in: CATEGORIES }
-  validates :season,   inclusion: { in: SEASONS }, allow_nil: true
-  validates :status,   inclusion: { in: STATUSES }
-  validates :source,   inclusion: { in: SOURCES }
+  validates :name,         presence: true
+  validates :area,         presence: true, inclusion: { in: AREAS }
+  validates :municipality, presence: true, inclusion: { in: MunicipalityDetectorService::MUNICIPALITIES }
+  validates :category,     presence: true, inclusion: { in: CATEGORIES }
+  validates :season,       inclusion: { in: SEASONS }, allow_nil: true
+  validates :status,       inclusion: { in: STATUSES }
+  validates :source,       inclusion: { in: SOURCES }
 end

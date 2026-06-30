@@ -15,11 +15,12 @@ class Restaurant < ApplicationRecord
   scope :by_area,     ->(area)     { where(area: area) }
   scope :by_category, ->(category) { where(category: category) }
 
-  validates :name,     presence: true
-  validates :area,     presence: true, inclusion: { in: AREAS }
-  validates :category, presence: true, inclusion: { in: CATEGORIES }
-  validates :status,   inclusion: { in: STATUSES }
-  validates :source,   inclusion: { in: SOURCES }
+  validates :name,         presence: true
+  validates :area,         presence: true, inclusion: { in: AREAS }
+  validates :municipality, presence: true, inclusion: { in: MunicipalityDetectorService::MUNICIPALITIES }
+  validates :category,     presence: true, inclusion: { in: CATEGORIES }
+  validates :status,       inclusion: { in: STATUSES }
+  validates :source,       inclusion: { in: SOURCES }
   validates :hotpepper_id, uniqueness: true, allow_nil: true
 
   def situation_tags
