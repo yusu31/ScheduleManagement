@@ -56,7 +56,7 @@ export default function SignUpPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-[400px]">
         {/* ロゴ */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 theme-page-header">
           <span className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/15 mb-3">
             <Sprout size={24} className="text-primary" />
           </span>
@@ -66,7 +66,7 @@ export default function SignUpPage() {
 
         {/* フォームカード */}
         <div className="
-          bg-white/70 backdrop-blur-xl
+          theme-card-bg bg-white/70 backdrop-blur-xl
           border border-white/60
           rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)]
           px-6 py-7
@@ -91,7 +91,7 @@ export default function SignUpPage() {
                 required
                 className="
                   w-full px-3.5 py-2.5 rounded-xl
-                  bg-white border border-app-border
+                  bg-app-surface border border-app-border
                   text-[14px] text-app-text placeholder:text-app-sub/60
                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                   transition-colors
@@ -112,7 +112,7 @@ export default function SignUpPage() {
                 required
                 className="
                   w-full px-3.5 py-2.5 rounded-xl
-                  bg-white border border-app-border
+                  bg-app-surface border border-app-border
                   text-[14px] text-app-text placeholder:text-app-sub/60
                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                   transition-colors
@@ -135,7 +135,7 @@ export default function SignUpPage() {
                   required
                   className="
                     w-full px-3.5 py-2.5 pr-10 rounded-xl
-                    bg-white border border-app-border
+                    bg-app-surface border border-app-border
                     text-[14px] text-app-text placeholder:text-app-sub/60
                     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                     transition-colors
@@ -164,7 +164,7 @@ export default function SignUpPage() {
                 required
                 className="
                   w-full px-3.5 py-2.5 rounded-xl
-                  bg-white border border-app-border
+                  bg-app-surface border border-app-border
                   text-[14px] text-app-text placeholder:text-app-sub/60
                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                   transition-colors

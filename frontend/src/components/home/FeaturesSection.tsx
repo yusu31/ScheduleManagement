@@ -22,7 +22,7 @@ const FEATURES: { Icon: LucideIcon; title: string; description: string }[] = [
 export default function FeaturesSection() {
   return (
     <section className="max-w-6xl mx-auto px-6 py-16">
-      <h2 className="text-[24px] font-bold text-app-text text-center mb-10">
+      <h2 className="text-[24px] font-bold text-app-text text-center mb-10 theme-readable">
         Roami の特徴
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

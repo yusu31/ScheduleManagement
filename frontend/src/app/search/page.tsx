@@ -70,8 +70,8 @@ function SearchInner() {
 
   return (
     <div className="min-h-screen px-8 py-8 max-w-[1160px] mx-auto">
-      <h1 className="text-[20px] font-bold text-app-text mb-1">「{q || '全件'}」の検索結果</h1>
-      <p className="text-[13px] text-app-sub mb-5">イベント・スポット・グルメをまとめて検索します</p>
+      <h1 className="text-[20px] font-bold text-app-text mb-1 theme-readable">「{q || '全件'}」の検索結果</h1>
+      <p className="text-[13px] text-app-sub mb-5 theme-readable">イベント・スポット・グルメをまとめて検索します</p>
 
       <div className="mb-8">
         <button
@@ -122,7 +122,7 @@ function SearchInner() {
         <>
           <section className="mb-10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[15px] font-bold text-app-text">イベント</h2>
+              <h2 className="text-[15px] font-bold text-app-text theme-readable">イベント</h2>
               <Link href={`/events?${moreLinkQuery('areas')}`} className="text-[13px] text-primary font-semibold hover:underline">もっと見る →</Link>
             </div>
             {events.length === 0 ? (
@@ -136,7 +136,7 @@ function SearchInner() {
 
           <section className="mb-10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[15px] font-bold text-app-text">観光スポット</h2>
+              <h2 className="text-[15px] font-bold text-app-text theme-readable">観光スポット</h2>
               <Link href={`/spots?${moreLinkQuery('municipalities')}`} className="text-[13px] text-primary font-semibold hover:underline">もっと見る →</Link>
             </div>
             {spots.length === 0 ? (
@@ -150,7 +150,7 @@ function SearchInner() {
 
           <section className="mb-10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[15px] font-bold text-app-text">グルメ</h2>
+              <h2 className="text-[15px] font-bold text-app-text theme-readable">グルメ</h2>
               <Link href={`/restaurants?${moreLinkQuery('municipalities')}`} className="text-[13px] text-primary font-semibold hover:underline">もっと見る →</Link>
             </div>
             {restaurants.length === 0 ? (

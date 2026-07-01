@@ -132,7 +132,7 @@ function SpotsInner() {
             className={`relative flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-[13px] font-semibold border transition-colors ${
               activeFilterCount > 0
                 ? 'bg-primary text-white border-primary'
-                : 'bg-white text-app-sub border-app-border hover:border-primary hover:text-primary'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'
             }`}
           >
             <SlidersHorizontal size={14} />
@@ -221,14 +221,14 @@ function SpotsInner() {
           </div>
         ) : (
           <>
-            <p className="text-[13px] text-app-sub font-medium mb-4">
+            <p className="text-[13px] text-app-sub font-medium mb-4 theme-readable">
               {filtered.length}件のスポット
               {selectedMunicipalities.length > 0 && ` ／ ${selectedMunicipalities.join('・')}`}
             </p>
 
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center py-20 gap-3">
-                <p className="text-[15px] font-semibold text-app-text">条件に合うスポットが見つかりませんでした</p>
+                <p className="text-[15px] font-semibold text-app-text theme-readable">条件に合うスポットが見つかりませんでした</p>
                 <button
                   onClick={resetFilters}
                   className="px-4 py-2 rounded-full bg-primary/10 text-primary text-[13px] font-semibold hover:bg-primary/20 transition-colors"
