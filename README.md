@@ -289,3 +289,11 @@ npm run dev
 | [docs/screen-design.md](docs/screen-design.md) | 画面設計書 |
 | [docs/infrastructure.md](docs/infrastructure.md) | インフラ構成（AWS 構成図・Terraform） |
 | [docs/expansion-plan.md](docs/expansion-plan.md) | 拡張計画書（Phase 0〜6 の実装ロードマップ） |
+
+---
+
+## 課題提出ファイル（RaiseTech）
+
+| ファイル | 内容 |
+|----------|------|
+| [AIレビュー結果](docs/assignments/review.md) | Claude（AI）によるコード簡易レビュー |
