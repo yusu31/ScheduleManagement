@@ -22,7 +22,12 @@ const navItems: NavItem[] = [
   { href: '/conquer/collection', label: 'コレクション', Icon: Trophy },
 ]
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [mounted, setMounted] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [themeBg, setThemeBg] = useState<string | null>(null)
@@ -53,7 +58,7 @@ export default function Sidebar() {
 
   if (!mounted) {
     return (
-      <aside className="w-[240px] shrink-0 h-screen sticky top-0 bg-white/65 backdrop-blur-xl border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]" />
+      <aside className="hidden md:block w-[240px] shrink-0 h-screen sticky top-0 bg-white/65 backdrop-blur-xl border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]" />
     )
   }
 
@@ -61,17 +66,26 @@ export default function Sidebar() {
   const initial = displayName[0].toUpperCase()
 
   return (
-    <aside className={`
-      w-[240px] shrink-0 h-screen sticky top-0
-      flex flex-col
-      backdrop-blur-xl
-      overflow-visible
-      transition-colors duration-300
-      ${usesDarkOverlay
-        ? 'bg-black/35 border-r border-white/15 shadow-[1px_0_20px_rgba(0,0,0,0.2)]'
-        : 'bg-white/70 border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]'
-      }
-    `}>
+    <>
+      {/* モバイル用オーバーレイ背景 */}
+      <div
+        className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={onClose}
+      />
+
+      <aside className={`
+        fixed md:sticky inset-y-0 left-0 md:top-0 z-50
+        w-[240px] h-screen shrink-0
+        flex flex-col
+        backdrop-blur-xl
+        overflow-visible
+        transition-transform duration-300
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        ${usesDarkOverlay
+          ? 'bg-black/35 border-r border-white/15 shadow-[1px_0_20px_rgba(0,0,0,0.2)]'
+          : 'bg-white/70 border-r border-white/50 shadow-[1px_0_20px_rgba(0,0,0,0.06)]'
+        }
+      `}>
       {/* ロゴ */}
       <div className="px-5 pt-6 pb-4">
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -289,5 +303,6 @@ export default function Sidebar() {
         </p>
       </div>
     </aside>
+    </>
   )
 }

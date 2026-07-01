@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { UserPreferenceProvider } from '@/contexts/UserPreferenceContext'
-import Sidebar from '@/components/layout/Sidebar'
+import ClientLayout from '@/components/layout/ClientLayout'
 import ThemePickerModal from '@/components/theme/ThemePickerModal'
 import ChatWidget from '@/components/chat/ChatWidget'
 
@@ -38,12 +38,7 @@ export default function RootLayout({
           <ThemeProvider>
             <UserPreferenceProvider>
             <FavoritesProvider>
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <main className="flex-1 min-w-0 overflow-y-auto">
-                  {children}
-                </main>
-              </div>
+              <ClientLayout>{children}</ClientLayout>
               <ThemePickerModal />
               <ChatWidget />
               <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
