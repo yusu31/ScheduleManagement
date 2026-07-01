@@ -61,7 +61,7 @@ export default function WeekendEventsSection() {
       <div className="flex items-end justify-between mb-8">
         <div className="flex items-center gap-2.5">
           <CalendarDays size={22} className="text-primary" />
-          <h2 className="text-[24px] font-bold text-app-text">
+          <h2 className="text-[24px] font-bold text-app-text theme-readable">
             {isWeekendOnly ? '今週末のおすすめイベント' : '近日開催のイベント'}
           </h2>
         </div>

@@ -657,7 +657,7 @@ export default function CalendarPage() {
       </div>
 
       {/* ─── カレンダーカード ─────────────────────────────────────── */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden">
+      <div className="theme-card-bg bg-white/70 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden">
 
         {/* カスタムナビゲーションバー */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-app-border/40 bg-white/40">
@@ -826,7 +826,7 @@ export default function CalendarPage() {
             style={{ position: 'fixed', left: popup.x, top: popup.y, zIndex: 9999, width: popup.type === 'personal' ? 280 : 300 }}
             onMouseEnter={() => { if (popupTimerRef.current) clearTimeout(popupTimerRef.current) }}
             onMouseLeave={() => setPopup(null)}
-            className="bg-white rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]"
+            className="theme-card-bg bg-white rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,0,0,0.06)]"
           >
 
             {/* ─ マイ予定ポップアップ ─ */}

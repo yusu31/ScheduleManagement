@@ -241,7 +241,7 @@ function EventsInner() {
             className={`relative flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold transition-colors border ${
               activeFilterCount > 0
                 ? 'bg-primary text-white border-primary shadow-[0_2px_12px_rgba(95,139,139,0.35)]'
-                : 'bg-white text-app-sub border-app-border hover:border-primary hover:text-primary'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary'
             }`}
           >
             <SlidersHorizontal size={14} />
@@ -360,7 +360,7 @@ function EventsInner() {
                     <select
                       value={page}
                       onChange={e => setPage(Number(e.target.value))}
-                      className="appearance-none text-[12px] font-semibold text-app-text bg-white border border-app-border rounded-full pl-3 pr-7 py-1.5 outline-none cursor-pointer hover:bg-app-bg transition-colors"
+                      className="appearance-none text-[12px] font-semibold text-app-text bg-app-surface border border-app-border rounded-full pl-3 pr-7 py-1.5 outline-none cursor-pointer hover:bg-app-bg transition-colors"
                     >
                       {Array.from({ length: displayPages }, (_, i) => (
                         <option key={i + 1} value={i + 1}>{i + 1} / {displayPages} ページ</option>
@@ -387,7 +387,7 @@ function EventsInner() {
                   height={180}
                   className="mb-5 opacity-80"
                 />
-                <p className="text-[15px] font-semibold text-app-text">条件に合うイベントが見つかりませんでした</p>
+                <p className="text-[15px] font-semibold text-app-text theme-readable">条件に合うイベントが見つかりませんでした</p>
                 <p className="text-[13px] mt-1">絞り込み条件を変えてみてください</p>
               </motion.div>
             ) : (

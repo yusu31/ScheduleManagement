@@ -408,7 +408,7 @@ function RestaurantsInner() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center py-20 gap-3">
-            <p className="text-[15px] font-semibold text-app-text">条件に合うお店が見つかりませんでした</p>
+            <p className="text-[15px] font-semibold text-app-text theme-readable">条件に合うお店が見つかりませんでした</p>
             <button
               onClick={resetFilters}
               className="px-4 py-2 rounded-full bg-primary/10 text-primary text-[13px] font-semibold hover:bg-primary/20 transition-colors"

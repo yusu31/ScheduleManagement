@@ -25,7 +25,7 @@ export default function FeaturedSpotsSection() {
       <div className="flex items-end justify-between mb-8">
         <div className="flex items-center gap-2.5">
           <MapPinned size={22} className="text-primary" />
-          <h2 className="text-[24px] font-bold text-app-text">注目スポット</h2>
+          <h2 className="text-[24px] font-bold text-app-text theme-readable">注目スポット</h2>
         </div>
         <Link
           href="/spots"

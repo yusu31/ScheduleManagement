@@ -59,7 +59,7 @@ export default function CollectionPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 theme-page-header">
         <Trophy size={40} className="text-yellow-500" />
         <h2 className="text-[18px] font-bold text-app-text">ログインが必要です</h2>
         <p className="text-[13px] text-app-sub text-center leading-relaxed">
